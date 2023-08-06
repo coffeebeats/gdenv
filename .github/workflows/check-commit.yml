@@ -52,7 +52,6 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
-          check-latest: true
 
       - name: Check formatting of source code
         id: format
@@ -98,7 +97,6 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
-          check-latest: true
 
       - name: Build source code
         shell: bash
@@ -117,7 +115,6 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
-          check-latest: true
 
       - name: Test source code
         shell: bash
