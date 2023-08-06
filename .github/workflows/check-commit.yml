@@ -66,6 +66,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
+          git status
+
           git add --all **/*.go
           git commit -m "chore: fix formatting (on behalf of '${{ github.triggering_actor }}')"
 
