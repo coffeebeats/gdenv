@@ -51,6 +51,8 @@ jobs:
           # later needed. See https://github.com/stefanzweifel/git-auto-commit-action
           # for more details.
           ref: ${{ github.head_ref }}
+          # Use a PAT so that GitHub Actions will trigger on the resulting commit.
+          token: ${{ secrets.ACTIONS_BOT }}
 
       - uses: actions/setup-go@v4
         with:
