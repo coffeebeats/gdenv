@@ -81,7 +81,7 @@ jobs:
           version: latest
 
   build:
-    needs: ["changes"]
+    needs: ["changes", "style"]
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
         run: go build -v .
 
   test:
-    needs: ["changes"]
+    needs: ["changes", "style"]
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
