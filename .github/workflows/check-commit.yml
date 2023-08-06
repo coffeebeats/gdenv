@@ -1,0 +1,164 @@
+name: "🤖 Check: 'gdenv'"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    outputs:
+      has_source_change: ${{ steps.check-source.outputs.any_modified }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Check for any Go source code changes
+        id: check-source
+        uses: tj-actions/changed-files@v37
+        with:
+          files: |
+            **/*.go
+            go.mod
+            go.sum
+
+  style:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Checkout the "head_ref" (i.e. PR branch HEAD) in case a commit is
+          # later needed. See https://github.com/stefanzweifel/git-auto-commit-action
+          # for more details.
+          ref: ${{ github.head_ref }}
+          # Use a PAT so that GitHub Actions will trigger on the resulting commit.
+          token: ${{ secrets.ACTIONS_BOT }}
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Check formatting of source code
+        id: format
+        continue-on-error: true
+        run: |
+          test -z $(gofmt -l .)
+          test -z $(go run golang.org/x/tools/cmd/goimports -l .)
+
+      - name: Fix formatting of source code
+        if: steps.format.outcome == 'failure'
+        run: |
+          gofmt -w .
+          go run golang.org/x/tools/cmd/goimports -w .
+
+          # See https://github.com/orgs/community/discussions/26560#discussioncomment-3531273
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+          git add --all '*.go'
+          git commit -m "chore: fix formatting (on behalf of '${{ github.triggering_actor }}')"
+
+          git push
+
+      - name: Terminate CI run early
+        if: steps.format.outcome == 'failure'
+        run: exit 1
+
+      - name: Lint source code
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+  build:
+    needs: ["changes", "style"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build source code
+        shell: bash
+        run: go build -v .
+
+  test:
+    needs: ["changes", "style"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Test source code
+        shell: bash
+        run: go test -v .
+
+  # Used to ensure all branch protection requirements are met. This is a workaround until
+  # https://github.com/github-community/community/discussions/4324 is addressed.
+  branch_protection:
+    needs: ["style", "build", "test"]
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Verify 'style' status
+        if: |
+          always() &&
+          needs.style.result == 'failure' ||
+          needs.style.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
+      - name: Verify 'build' status
+        if: |
+          always() &&
+          needs.build.result == 'failure' ||
+          needs.build.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
+      - name: Verify 'test' status
+        if: |
+          always() &&
+          needs.test.result == 'failure' ||
+          needs.test.result == 'cancelled'
+        shell: bash
+        run: exit 1

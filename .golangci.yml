@@ -1,0 +1,28 @@
+run:
+  tests: false
+
+issues:
+  fix: false
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  enable-all: true
+  disable:
+    # Deprecated.
+    - varcheck
+    - maligned
+    - scopelint
+    - structcheck
+    - nosnakecase
+    - interfacer
+    - ifshort
+    - golint
+    - deadcode
+    - exhaustivestruct
+
+    # Handle formatting separately.
+    - gofmt
+    - gofumpt
+    - goimports
