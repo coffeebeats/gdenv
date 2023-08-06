@@ -7,5 +7,5 @@ func greet(name string) string {
 }
 
 func main() {
-	fmt.Println(greet("world")) //nolint
+		fmt.Println(greet("world")) //nolint
 }
