@@ -53,13 +53,13 @@ jobs:
         continue-on-error: true
         run: |
           test -z $(gofmt -l .)
-          test -z $(goimports -l .)
+          test -z $(go run golang.org/x/tools/cmd/goimports -l .)
 
       - name: Fix formatting of source code
         if: steps.format.outcome == 'failure'
         run: |
           gofmt -w .
-          goimports -w .
+          go run golang.org/x/tools/cmd/goimports -w .
 
           # See https://github.com/orgs/community/discussions/26560#discussioncomment-3531273
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
