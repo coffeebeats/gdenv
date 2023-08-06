@@ -43,6 +43,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Checkout the "head_ref" (i.e. PR branch HEAD) in case a commit is
+          # later needed. See https://github.com/stefanzweifel/git-auto-commit-action
+          # for more details.
+          ref: ${{ github.head_ref }}
 
       - uses: actions/setup-go@v4
         with:
