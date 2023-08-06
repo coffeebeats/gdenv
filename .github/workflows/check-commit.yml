@@ -48,9 +48,6 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Install 'goimports' tool
-        run: go install golang.org/x/tools/cmd/goimports@latest
-
       - name: Check formatting of source code
         id: format
         continue-on-error: true
@@ -114,7 +111,7 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: Build source code
+      - name: Test source code
         shell: bash
         run: go test .
 
