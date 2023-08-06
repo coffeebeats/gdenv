@@ -47,6 +47,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
+          cache-dependency-path: "go.sum"
 
       - name: Check formatting of source code
         id: format
@@ -92,10 +93,11 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
+          cache-dependency-path: "go.sum"
 
       - name: Build source code
         shell: bash
-        run: go build .
+        run: go build -v .
 
   test:
     needs: ["changes"]
@@ -110,10 +112,11 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: "go.mod"
+          cache-dependency-path: "go.sum"
 
       - name: Test source code
         shell: bash
-        run: go test .
+        run: go test -v .
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
