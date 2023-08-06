@@ -48,9 +48,12 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Install 'goimports' tool
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
       - name: Check formatting of source code
         id: format
-        continue-on-error: ${{ fromJSON(env.CONTINUE_ON_ERROR) }}
+        continue-on-error: true
         run: |
           test -z $(gofmt -l .)
           test -z $(goimports -l .)
