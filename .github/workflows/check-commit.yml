@@ -1,4 +1,4 @@
-name: "🤖 check: 'gdenv'"
+name: "🤖 Check: 'gdenv'"
 
 on:
   pull_request:
@@ -30,7 +30,7 @@ jobs:
             go.mod
             go.sum
 
-  check:
+  style:
     needs: ["changes"]
     if: needs.changes.outputs.has_source_change == 'true'
 
@@ -118,7 +118,7 @@ jobs:
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
   branch_protection:
-    needs: ["check", "build", "test"]
+    needs: ["style", "build", "test"]
     if: ${{ always() }}
 
     runs-on: ubuntu-latest
@@ -129,11 +129,11 @@ jobs:
         shell: bash
 
     steps:
-      - name: Verify 'check' status
+      - name: Verify 'style' status
         if: |
           always() &&
-          needs.check.result == 'failure' ||
-          needs.check.result == 'cancelled'
+          needs.style.result == 'failure' ||
+          needs.style.result == 'cancelled'
         shell: bash
         run: exit 1
 
