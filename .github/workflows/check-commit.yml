@@ -1,0 +1,154 @@
+name: "🤖 check: 'gdenv'"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    outputs:
+      has_source_change: ${{ steps.check-source.outputs.any_modified }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Check for any Go source code changes
+        id: check-source
+        uses: tj-actions/changed-files@v37
+        with:
+          files: |
+            **/*.go
+            go.mod
+            go.sum
+
+  check:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Check formatting of source code
+        id: format
+        continue-on-error: ${{ fromJSON(env.CONTINUE_ON_ERROR) }}
+        run: |
+          test -z $(gofmt -l .)
+          test -z $(goimports -l .)
+
+      - name: Fix formatting of source code
+        if: steps.format.outcome == 'failure'
+        run: |
+          gofmt -w .
+          goimports -w .
+
+          # See https://github.com/orgs/community/discussions/26560#discussioncomment-3531273
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+          git add --all **/*.go
+          git commit -m "chore: fix formatting (on behalf of '${{ github.triggering_actor }}')"
+
+          git push
+
+      - name: Terminate CI run early
+        if: steps.format.outcome == 'failure'
+        run: exit 1
+
+      - name: Lint source code
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+  build:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build source code
+        shell: bash
+        run: go build .
+
+  test:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build source code
+        shell: bash
+        run: go test .
+
+  # Used to ensure all branch protection requirements are met. This is a workaround until
+  # https://github.com/github-community/community/discussions/4324 is addressed.
+  branch_protection:
+    needs: ["check", "build", "test"]
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Verify 'check' status
+        if: |
+          always() &&
+          needs.check.result == 'failure' ||
+          needs.check.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
+      - name: Verify 'build' status
+        if: |
+          always() &&
+          needs.build.result == 'failure' ||
+          needs.build.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
+      - name: Verify 'test' status
+        if: |
+          always() &&
+          needs.test.result == 'failure' ||
+          needs.test.result == 'cancelled'
+        shell: bash
+        run: exit 1
