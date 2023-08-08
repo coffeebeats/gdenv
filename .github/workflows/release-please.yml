@@ -54,6 +54,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          # Required by 'goreleaser' so tags are fetched; see
+          # https://goreleaser.com/ci/actions/#workflow.
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.release-tag }}
 
       - uses: actions/setup-go@v4
