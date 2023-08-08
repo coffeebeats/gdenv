@@ -1,12 +1,28 @@
 # **gdenv** ![GitHub release (with filter)](https://img.shields.io/github/v/release/coffeebeats/gdenv?style=flat-square) [![Build Status](https://img.shields.io/github/actions/workflow/status/coffeebeats/gdenv/check-commit.yml?branch=main&style=flat-square)](https://github.com/coffeebeats/gdenv/actions?query=branch%3Amain+workflow%3Acheck) ![GitHub](https://img.shields.io/github/license/coffeebeats/gdenv?style=flat-square)
 
-A single-purpose, CI-friendly command-line interface for managing Godot versions. Inspired by [pyenv](https://github.com/pyenv/pyenv), [rbenv](https://github.com/rbenv/rbenv), and [volta](https://github.com/volta-cli/volta).
-
 > ⚠️ WARNING: This repository is in its early stages and is under active development. A lot of functionality is missing, and there is no guarantee of API stability.
 
-## **Getting Started**
+A single-purpose, CI-friendly command-line interface for managing Godot versions. Inspired by [pyenv](https://github.com/pyenv/pyenv), [rbenv](https://github.com/rbenv/rbenv), and [volta](https://github.com/volta-cli/volta).
+
+## **Getting started**
 
 These instructions will help you install `gdenv` and pin projects (or your system) to specific versions of _Godot_.
+
+### **Example usage**
+
+#### Install a global (system-wide) _Godot_ version
+
+```sh
+gdenv pin -ig 4.1.1
+
+godot --version
+```
+
+#### Pin a project to a specific _Godot_ version
+
+```sh
+gdenv pin --path /path/to/project -i 4.1.1
+```
 
 ### **Installation**
 
@@ -37,52 +53,32 @@ Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/coffe
 
 #### **Manual (not recommended)**
 
-> ❕ **NOTE**: The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _PowerShell_ or _MacOS_-based systems, the process will be similar.
+> ❕ **NOTE**: The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _PowerShell_, the process will be similar.
 
 1. Download a prebuilt binary from the corresponding GitHub release.
 
     ```sh
-    # Set '$RELEASE' to the correct version.
-    RELEASE=0.0.0 curl -LO https://github.com/coffeebeats/gdenv/releases/download/v$RELEASE/gdenv-$RELEASE-linux-x86_64.tar.gz
+    # Set '$VERSION', '$OS', and '$ARCH' to the desired values.
+    VERSION=0.0.0 OS=linux ARCH=x86_64; curl -LO https://github.com/coffeebeats/gdenv/releases/download/v$VERSION/gdenv-$VERSION-$OS-$ARCH.tar.gz
     ```
 
 2. Extract the downloaded archive.
 
     ```sh
     # Set '$GDENV_HOME' to the desired location.
-    GDENV_HOME=$HOME/.gdenv; mkdir -p $GDENV_HOME/bin && tar -C $GDENV_HOME/bin -xf gdenv-$RELEASE-linux-x86_64.tar.gz
+    GDENV_HOME=$HOME/.gdenv; mkdir -p $GDENV_HOME/bin && tar -C $GDENV_HOME/bin -xf gdenv-$VERSION-$OS-$ARCH.tar.gz
     ```
 
 3. Export the `$GDENV_HOME` variable and add `$GDENV_HOME/bin` to `$PATH`.
 
     ```sh
     # In '.bashrc', or something similar.
-    GDENV_HOME=$HOME/.gdenv; mkdir -p $GDENV_HOME/bin && tar -C $GDENV_HOME/bin -xf gdenv-$RELEASE-linux-x86_64.tar.gz
+    GDENV_HOME=$HOME/.gdenv; mkdir -p $GDENV_HOME/bin && tar -C $GDENV_HOME/bin -xf gdenv-$VERSION-$OS-$ARCH.tar.gz
     ```
-
-The `$GDENV_HOME` environment variable must also be set so that `gdenv` can determine the cache location. It can also be set prior to running the installation scripts below to customize the location.
-
-Finally,
 
 #### **Compile from source (not recommended)**
 
 TODO: Provide instructions for compiling from source.
-
-### **Usage**
-
-#### Install a global (system-wide) _Godot_ version
-
-```sh
-gdenv pin -ig 4.1.1
-
-godot --version
-```
-
-#### Pin a project to a specific _Godot_ version
-
-```sh
-gdenv pin --path /path/to/project -i 4.1.1
-```
 
 ## **Documentation**
 
@@ -192,7 +188,7 @@ TODO: Provide development environment setup instructions.
 
 All contributions are welcome! Feel free to open pull request or file [bugs](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md&title=) and [feature requests](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=enhancement&projects=&template=%F0%9F%99%8B-feature-request.md&title=).
 
-## **Version History**
+## **Version history**
 
 See [CHANGELOG.md](https://github.com/coffeebeats/gdenv/blob/main/CHANGELOG.md).
 
