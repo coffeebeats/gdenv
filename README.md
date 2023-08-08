@@ -96,9 +96,7 @@ The `gdenv` application maintains a cache of downloaded _Godot_ executables (typ
 
 In order to track pinned versions of _Godot_, the `pin` subcommand will place a `.godot-version` file in the specified directory (or within `$GDENV_HOME` if pinning a global version with `-g`). This is what the `godot` shim will use to determine the correct _Godot_ version.
 
-### **Commands**
-
-#### **gdenv `pin`**
+### **gdenv `pin`**
 
 Sets the _Godot_ version globally or for a specific directory.
 
@@ -117,7 +115,7 @@ Sets the _Godot_ version globally or for a specific directory.
     - `4.0.4-stable`
     - `4.2-beta2`
 
-#### **gdenv `unpin`**
+### **gdenv `unpin`**
 
 Removes a `Godot` version pin from the system or specified directory.
 
@@ -127,7 +125,7 @@ Removes a `Godot` version pin from the system or specified directory.
 - **`-p`**, **`--path <PATH>`** — unpin the specified path (cannot be used with `-g`)
   - Default value: `$PWD` (current working directory)
 
-#### **gdenv `install`**
+### **gdenv `install`**
 
 Downloads and caches a specific version of _Godot_.
 
@@ -139,7 +137,7 @@ Downloads and caches a specific version of _Godot_.
     - `4.0.4-stable`
     - `4.2-beta2`
 
-#### **gdenv `uninstall`**
+### **gdenv `uninstall`**
 
 Removes the specified version of _Godot_ from the `gdenv` download cache.
 
@@ -155,11 +153,11 @@ Removes the specified version of _Godot_ from the `gdenv` download cache.
     - `4.0.4-stable`
     - `4.2-beta2`
 
-#### **gdenv `ls`**
+### **gdenv `ls`**
 
 Prints the path and version of all of the installed versions of _Godot_.
 
-#### **gdenv `which`**
+### **gdenv `which`**
 
 Prints the path to the _Godot_ executable which would be used in the specified directory.
 
@@ -168,7 +166,7 @@ Prints the path to the _Godot_ executable which would be used in the specified d
 - **`-p`**, **`--path <PATH>`** — the specified path to check
   - Default value: `$PWD` (current working directory)
 
-#### **gdenv `completions`**
+### **gdenv `completions`**
 
 Provides shell completions for the `gdenv` CLI application.
 
