@@ -14,8 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
+    outputs:
+      release-created: ${{ steps.release.outputs.releases_created }}
+      release-tag: ${{ steps.release.outputs['gdenv--tag_name'] }}
+
     steps:
       - uses: google-github-actions/release-please-action@v3
+        id: release
         with:
           # NOTE: A PAT is used so that workflows can run on the new, automatically
           # created pull requests. This circumvents GitHub's recursive workflow
@@ -38,3 +43,36 @@ jobs:
           include-v-in-tag: true
 
           pull-request-title-pattern: "chore: release v${version}"
+
+  publish:
+    needs: ["release-please"]
+    if: needs.release-please.outputs.release-created
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.release-please.outputs.release-tag }}
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - uses: goreleaser/goreleaser-action@v4
+        with:
+          args: release --clean --skip-publish
+          distribution: goreleaser
+          version: latest
+
+      - name: Attach assets to release
+        shell: bash
+        run: |
+          ASSETS=(dist/gdenv-* dist/checksums.txt)
+          for asset in "${ASSETS[@]}"; do
+            gh release upload \
+              --clobber \
+              ${{ needs.release-please.outputs.release-tag }} \
+              $asset
+          done
