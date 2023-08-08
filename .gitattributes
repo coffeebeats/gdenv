@@ -1,2 +1,16 @@
-# Auto-detect text files and perform LF normalization.
+# ----------------------------- Setting: Default ----------------------------- #
+# Automatically normalize line endings by default.
+
 * text=auto
+
+# --------------------------- Setting: Always Unix --------------------------- #
+# Files that will always have LF line endings on checkout.
+
+*.sh text eol=lf
+
+# -------------------------- Setting: Always Windows ------------------------- #
+# Files that will always have CRLF line endings on checkout.
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ics text eol=crlf
