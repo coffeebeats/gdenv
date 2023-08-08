@@ -10,7 +10,7 @@ updates:
     directory: "/"
     reviewers: coffeebeats
     schedule:
-      interval: "weekly"
+      interval: "daily"
 
   # Update 'GitHub Actions' dependencies
   - package-ecosystem: "github-actions"
