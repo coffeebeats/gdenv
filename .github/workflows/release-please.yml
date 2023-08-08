@@ -16,7 +16,7 @@ jobs:
 
     outputs:
       release-created: ${{ steps.release.outputs.releases_created }}
-      release-tag: ${{ steps.release.outputs['gdenv--tag_name'] }}
+      release-tag: ${{ steps.release.outputs.tag_name }}
 
     steps:
       - uses: google-github-actions/release-please-action@v3
