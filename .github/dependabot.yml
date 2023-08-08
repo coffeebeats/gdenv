@@ -8,13 +8,15 @@ updates:
   # Update application dependencies
   - package-ecosystem: "gomod"
     directory: "/"
-    reviewers: coffeebeats
+    reviewers:
+      - coffeebeats
     schedule:
       interval: "daily"
 
   # Update 'GitHub Actions' dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers: coffeebeats
+    reviewers:
+      - coffeebeats
     schedule:
       interval: "weekly"
