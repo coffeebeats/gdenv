@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  # This is required to use the 'gh' CLI in actions.
+  GH_TOKEN: ${{ github.token }}
+
 permissions:
   contents: write
   pull-requests: write
