@@ -14,8 +14,6 @@ These instructions will help you install `gdenv` and pin projects (or your syste
 
 ```sh
 gdenv pin -ig 4.1.1
-
-godot --version
 ```
 
 #### Pin a project to a specific _Godot_ version
@@ -86,6 +84,8 @@ TODO: Provide instructions for compiling from source.
 
 The `gdenv` application maintains a cache of downloaded _Godot_ executables (typically `$HOME/.gdenv`) and provides a shim which should be set to the system's `godot` executable. The shim will examine the current directory from which the `godot` command is invoked (handling a `--path` option as well) and delegate to the correct version of _Godot_.
 
+In order to track pinned versions of _Godot_, the `pin` subcommand will place a `.godot-version` file in the specified directory (or within `$GDENV_HOME` if pinning a global version with `-g`). This is what the `godot` shim will use to determine the correct _Godot_ version.
+
 ### **Commands**
 
 #### **gdenv `pin`**
@@ -109,8 +109,6 @@ Sets the _Godot_ version globally or for a specific directory.
 
 #### **gdenv `unpin`**
 
----
-
 Removes a `Godot` version pin from the system or specified directory.
 
 ##### **Options**
@@ -120,8 +118,6 @@ Removes a `Godot` version pin from the system or specified directory.
   - Default value: `$PWD` (current working directory)
 
 #### **gdenv `install`**
-
----
 
 Downloads and caches a specific version of _Godot_.
 
