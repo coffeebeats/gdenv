@@ -20,19 +20,19 @@ func main() {
 
 			/* -------------------------------- Pin/Unpin ------------------------------- */
 
-			&commands.Pin,
-			&commands.Unpin,
+			commands.NewPin(),
+			commands.NewUnpin(),
 
 			/* ---------------------------- Install/Uninstall --------------------------- */
 
-			&commands.Install,
-			&commands.Uninstall,
+			commands.NewInstall(),
+			commands.NewUninstall(),
 
 			/* --------------------------------- Utility -------------------------------- */
 
-			&commands.Completions,
-			&commands.Ls,
-			&commands.Which,
+			commands.NewCompletions(),
+			commands.NewLs(),
+			commands.NewWhich(),
 		},
 	}
 
