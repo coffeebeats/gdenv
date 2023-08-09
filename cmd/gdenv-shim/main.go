@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strings"
 )
 
 func main() {
 	a := os.Args
-	fmt.Println("godot", strings.Join(a[1:], " "))
+
+	log.SetFlags(0)
+	log.Printf("godot %s", strings.Join(a[1:], " "))
 }

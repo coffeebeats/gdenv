@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -10,6 +9,8 @@ import (
 )
 
 func main() {
+	log.SetFlags(0)
+
 	cli.VersionPrinter = versionPrinter
 
 	app := &cli.App{
@@ -42,5 +43,5 @@ func main() {
 }
 
 func versionPrinter(cCtx *cli.Context) {
-	fmt.Printf("gdenv %s\n", cCtx.App.Version)
+	log.Printf("gdenv %s\n", cCtx.App.Version)
 }
