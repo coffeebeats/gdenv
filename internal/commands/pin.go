@@ -9,8 +9,11 @@ func NewPin() *cli.Command {
 	return &cli.Command{
 		Name:  "pin",
 		Usage: "set the Godot version globally or for a specific directory",
-		Action: func(c *cli.Context) error {
-			return nil
-		},
+
+		Action: pin,
 	}
+}
+
+func pin(c *cli.Context) error {
+	return nil
 }

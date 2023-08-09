@@ -9,8 +9,11 @@ func NewCompletions() *cli.Command {
 	return &cli.Command{
 		Name:  "completions",
 		Usage: "print shell completions for the gdenv CLI application",
-		Action: func(c *cli.Context) error {
-			return nil
-		},
+
+		Action: completions,
 	}
+}
+
+func completions(c *cli.Context) error {
+	return nil
 }

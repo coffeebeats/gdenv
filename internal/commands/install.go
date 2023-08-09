@@ -9,8 +9,11 @@ func NewInstall() *cli.Command {
 	return &cli.Command{
 		Name:  "install",
 		Usage: "download and cache a specific version of Godot",
-		Action: func(c *cli.Context) error {
-			return nil
-		},
+
+		Action: install,
 	}
+}
+
+func install(c *cli.Context) error {
+	return nil
 }
