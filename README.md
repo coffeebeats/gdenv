@@ -57,8 +57,6 @@ Invoke-WebRequest `
 
 > ❕ **NOTE:** The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _PowerShell_, the process will be similar.
 
-TODO: These instructions are missing how to install the `godot` shim itself.
-
 1. Download a prebuilt binary from the corresponding GitHub release.
 
     ```sh

@@ -46,6 +46,9 @@ jobs:
           pull-request-title-pattern: "chore: release v${version}"
           changelog-notes-type: "github"
 
+          extra-files: |
+            cmd/gdenv/main.go
+
   publish:
     needs: ["release-please"]
     if: needs.release-please.outputs.release-created
