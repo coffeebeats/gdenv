@@ -26,3 +26,7 @@ linters:
     - gofmt
     - gofumpt
     - goimports
+
+    # Not useful here
+    - depguard
+    - nlreturn
