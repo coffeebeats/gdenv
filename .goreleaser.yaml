@@ -5,7 +5,21 @@ before:
 # ----------------------------------- Build ---------------------------------- #
 
 builds:
-  - env:
+  - id: gdenv
+    main: ./cmd/gdenv
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - windows_amd64
+
+  - id: gdenv-shim
+    binary: gdenv-shim
+    main: ./cmd/gdenv-shim
+    env:
       - CGO_ENABLED=0
     mod_timestamp: "{{ .CommitTimestamp }}"
     targets:
@@ -17,12 +31,19 @@ builds:
 # --------------------------------- Release --------------------------------- #
 
 archives:
-  - format: tar.gz
+  # The 'gdenv-shim' binary should not be separately archived; it's included
+  # in the 'gdenv' archive.
+  - id: gdenv-shim
+    format: binary
+
+  - id: gdenv
+    format: tar.gz
     format_overrides:
       - goos: windows
         format: zip
     files:
-      - none*
+      # Include the 'gdenv-shim' binary for the appropriate build target
+      - gdenv-shim_{{ .Os }}_{{ .Arch }}/*
     name_template: >-
       {{ .ProjectName }}-{{ .Version }}-
 
@@ -36,4 +57,6 @@ changelog:
   skip: true
 
 checksum:
-  name_template: "checksums.txt"
+  name_template: checksums.txt
+  ids:
+    - gdenv
