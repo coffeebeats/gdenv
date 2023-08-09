@@ -27,6 +27,12 @@ linters:
     - gofumpt
     - goimports
 
-    # Not useful here
+    # Unused
     - depguard
     - nlreturn
+
+linters-settings:
+  exhaustruct:
+    exclude:
+      - "^github.com/urfave/cli/v2.App$"
+      - "^github.com/urfave/cli/v2.Command$"
