@@ -127,6 +127,10 @@ Removes a `Godot` version pin from the system or specified directory.
 
 Downloads and caches a specific version of _Godot_.
 
+**Options:**
+
+- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry
+
 **Arguments:**
 
 - **`<VERSION>`** — the specific version string to install (must be exact)
