@@ -1,36 +1,32 @@
 package commands
 
 import (
-	"strings"
-
 	"github.com/urfave/cli/v2"
 )
-
-const globalFlag = "global"
-const installFlag = "install"
-const pathFlag = "path"
 
 // A 'urfave/cli' command to pin a Godot version globally or for a directory.
 func NewPin() *cli.Command {
 	return &cli.Command{
-		Name:      "pin",
+		Name:     "pin",
+		Category: "Pin",
+
 		Usage:     "set the Godot version globally or for a specific directory",
 		UsageText: "gdenv pin [OPTIONS] <VERSION>",
 
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:    globalFlag,
-				Aliases: strings.Split(globalFlag, "")[0:1],
+				Name:    "global",
+				Aliases: []string{"g"},
 				Usage:   "pin the system version (cannot be used with '-p')",
 			},
 			&cli.BoolFlag{
-				Name:    installFlag,
-				Aliases: strings.Split(installFlag, "")[0:1],
+				Name:    "install",
+				Aliases: []string{"i"},
 				Usage:   "installs the specified version of Godot if missing",
 			},
 			&cli.StringFlag{
-				Name:    pathFlag,
-				Aliases: strings.Split(pathFlag, "")[0:1],
+				Name:    "path",
+				Aliases: []string{"p"},
 				Usage:   "pin the specified `PATH` (cannot be used with '-g')",
 			},
 		},
@@ -39,6 +35,6 @@ func NewPin() *cli.Command {
 	}
 }
 
-func pin(c *cli.Context) error {
+func pin(_ *cli.Context) error {
 	return nil
 }
