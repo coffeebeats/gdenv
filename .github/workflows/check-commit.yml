@@ -105,7 +105,7 @@ jobs:
 
       - name: Build source code
         shell: bash
-        run: go build -v .
+        run: go build -v ./...
 
   test:
     needs: ["changes", "style"]
@@ -123,7 +123,7 @@ jobs:
 
       - name: Test source code
         shell: bash
-        run: go test -v .
+        run: go test -v ./...
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
