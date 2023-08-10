@@ -28,17 +28,30 @@ type Version struct {
 /* ----------------------------- Impl: Stringer ----------------------------- */
 
 func (v *Version) String() string {
+	major := v.Major
+	if major == "" {
+		major = "0"
+	}
+
+	minor := v.Minor
+	if minor == "" {
+		minor = "0"
+	}
+
+	patch := v.Patch
+	if patch == "" {
+		patch = "0"
+	}
+
 	suffix := v.Suffix
-	if len(suffix) == 0 {
+	if suffix == "" {
 		suffix = "stable"
 	}
 
-	return fmt.Sprintf("v%s.%s.%s-%s", v.Major, v.Minor, v.Patch, suffix)
+	return fmt.Sprintf("v%s.%s.%s-%s", major, minor, patch, suffix)
 }
 
-/* -------------------------------------------------------------------------- */
-/*                           Function: ParseVersion                           */
-/* -------------------------------------------------------------------------- */
+/* ------------------------- Function: ParseVersion ------------------------- */
 
 // Parses a 'Version' struct from a non-canonical semantic version string.
 func ParseVersion(s string) (Version, error) {

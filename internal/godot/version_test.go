@@ -8,6 +8,35 @@ import (
 	"unicode"
 )
 
+/* -------------------------- Test: Version.String -------------------------- */
+
+func TestVersionString(t *testing.T) {
+	tests := []struct {
+		v    Version
+		want string
+	}{
+		{Version{}, "v0.0.0-stable"},
+
+		{Version{"1", "", "", ""}, "v1.0.0-stable"},
+		{Version{"1", "1", "", ""}, "v1.1.0-stable"},
+		{Version{"1", "1", "1", ""}, "v1.1.1-stable"},
+
+		{Version{"1", "", "", "s"}, "v1.0.0-s"},
+		{Version{"1", "1", "", "s"}, "v1.1.0-s"},
+		{Version{"1", "1", "1", "s"}, "v1.1.1-s"},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			got := tc.v.String()
+
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
 /* --------------------------- Test: ParseVersion --------------------------- */
 
 func TestParseVersion(t *testing.T) {
@@ -103,7 +132,6 @@ func TestParseVersion(t *testing.T) {
 			got, err := ParseVersion(tc.input)
 
 			if err != tc.err && errors.Unwrap(err) != tc.err {
-				fmt.Println(errors.Unwrap(err))
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 			if !reflect.DeepEqual(got, tc.want) {
