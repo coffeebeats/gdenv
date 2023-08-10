@@ -24,7 +24,7 @@ func Clean(p string) (string, error) {
 
 	p, err := filepath.Abs(p)
 	if err != nil {
-		return p, fmt.Errorf("%w: %w", ErrInvalidPath, err)
+		return p, errors.Join(ErrInvalidPath, err)
 	}
 
 	fmt.Println(p)
