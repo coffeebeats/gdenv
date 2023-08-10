@@ -2,16 +2,15 @@ package pin
 
 import (
 	"errors"
-	"fmt"
+	"io/fs"
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot"
 )
 
 var (
-	ErrFailedToRead  = errors.New("pin: failed to read")
-	ErrFailedToWrite = errors.New("pin: failed to write")
-	ErrFileNotFound  = errors.New("pin: file not found")
+	ErrIOFailed     = errors.New("pin: IO failed")
+	ErrFileNotFound = errors.New("pin: file not found")
 )
 
 /* ----------------------------- Function: Read ----------------------------- */
@@ -25,10 +24,28 @@ func Read(p string) (godot.Version, error) {
 
 	b, err := os.ReadFile(p)
 	if err != nil {
-		return godot.Version{}, fmt.Errorf("%w: %w", ErrFailedToRead, err)
+		return godot.Version{}, errors.Join(ErrIOFailed, err)
 	}
 
 	return godot.ParseVersion(string(b))
+}
+
+/* ----------------------------- Function: Write ---------------------------- */
+
+// Deletes the specified pin file.
+func Remove(p string) error {
+	p, err := Clean(p)
+	if err != nil {
+		return err
+	}
+
+	if err := os.Remove(p); err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return errors.Join(ErrIOFailed, err)
+		}
+	}
+
+	return nil
 }
 
 /* ----------------------------- Function: Write ---------------------------- */
@@ -41,7 +58,7 @@ func Write(v godot.Version, p string) error {
 	}
 
 	if err := os.WriteFile(p, []byte(v.String()), 0); err != nil {
-		return fmt.Errorf("%w: %w", ErrFailedToWrite, err)
+		return errors.Join(ErrIOFailed, err)
 	}
 
 	return nil
