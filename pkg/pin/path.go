@@ -2,7 +2,6 @@ package pin
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -17,35 +16,33 @@ var (
 /* ----------------------------- Function: Clean ---------------------------- */
 
 // Returns a "cleaned" version of the specified pin file path.
-func Clean(p string) (string, error) {
-	if p == "" {
-		return p, ErrMissingPath
+func Clean(path string) (string, error) {
+	if path == "" {
+		return path, ErrMissingPath
 	}
 
-	p, err := filepath.Abs(p)
+	path, err := filepath.Abs(path)
 	if err != nil {
-		return p, errors.Join(ErrInvalidPath, err)
+		return path, errors.Join(ErrInvalidPath, err)
 	}
 
-	fmt.Println(p)
-
-	if filepath.Base(p) != pinFilename {
-		p = filepath.Join(p, pinFilename)
+	if filepath.Base(path) != pinFilename {
+		path = filepath.Join(path, pinFilename)
 	}
 
-	return p, nil
+	return path, nil
 }
 
 /* ---------------------------- Function: Exists ---------------------------- */
 
 // Returns whether the specified pin file exists.
-func Exists(p string) bool {
-	p, err := Clean(p)
+func Exists(path string) bool {
+	path, err := Clean(path)
 	if err != nil {
 		return false
 	}
 
-	info, err := os.Stat(p)
+	info, err := os.Stat(path)
 	if err != nil {
 		return false
 	}
