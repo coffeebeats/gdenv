@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/coffeebeats/gdenv/internal/commands"
 	"github.com/urfave/cli/v2"
 )
 
@@ -24,19 +23,19 @@ func main() {
 
 			/* -------------------------------- Pin/Unpin ------------------------------- */
 
-			commands.NewPin(),
-			commands.NewUnpin(),
+			NewPin(),
+			NewUnpin(),
 
 			/* ---------------------------- Install/Uninstall --------------------------- */
 
-			commands.NewInstall(),
-			commands.NewUninstall(),
+			NewInstall(),
+			NewUninstall(),
 
 			/* --------------------------------- Utility -------------------------------- */
 
-			commands.NewCompletions(),
-			commands.NewLs(),
-			commands.NewWhich(),
+			NewCompletions(),
+			NewLs(),
+			NewWhich(),
 		},
 	}
 
