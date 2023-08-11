@@ -17,6 +17,9 @@ func main() {
 		Name:    "gdenv",
 		Version: "v0.1.1", // x-release-please-version
 
+		Suggest:                true,
+		UseShortOptionHandling: true,
+
 		Commands: []*cli.Command{
 
 			/* -------------------------------- Pin/Unpin ------------------------------- */
