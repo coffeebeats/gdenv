@@ -7,8 +7,11 @@ import (
 )
 
 var (
+	ErrEnvVariable = errors.New("store: environment variable 'GDENV_HOME' not defined")
 	ErrMissingPath = errors.New("store: missing file path")
 	ErrInvalidPath = errors.New("store: invalid file path")
+
+	envVarStore = "GDENV_HOME"
 )
 
 /* ----------------------------- Function: Clean ---------------------------- */
@@ -42,4 +45,16 @@ func Exists(p string) bool {
 	}
 
 	return info.IsDir()
+}
+
+/* ----------------------------- Function: Path ----------------------------- */
+
+// Returns the user-configured path to the 'gdenv' store.
+func Path() (string, error) {
+	p := os.Getenv(envVarStore)
+	if p == "" {
+		return "", ErrEnvVariable
+	}
+
+	return filepath.Clean(p), nil
 }
