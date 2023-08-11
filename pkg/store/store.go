@@ -18,6 +18,7 @@ var (
 	ErrDirNotFound      = errors.New("store: directory not found")
 	ErrFileNotFound     = errors.New("store: file not found")
 	ErrIOFailed         = errors.New("store: I/O failed")
+	ErrInvalidVersion   = errors.New("store: invalid version")
 	ErrMissingStore     = errors.New("store: missing store")
 	ErrUnexpectedLayout = errors.New("store: unexpected layout")
 )
@@ -25,27 +26,27 @@ var (
 /* ----------------------------- Function: Init ----------------------------- */
 
 // Initializes a store at the specified path; no effect if it exists already.
-func Init(p string) error {
-	p, err := Clean(p)
+func Init(path string) error {
+	path, err := Clean(path)
 	if err != nil {
 		return err
 	}
 
 	// Create the 'Store' directory, if needed.
-	if err := os.MkdirAll(p, os.ModePerm); err != nil {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		return errors.Join(ErrIOFailed, err)
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirGodot} {
-		if err := os.MkdirAll(filepath.Join(p, d), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Join(path, d), os.ModePerm); err != nil {
 			return errors.Join(ErrIOFailed, err)
 		}
 	}
 
 	// Create the required files, if needed.
 	for _, f := range []string{storeFileLayout} {
-		if err := os.WriteFile(filepath.Join(p, f), nil, os.ModePerm); err != nil {
+		if err := os.WriteFile(filepath.Join(path, f), nil, os.ModePerm); err != nil {
 			return errors.Join(ErrIOFailed, err)
 		}
 	}
@@ -86,6 +87,7 @@ func Add(store string, file string, version godot.Version) error {
 
 /* ------------------------------ Function: Has ----------------------------- */
 
+// Return whether the store has the specified version cached.
 func Has(store string, version godot.Version) bool {
 	store, err := Clean(store)
 	if err != nil {
@@ -170,7 +172,7 @@ func ToolPath(store string, version godot.Version) (string, error) {
 
 	name, err := godot.ExecutableName(version)
 	if err != nil {
-		return "", err
+		return "", errors.Join(ErrInvalidVersion, err)
 	}
 
 	return filepath.Join(store, storeDirGodot, version.String(), name), nil
@@ -196,20 +198,20 @@ func Versions(store string) ([]godot.Version, error) {
 		return nil, fmt.Errorf("%w: %s", ErrDirNotFound, cache)
 	}
 
-	out := make([]godot.Version, len(dirs))
+	out := make([]godot.Version, 0)
 
 	for _, d := range dirs {
-		v, err := godot.ParseVersion(d.Name())
+		version, err := godot.ParseVersion(d.Name())
 		if err != nil {
-			return nil, err
+			return nil, errors.Join(ErrInvalidVersion, err)
 		}
 
 		// Check that the executable for the current platform exists.
-		if !Has(store, v) {
+		if !Has(store, version) {
 			continue
 		}
 
-		out = append(out, v)
+		out = append(out, version)
 	}
 
 	return out, nil

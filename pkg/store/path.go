@@ -11,7 +11,7 @@ const envVarStore = "GDENV_HOME"
 
 var (
 	ErrInvalidPath   = errors.New("store: invalid file path")
-	ErrMissingEnvVar = errors.New(fmt.Sprintf("store: environment variable '%s' not defined", envVarStore))
+	ErrMissingEnvVar = fmt.Errorf("store: environment variable '%s' not defined", envVarStore)
 	ErrMissingPath   = errors.New("store: missing file path")
 )
 
@@ -34,13 +34,13 @@ func Clean(path string) (string, error) {
 /* ---------------------------- Function: Exists ---------------------------- */
 
 // Returns whether the specified store path exists.
-func Exists(p string) bool {
-	p, err := Clean(p)
+func Exists(path string) bool {
+	path, err := Clean(path)
 	if err != nil {
 		return false
 	}
 
-	info, err := os.Stat(p)
+	info, err := os.Stat(path)
 	if err != nil {
 		return false
 	}
@@ -52,14 +52,14 @@ func Exists(p string) bool {
 
 // Returns the user-configured path to the 'gdenv' store.
 func Path() (string, error) {
-	p := os.Getenv(envVarStore)
-	if p == "" {
+	path := os.Getenv(envVarStore)
+	if path == "" {
 		return "", ErrMissingEnvVar
 	}
 
-	if !filepath.IsAbs(p) {
-		return "", fmt.Errorf("%w; expected absolute path: %s", ErrInvalidPath, p)
+	if !filepath.IsAbs(path) {
+		return "", fmt.Errorf("%w; expected absolute path: %s", ErrInvalidPath, path)
 	}
 
-	return filepath.Clean(p), nil
+	return filepath.Clean(path), nil
 }
