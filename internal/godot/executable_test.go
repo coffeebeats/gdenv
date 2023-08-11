@@ -3,7 +3,6 @@ package godot
 import (
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 )
 
@@ -32,9 +31,7 @@ func TestExecutableName(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			if err := os.Setenv(envVarPlatform, tc.target); err != nil {
-				t.Fatalf("Failed to update environment: %v", err)
-			}
+			t.Setenv(envVarPlatform, tc.target)
 
 			got, err := ExecutableName(tc.v)
 
