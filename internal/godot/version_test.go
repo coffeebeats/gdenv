@@ -15,6 +15,39 @@ func TestVersionString(t *testing.T) {
 		v    Version
 		want string
 	}{
+		{Version{}, ""},
+
+		{Version{"", "1", "", ""}, ""},
+		{Version{"", "", "1", ""}, ""},
+		{Version{"", "", "", "s"}, ""},
+
+		{Version{"1", "", "", ""}, "v1"},
+		{Version{"1", "1", "", ""}, "v1.1"},
+		{Version{"1", "1", "1", ""}, "v1.1.1"},
+
+		{Version{"1", "", "", "s"}, "v1-s"},
+		{Version{"1", "1", "", "s"}, "v1.1-s"},
+		{Version{"1", "1", "1", "s"}, "v1.1.1-s"},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			got := tc.v.String()
+
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
+/* ------------------------- Test: Version.Canonical ------------------------ */
+
+func TestVersionCanonical(t *testing.T) {
+	tests := []struct {
+		v    Version
+		want string
+	}{
 		{Version{}, "v0.0.0-stable"},
 
 		{Version{"1", "", "", ""}, "v1.0.0-stable"},
@@ -28,7 +61,44 @@ func TestVersionString(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			got := tc.v.String()
+			got := tc.v.Canonical()
+
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
+/* -------------------------- Test: Version.IsValid ------------------------- */
+
+func TestVersionIsValid(t *testing.T) {
+	tests := []struct {
+		v    Version
+		want bool
+	}{
+		{Version{}, false},
+
+		{Version{Minor: "1"}, false},
+		{Version{Patch: "1"}, false},
+		{Version{Suffix: "s"}, false},
+		{Version{Minor: "1", Patch: "1"}, false},
+		{Version{Minor: "1", Suffix: "s"}, false},
+		{Version{Patch: "1", Suffix: "s"}, false},
+		{Version{Minor: "1", Patch: "1", Suffix: "s"}, false},
+
+		{Version{"1", "", "", ""}, true},
+		{Version{"1", "1", "", ""}, true},
+		{Version{"1", "1", "1", ""}, true},
+
+		{Version{"1", "", "", "s"}, true},
+		{Version{"1", "1", "", "s"}, true},
+		{Version{"1", "1", "1", "s"}, true},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			got := tc.v.IsValid()
 
 			if got != tc.want {
 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
@@ -111,9 +181,9 @@ func TestParseVersion(t *testing.T) {
 		{input: "0.0.00", want: Version{}, err: ErrInvalidInput},
 
 		// Valid inputs
-		{input: "0", want: Version{"0", "0", "0", "stable"}, err: nil},
-		{input: "0.0", want: Version{"0", "0", "0", "stable"}, err: nil},
-		{input: "0.0.0", want: Version{"0", "0", "0", "stable"}, err: nil},
+		{input: "0", want: Version{Major: "0"}, err: nil},
+		{input: "0.0", want: Version{"0", "0", "", ""}, err: nil},
+		{input: "0.0.0", want: Version{"0", "0", "0", ""}, err: nil},
 	}
 
 	tests = append(
@@ -131,7 +201,7 @@ func TestParseVersion(t *testing.T) {
 		t.Run(tc.input, func(t *testing.T) {
 			got, err := ParseVersion(tc.input)
 
-			if err != tc.err && errors.Unwrap(err) != tc.err {
+			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 			if !reflect.DeepEqual(got, tc.want) {

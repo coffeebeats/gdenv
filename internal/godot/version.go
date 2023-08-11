@@ -8,6 +8,8 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+const releaseLabelDefault = "stable"
+
 var (
 	ErrInvalidInput = errors.New("invalid input string")
 	ErrNoInput      = errors.New("no input provided")
@@ -25,30 +27,77 @@ type Version struct {
 	Suffix string
 }
 
-/* ----------------------------- Impl: Stringer ----------------------------- */
+/* ---------------------------- Method: Canonical --------------------------- */
 
-func (v *Version) String() string {
-	major := v.Major
+// Returns a "canonical" representation of the 'Version', with all missing
+// elements set to default values.
+func (v *Version) Canonical() string {
+	major, minor, patch, suffix := v.Major, v.Minor, v.Patch, v.Suffix
+
 	if major == "" {
 		major = "0"
 	}
 
-	minor := v.Minor
 	if minor == "" {
 		minor = "0"
 	}
 
-	patch := v.Patch
 	if patch == "" {
 		patch = "0"
 	}
 
-	suffix := v.Suffix
 	if suffix == "" {
-		suffix = "stable"
+		suffix = releaseLabelDefault
 	}
 
 	return fmt.Sprintf("v%s.%s.%s-%s", major, minor, patch, suffix)
+}
+
+/* ----------------------------- Method: IsValid ---------------------------- */
+
+// Returns whether the 'Version' is well-specified.
+func (v *Version) IsValid() bool {
+	if v.Major == "" {
+		return false
+	}
+
+	if v.Patch != "" && v.Minor == "" {
+		return false
+	}
+
+	return true
+}
+
+/* ----------------------------- Impl: Stringer ----------------------------- */
+
+// Returns an exact representation of the 'Version', if it's valid.
+func (v *Version) String() string {
+	// The 'Version' is not in a valid state.
+	if v.Major == "" {
+		return ""
+	}
+
+	var s strings.Builder
+
+	s.WriteRune('v')
+	s.WriteString(v.Major)
+
+	if v.Minor != "" {
+		s.WriteRune('.')
+		s.WriteString(v.Minor)
+	}
+
+	if v.Patch != "" {
+		s.WriteRune('.')
+		s.WriteString(v.Patch)
+	}
+
+	if v.Suffix != "" {
+		s.WriteRune('-')
+		s.WriteString(v.Suffix)
+	}
+
+	return s.String()
 }
 
 /* ------------------------- Function: ParseVersion ------------------------- */
@@ -66,24 +115,26 @@ func ParseVersion(s string) (Version, error) {
 		s = "v" + s
 	}
 
-	version, suffix, found := strings.Cut(s, "-")
-	if !found {
-		suffix = "stable"
-	}
-
-	if suffix == "" {
+	// Trim the version suffix, but store it for later.
+	s, suffix, found := strings.Cut(s, "-")
+	if (found && suffix == "") || !semver.IsValid(s) {
 		return v, fmt.Errorf("%w: %s", ErrInvalidInput, s)
 	}
 
-	version = strings.TrimPrefix(semver.Canonical(version), "v")
-	if len(version) == 0 {
-		return v, fmt.Errorf("%w: %s", ErrInvalidInput, s)
-	}
-
-	parts := strings.Split(version, ".")
-
-	v.Major, v.Minor, v.Patch = parts[0], parts[1], parts[2]
 	v.Suffix = suffix
+
+	switch p := strings.Split(strings.TrimPrefix(s, "v"), "."); len(p) {
+	case 3: //nolint:gomnd
+		v.Patch = p[2]
+		fallthrough // let 'Minor' and 'Major' be set
+	case 2: //nolint:gomnd
+		v.Minor = p[1]
+		fallthrough // let 'Major' be set
+	case 1:
+		v.Major = p[0]
+	default:
+		return v, fmt.Errorf("%w: %s", ErrInvalidInput, s)
+	}
 
 	return v, nil
 }
