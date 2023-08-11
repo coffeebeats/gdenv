@@ -7,12 +7,12 @@ import (
 	"runtime"
 )
 
+// Users can override platform detection by setting an environment variable.
+const envVarPlatform = "GDENV_PLATFORM"
+
 var (
 	ErrInvalidVersion      = errors.New("godot: invalid version specification")
 	ErrUnsupportedPlatform = errors.New("godot: unsupported platform")
-
-	// Users can override platform detection by setting an environment variable.
-	envVarPlatform = "GDENV_PLATFORM"
 )
 
 /* -------------------------- Function: Executable -------------------------- */
