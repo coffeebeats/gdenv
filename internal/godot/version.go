@@ -31,7 +31,7 @@ type Version struct {
 
 // Returns a "canonical" representation of the 'Version', with all missing
 // elements set to default values.
-func (v *Version) Canonical() Version {
+func (v Version) Canonical() Version {
 	major, minor, patch, suffix := v.Major, v.Minor, v.Patch, v.Suffix
 
 	if major == "" {
@@ -56,7 +56,7 @@ func (v *Version) Canonical() Version {
 /* ----------------------------- Method: IsValid ---------------------------- */
 
 // Returns whether the 'Version' is well-specified.
-func (v *Version) IsValid() bool {
+func (v Version) IsValid() bool {
 	if v.Major == "" {
 		return false
 	}
@@ -71,7 +71,7 @@ func (v *Version) IsValid() bool {
 /* ----------------------------- Impl: Stringer ----------------------------- */
 
 // Returns an exact representation of the 'Version', if it's valid.
-func (v *Version) String() string {
+func (v Version) String() string {
 	// The 'Version' is not in a valid state.
 	if !v.IsValid() {
 		return ""
