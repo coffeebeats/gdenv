@@ -73,7 +73,7 @@ func (v *Version) IsValid() bool {
 // Returns an exact representation of the 'Version', if it's valid.
 func (v *Version) String() string {
 	// The 'Version' is not in a valid state.
-	if v.Major == "" {
+	if !v.IsValid() {
 		return ""
 	}
 
