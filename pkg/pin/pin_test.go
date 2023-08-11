@@ -196,7 +196,7 @@ func TestWrite(t *testing.T) {
 
 			contents, err := os.ReadFile(p)
 			if err != nil {
-				t.Fatalf("test: %v", err)
+				t.Fatalf("test setup: %v", err)
 			}
 
 			if c := string((contents)); c != tc.want {

@@ -46,7 +46,7 @@ func TestClean(t *testing.T) {
 func TestExists(t *testing.T) {
 	tests := []struct {
 		path       string
-		isRelative bool // Is the pathrelative to 'tmp'
+		isRelative bool // Is the path relative to 'tmp'
 		want       bool
 	}{
 		{"", true, true},
