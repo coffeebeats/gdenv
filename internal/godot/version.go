@@ -77,67 +77,67 @@ func (v *Version) String() string {
 		return ""
 	}
 
-	var s strings.Builder
+	var out strings.Builder
 
-	s.WriteRune('v')
-	s.WriteString(v.Major)
+	out.WriteRune('v')
+	out.WriteString(v.Major)
 
 	if v.Minor != "" {
-		s.WriteRune('.')
-		s.WriteString(v.Minor)
+		out.WriteRune('.')
+		out.WriteString(v.Minor)
 	}
 
 	if v.Patch != "" {
-		s.WriteRune('.')
-		s.WriteString(v.Patch)
+		out.WriteRune('.')
+		out.WriteString(v.Patch)
 	}
 
 	if v.Suffix != "" {
-		s.WriteRune('-')
-		s.WriteString(v.Suffix)
+		out.WriteRune('-')
+		out.WriteString(v.Suffix)
 	}
 
-	return s.String()
+	return out.String()
 }
 
 /* ------------------------- Function: ParseVersion ------------------------- */
 
 // Parses a 'Version' struct from a non-canonical semantic version string.
-func ParseVersion(s string) (Version, error) {
-	var v Version
+func ParseVersion(version string) (Version, error) {
+	var out Version
 
-	if s == "" {
-		return v, ErrNoInput
+	if version == "" {
+		return out, ErrNoInput
 	}
 
 	// Golang's 'semver' requires a 'v' prefix, but 'gdenv' doesn't.
-	if !strings.HasPrefix(s, "v") {
-		s = "v" + s
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
 	}
 
 	// Trim a valid build label suffix; Godot does not use these.
-	s, _, _ = strings.Cut(s, "+")
+	version, _, _ = strings.Cut(version, "+")
 
 	// Trim the version suffix, but store it for later.
-	s, suffix, found := strings.Cut(s, "-")
-	if (found && suffix == "") || !semver.IsValid(s) {
-		return v, fmt.Errorf("%w: %s", ErrInvalidInput, s)
+	version, suffix, found := strings.Cut(version, "-")
+	if (found && suffix == "") || !semver.IsValid(version) {
+		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
 	}
 
-	v.Suffix = suffix
+	out.Suffix = suffix
 
-	switch p := strings.Split(strings.TrimPrefix(s, "v"), "."); len(p) {
+	switch parts := strings.Split(strings.TrimPrefix(version, "v"), "."); len(parts) {
 	case 3: //nolint:gomnd
-		v.Patch = p[2]
+		out.Patch = parts[2]
 		fallthrough // let 'Minor' and 'Major' be set
 	case 2: //nolint:gomnd
-		v.Minor = p[1]
+		out.Minor = parts[1]
 		fallthrough // let 'Major' be set
 	case 1:
-		v.Major = p[0]
+		out.Major = parts[0]
 	default:
-		return v, fmt.Errorf("%w: %s", ErrInvalidInput, s)
+		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
 	}
 
-	return v, nil
+	return out, nil
 }

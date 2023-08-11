@@ -18,14 +18,14 @@ var (
 /* -------------------------- Function: Executable -------------------------- */
 
 // Returns the name of the Godot executable, given the specified 'Version'.
-func ExecutableName(v Version) (string, error) { //nolint:cyclop
-	if !v.IsValid() {
+func ExecutableName(version Version) (string, error) { //nolint:cyclop
+	if !version.IsValid() {
 		return "", ErrInvalidVersion
 	}
 
 	// Set a default value.
-	if v.Suffix == "" {
-		v.Suffix = releaseLabelDefault
+	if version.Suffix == "" {
+		version.Suffix = releaseLabelDefault
 	}
 
 	var target string
@@ -60,5 +60,5 @@ func ExecutableName(v Version) (string, error) { //nolint:cyclop
 		return "", fmt.Errorf("%w: %s/%s", ErrUnsupportedPlatform, runtime.GOOS, runtime.GOARCH)
 	}
 
-	return fmt.Sprintf("Godot_%s_%s", v.String(), target), nil
+	return fmt.Sprintf("Godot_%s_%s", version.String(), target), nil
 }
