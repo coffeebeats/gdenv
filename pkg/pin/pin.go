@@ -3,6 +3,7 @@ package pin
 import (
 	"errors"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -13,48 +14,55 @@ var (
 	ErrIOFailed       = errors.New("pin: IO failed")
 	ErrFileNotFound   = errors.New("pin: file not found")
 	ErrUnexpectedFile = errors.New("pin: unexpected file")
+	ErrParseVersion   = errors.New("pin: failed to parse version")
 )
 
 /* ----------------------------- Function: Read ----------------------------- */
 
 // Parses a 'Version' from the specified pin file.
-func Read(p string) (godot.Version, error) {
-	p, err := Clean(p)
+func Read(path string) (godot.Version, error) {
+	path, err := Clean(path)
 	if err != nil {
 		return godot.Version{}, err
 	}
 
-	b, err := os.ReadFile(p)
+	b, err := os.ReadFile(path)
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return godot.Version{}, errors.Join(ErrFileNotFound, err)
+		}
+
 		return godot.Version{}, errors.Join(ErrIOFailed, err)
 	}
 
-	return godot.ParseVersion(string(b))
+	version, err := godot.ParseVersion(string(b))
+	if err != nil {
+		return godot.Version{}, errors.Join(ErrParseVersion, err)
+	}
+
+	return version, nil
 }
 
 /* ---------------------------- Function: Resolve --------------------------- */
 
 // Tries to locate a pin file in the current directory or any parent directories.
-func Resolve(p string) (string, error) {
-	var path = p
-
+func Resolve(path string) (string, error) {
 	// Check if the specified path (or any ancestors) has a pin
-	for len(path) > 0 {
+	for path != "/" {
 		// Don't overwrite 'path' or you'll go into an infinite loop due to
-		// 'Pin.Path()' appending filenames you're removing below.
-		p, err := Clean(path)
+		// 'Clean()' appending filenames you're removing below.
+		pin, err := Clean(path)
 		if err != nil {
 			return "", err
 		}
 
-		info, err := os.Stat(p)
+		info, err := os.Stat(pin)
 		if err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
 				return "", errors.Join(ErrIOFailed, err)
 			}
 
-			d, _ := filepath.Split(path)
-			path = d
+			path = filepath.Dir(path)
 
 			continue
 		}
@@ -62,7 +70,7 @@ func Resolve(p string) (string, error) {
 		// Validate that the file is a regular file; this catches cases where
 		// there's a directory named after 'pinFilename'.
 		if info.Mode().IsRegular() {
-			return p, nil
+			return pin, nil
 		}
 	}
 
@@ -71,9 +79,9 @@ func Resolve(p string) (string, error) {
 
 /* ----------------------------- Function: Write ---------------------------- */
 
-// Deletes the specified pin file.
-func Remove(p string) error {
-	p, err := Clean(p)
+// Deletes the specified pin file if it exists.
+func Remove(path string) error {
+	p, err := Clean(path)
 	if err != nil {
 		return err
 	}
@@ -90,13 +98,21 @@ func Remove(p string) error {
 /* ----------------------------- Function: Write ---------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
-func Write(v godot.Version, p string) error {
-	p, err := Clean(p)
+func Write(version godot.Version, path string) error {
+	path, err := Clean(path)
 	if err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(p, []byte(v.String()), 0); err != nil {
+	log.Print(filepath.Dir(path))
+
+	// Make the parent directories if needed.
+	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+		return errors.Join(ErrIOFailed, err)
+	}
+
+	contents := version.Canonical().String()
+	if err := os.WriteFile(path, []byte(contents), os.ModePerm); err != nil {
 		return errors.Join(ErrIOFailed, err)
 	}
 
