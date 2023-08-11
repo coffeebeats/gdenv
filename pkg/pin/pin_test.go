@@ -73,6 +73,7 @@ func TestResolve(t *testing.T) {
 		{"", "", pinFilename, nil},
 		{"", "a/b/c", pinFilename, nil},
 		{"a", "", "", ErrFileNotFound},
+		{"a/b", "c/d", "", ErrFileNotFound},
 	}
 
 	for i, tc := range tests {
