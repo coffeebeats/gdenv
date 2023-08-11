@@ -98,17 +98,9 @@ func Find(p string, v godot.Version) (string, error) {
 /* ------------------------------ Function: Has ----------------------------- */
 
 // Returns whether or not the store contains the specified version of Godot.
-func Has(p string, v godot.Version) (bool, error) {
+func Has(p string, v godot.Version) bool {
 	_, err := Find(p, v)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
+	return err != nil
 }
 
 /* ----------------------------- Function: Init ----------------------------- */
@@ -137,7 +129,7 @@ func Init(p string) error {
 /* ----------------------------- Function: List ----------------------------- */
 
 // Returns a list of cached versions of Godot.
-func List(p string, v godot.Version) ([]godot.Version, error) {
+func List(p string) ([]godot.Version, error) {
 	p, err := Clean(p)
 	if err != nil {
 		return nil, err
