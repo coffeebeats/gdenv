@@ -3,7 +3,6 @@ package pin
 import (
 	"errors"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -103,8 +102,6 @@ func Write(version godot.Version, path string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Print(filepath.Dir(path))
 
 	// Make the parent directories if needed.
 	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
