@@ -13,8 +13,8 @@ import (
 var (
 	ErrIOFailed       = errors.New("pin: IO failed")
 	ErrFileNotFound   = errors.New("pin: file not found")
-	ErrUnexpectedFile = errors.New("pin: unexpected file")
 	ErrParseVersion   = errors.New("pin: failed to parse version")
+	ErrUnexpectedFile = errors.New("pin: unexpected file")
 )
 
 /* ----------------------------- Function: Read ----------------------------- */
