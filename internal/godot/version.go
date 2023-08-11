@@ -139,9 +139,5 @@ func ParseVersion(version string) (Version, error) {
 		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
 	}
 
-	if !out.IsValid() {
-		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
-	}
-
 	return out, nil
 }
