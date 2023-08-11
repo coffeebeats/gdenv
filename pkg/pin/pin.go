@@ -26,7 +26,7 @@ func Read(path string) (godot.Version, error) {
 		return godot.Version{}, err
 	}
 
-	b, err := os.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			return godot.Version{}, errors.Join(ErrFileNotFound, err)
@@ -35,7 +35,7 @@ func Read(path string) (godot.Version, error) {
 		return godot.Version{}, errors.Join(ErrIOFailed, err)
 	}
 
-	version, err := godot.ParseVersion(string(b))
+	version, err := godot.ParseVersion(string(bytes))
 	if err != nil {
 		return godot.Version{}, errors.Join(ErrParseVersion, err)
 	}
