@@ -23,6 +23,7 @@ linters:
     - exhaustivestruct
 
     # Handle formatting separately.
+    - gci
     - gofmt
     - gofumpt
     - goimports
