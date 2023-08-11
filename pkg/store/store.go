@@ -57,7 +57,7 @@ func Init(path string) error {
 /* ------------------------------ Function: Add ----------------------------- */
 
 // Move the specified file into the store for the specified version.
-func Add(store string, file string, version godot.Version) error {
+func Add(store, file string, version godot.Version) error {
 	store, err := Clean(store)
 	if err != nil {
 		return err
