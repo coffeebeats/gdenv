@@ -31,7 +31,7 @@ type Version struct {
 
 // Returns a "canonical" representation of the 'Version', with all missing
 // elements set to default values.
-func (v *Version) Canonical() string {
+func (v *Version) Canonical() Version {
 	major, minor, patch, suffix := v.Major, v.Minor, v.Patch, v.Suffix
 
 	if major == "" {
@@ -50,7 +50,7 @@ func (v *Version) Canonical() string {
 		suffix = releaseLabelDefault
 	}
 
-	return fmt.Sprintf("v%s.%s.%s-%s", major, minor, patch, suffix)
+	return Version{major, minor, patch, suffix}
 }
 
 /* ----------------------------- Method: IsValid ---------------------------- */

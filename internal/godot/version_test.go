@@ -46,17 +46,17 @@ func TestVersionString(t *testing.T) {
 func TestVersionCanonical(t *testing.T) {
 	tests := []struct {
 		v    Version
-		want string
+		want Version
 	}{
-		{Version{}, "v0.0.0-stable"},
+		{Version{}, Version{"0", "0", "0", "stable"}},
 
-		{Version{"1", "", "", ""}, "v1.0.0-stable"},
-		{Version{"1", "1", "", ""}, "v1.1.0-stable"},
-		{Version{"1", "1", "1", ""}, "v1.1.1-stable"},
+		{Version{"1", "", "", ""}, Version{"1", "0", "0", "stable"}},
+		{Version{"1", "1", "", ""}, Version{"1", "1", "0", "stable"}},
+		{Version{"1", "1", "1", ""}, Version{"1", "1", "1", "stable"}},
 
-		{Version{"1", "", "", "s"}, "v1.0.0-s"},
-		{Version{"1", "1", "", "s"}, "v1.1.0-s"},
-		{Version{"1", "1", "1", "s"}, "v1.1.1-s"},
+		{Version{"1", "", "", "s"}, Version{"1", "0", "0", "s"}},
+		{Version{"1", "1", "", "s"}, Version{"1", "1", "0", "s"}},
+		{Version{"1", "1", "1", "s"}, Version{"1", "1", "1", "s"}},
 	}
 
 	for i, tc := range tests {
