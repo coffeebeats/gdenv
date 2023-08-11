@@ -1,6 +1,11 @@
 package commands
 
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,10 +26,51 @@ func NewUninstall() *cli.Command {
 			},
 		},
 
-		Action: uninstall,
+		Action: func(c *cli.Context) error {
+			// Ensure 'Store' layout
+			s, err := store.Path()
+			if err != nil {
+				return cli.Exit(err, 1)
+			}
+
+			if err := store.Init(s); err != nil {
+				return cli.Exit(err, 1)
+			}
+
+			if c.Bool("all") {
+				versions, err := store.List(s)
+				if err != nil {
+					return cli.Exit(err, 1)
+				}
+
+				for _, v := range versions {
+					if err := uninstall(s, v); err != nil {
+						return cli.Exit(err, 1)
+					}
+				}
+			} else {
+				// Validate arguments
+				version, err := godot.ParseVersion(c.Args().First())
+				if err != nil && !c.Bool("all") {
+					return cli.Exit(err, 1)
+				}
+
+				if err := uninstall(s, version); err != nil {
+					return cli.Exit(err, 1)
+				}
+			}
+
+			return nil
+		},
 	}
 }
 
-func uninstall(_ *cli.Context) error {
-	return nil
+func uninstall(s string, v godot.Version) error {
+	p, err := store.Find(s, v)
+	if err != nil {
+		return err
+	}
+
+	// Remove the tool and the parent directory
+	return os.RemoveAll(filepath.Base(p))
 }
