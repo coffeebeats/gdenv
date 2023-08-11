@@ -115,6 +115,9 @@ func ParseVersion(s string) (Version, error) {
 		s = "v" + s
 	}
 
+	// Trim a valid build label suffix; Godot does not use these.
+	s, _, _ = strings.Cut(s, "+")
+
 	// Trim the version suffix, but store it for later.
 	s, suffix, found := strings.Cut(s, "-")
 	if (found && suffix == "") || !semver.IsValid(s) {
