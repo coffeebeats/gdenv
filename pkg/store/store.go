@@ -180,7 +180,7 @@ func ToolPath(store string, version godot.Version) (string, error) {
 
 /* --------------------------- Function: Versions --------------------------- */
 
-// Returns a list of cached versions of Godot.
+// Returns a list of cached canonical versions of Godot.
 func Versions(store string) ([]godot.Version, error) {
 	store, err := Clean(store)
 	if err != nil {
@@ -211,7 +211,7 @@ func Versions(store string) ([]godot.Version, error) {
 			continue
 		}
 
-		out = append(out, version)
+		out = append(out, version.Canonical())
 	}
 
 	return out, nil
