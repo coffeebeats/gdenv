@@ -27,31 +27,33 @@ func NewInstall() *cli.Command {
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return cli.Exit(err, 1)
+				return err
 			}
 
 			// Ensure 'Store' layout
-			s, err := store.Path()
+			storePath, err := store.Path()
 			if err != nil {
-				return cli.Exit(err, 1)
+				return err
 			}
 
-			if err := store.Init(s); err != nil {
-				return cli.Exit(err, 1)
+			if err := store.Init(storePath); err != nil {
+				return err
 			}
 
-			if store.Has(s, version) && !c.Bool("force") {
+			if store.Has(storePath, version) && !c.Bool("force") {
 				return nil
 			}
 
 			if err := install(version); err != nil {
-				return cli.Exit(err, 1)
+				return err
 			}
 
 			return nil
 		},
 	}
 }
+
+/* ---------------------------- Function: install --------------------------- */
 
 func install(version godot.Version) error {
 	return nil

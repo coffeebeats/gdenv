@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,10 +23,45 @@ func NewUninstall() *cli.Command {
 			},
 		},
 
-		Action: uninstall,
-	}
-}
+		Action: func(c *cli.Context) error {
+			// Ensure 'Store' layout
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
 
-func uninstall(_ *cli.Context) error {
-	return nil
+			if err := store.Init(storePath); err != nil {
+				return err
+			}
+
+			// Uninstall a specific version.
+			if !c.Bool("all") {
+				// Validate arguments
+				version, err := godot.ParseVersion(c.Args().First())
+				if err != nil && !c.Bool("all") {
+					return err
+				}
+
+				if err := store.Remove(storePath, version); err != nil {
+					return err
+				}
+
+				return nil
+			}
+
+			// Uninstall all versions.
+			versions, err := store.Versions(storePath)
+			if err != nil {
+				return err
+			}
+
+			for _, v := range versions {
+				if err := store.Remove(storePath, v); err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+	}
 }

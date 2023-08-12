@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/coffeebeats/gdenv/pkg/pin"
+	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -26,10 +28,29 @@ func NewUnpin() *cli.Command {
 			},
 		},
 
-		Action: unpin,
-	}
-}
+		Action: func(c *cli.Context) error {
+			// Validate flag options.
+			if c.IsSet("global") && c.IsSet("path") {
+				return cli.Exit("cannot specify both '--global' and '--path'", 1)
+			}
 
-func unpin(_ *cli.Context) error {
-	return nil
+			// Determine 'path' option
+			path, err := resolvePath(c)
+			if err != nil {
+				return err
+			}
+
+			// Ensure 'Store' layout
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
+
+			if err := store.Init(storePath); err != nil {
+				return err
+			}
+
+			return pin.Remove(path)
+		},
+	}
 }
