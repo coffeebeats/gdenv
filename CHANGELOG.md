@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 (2023-08-12)
+
+## What's Changed
+* fix(ci): correctly identify release assets; use v-prefixed version tags in asset names by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/36
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.1.2...v0.1.3
+
 ## 0.1.2 (2023-08-12)
 
 ## What's Changed
