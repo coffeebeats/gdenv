@@ -54,6 +54,23 @@ func Init(path string) error {
 	return nil
 }
 
+/* -------------------------- Function: InitAtPath -------------------------- */
+
+// A convenience method which initializes a store at the path specified by
+// the 'envVarStore' environment variable.
+func InitAtPath() (string, error) {
+	storePath, err := Path()
+	if err != nil {
+		return "", err
+	}
+
+	if err := Init(storePath); err != nil {
+		return "", err
+	}
+
+	return storePath, nil
+}
+
 /* ------------------------------ Function: Add ----------------------------- */
 
 // Move the specified file into the store for the specified version.
@@ -180,7 +197,7 @@ func ToolPath(store string, version godot.Version) (string, error) {
 
 /* --------------------------- Function: Versions --------------------------- */
 
-// Returns a list of cached versions of Godot.
+// Returns a list of cached canonical versions of Godot.
 func Versions(store string) ([]godot.Version, error) {
 	store, err := Clean(store)
 	if err != nil {
@@ -211,7 +228,7 @@ func Versions(store string) ([]godot.Version, error) {
 			continue
 		}
 
-		out = append(out, version)
+		out = append(out, version.Canonical())
 	}
 
 	return out, nil

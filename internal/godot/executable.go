@@ -15,7 +15,7 @@ var (
 	ErrUnsupportedPlatform = errors.New("godot: unsupported platform")
 )
 
-/* -------------------------- Function: Executable -------------------------- */
+/* ------------------------ Function: ExecutableName ------------------------ */
 
 // Returns the name of the Godot executable, given the specified 'Version'.
 func ExecutableName(version Version) (string, error) { //nolint:cyclop

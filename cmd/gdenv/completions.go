@@ -1,4 +1,4 @@
-package commands
+package main
 
 import (
 	"github.com/urfave/cli/v2"
@@ -21,10 +21,8 @@ func NewCompletions() *cli.Command {
 			},
 		},
 
-		Action: completions,
+		Action: func(c *cli.Context) error {
+			return nil
+		},
 	}
-}
-
-func completions(_ *cli.Context) error {
-	return nil
 }
