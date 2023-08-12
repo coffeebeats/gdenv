@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot"
@@ -41,7 +42,7 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				return cli.Exit("cannot specify both '--global' and '--path'", 1)
+				return failWithUsage(c, errors.New("cannot specify both '--global' and '--path'"))
 			}
 
 			// Determine 'path' option
@@ -53,7 +54,7 @@ func NewPin() *cli.Command { //nolint:funlen
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return fail(err)
+				return failWithUsage(c, err)
 			}
 
 			// Ensure 'Store' layout

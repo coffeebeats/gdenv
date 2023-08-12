@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -47,6 +48,13 @@ func main() {
 // Convenience function which return an error that invokes 'os.Exit(1)'.
 func fail(err error) error {
 	return cli.Exit(err, 1)
+}
+
+func failWithUsage(c *cli.Context, err error) error {
+	cli.ShowAppHelp(c)
+	log.Println()
+
+	return cli.Exit(fmt.Errorf("command failed: %w", err), 1)
 }
 
 func versionPrinter(cCtx *cli.Context) {

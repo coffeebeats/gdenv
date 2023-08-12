@@ -35,7 +35,7 @@ func NewUninstall() *cli.Command {
 				// Validate arguments
 				version, err := godot.ParseVersion(c.Args().First())
 				if err != nil && !c.Bool("all") {
-					return fail(err)
+					return failWithUsage(c, err)
 				}
 
 				if err := store.Remove(storePath, version); err != nil {

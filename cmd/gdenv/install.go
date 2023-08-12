@@ -27,7 +27,7 @@ func NewInstall() *cli.Command {
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return fail(err)
+				return failWithUsage(c, err)
 			}
 
 			// Ensure 'Store' layout
