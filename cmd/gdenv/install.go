@@ -51,6 +51,6 @@ func NewInstall() *cli.Command {
 
 /* ---------------------------- Function: install --------------------------- */
 
-func install(store string, version godot.Version) error {
+func install(_ string, _ godot.Version) error {
 	return nil
 }

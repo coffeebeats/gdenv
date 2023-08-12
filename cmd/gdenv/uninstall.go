@@ -27,7 +27,7 @@ func NewUninstall() *cli.Command {
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			// Uninstall a specific version.

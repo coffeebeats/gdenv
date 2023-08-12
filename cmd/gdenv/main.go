@@ -44,7 +44,8 @@ func main() {
 	}
 }
 
-func fail(err error) cli.ExitCoder {
+// Convenience function which return an error that invokes 'os.Exit(1)'.
+func fail(err error) error {
 	return cli.Exit(err, 1)
 }
 
