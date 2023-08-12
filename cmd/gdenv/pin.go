@@ -47,27 +47,25 @@ func NewPin() *cli.Command {
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return err
+				return cli.Exit(err, 1)
 			}
 
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return err
+				return cli.Exit(err, 1)
 			}
 
 			// Ensure 'Store' layout
-			storePath, err := store.Path()
+			storePath, err := store.InitAtPath()
 			if err != nil {
 				return err
 			}
 
-			if err := store.Init(storePath); err != nil {
-				return err
-			}
-
-			if c.Bool("install") {
-				install(version)
+			if !c.Bool("install") {
+				if err := install(storePath, version); err != nil {
+					return cli.Exit(err, 1)
+				}
 			}
 
 			return pin.Write(version, path)

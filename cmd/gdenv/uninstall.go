@@ -25,12 +25,8 @@ func NewUninstall() *cli.Command {
 
 		Action: func(c *cli.Context) error {
 			// Ensure 'Store' layout
-			storePath, err := store.Path()
+			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
-			}
-
-			if err := store.Init(storePath); err != nil {
 				return err
 			}
 

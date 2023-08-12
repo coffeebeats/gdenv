@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/coffeebeats/gdenv/pkg/pin"
-	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -37,16 +36,6 @@ func NewUnpin() *cli.Command {
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return err
-			}
-
-			// Ensure 'Store' layout
-			storePath, err := store.Path()
-			if err != nil {
-				return err
-			}
-
-			if err := store.Init(storePath); err != nil {
 				return err
 			}
 

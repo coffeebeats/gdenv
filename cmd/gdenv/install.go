@@ -31,12 +31,8 @@ func NewInstall() *cli.Command {
 			}
 
 			// Ensure 'Store' layout
-			storePath, err := store.Path()
+			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
-			}
-
-			if err := store.Init(storePath); err != nil {
 				return err
 			}
 
@@ -44,7 +40,7 @@ func NewInstall() *cli.Command {
 				return nil
 			}
 
-			if err := install(version); err != nil {
+			if err := install(storePath, version); err != nil {
 				return err
 			}
 
@@ -55,6 +51,6 @@ func NewInstall() *cli.Command {
 
 /* ---------------------------- Function: install --------------------------- */
 
-func install(version godot.Version) error {
+func install(store string, version godot.Version) error {
 	return nil
 }
