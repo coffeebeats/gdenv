@@ -57,13 +57,13 @@ func NewPin() *cli.Command { //nolint:funlen
 				return failWithUsage(c, err)
 			}
 
-			// Ensure 'Store' layout
-			storePath, err := store.InitAtPath()
-			if err != nil {
-				return fail(err)
-			}
+			if c.Bool("install") {
+				// Ensure 'Store' layout
+				storePath, err := store.InitAtPath()
+				if err != nil {
+					return fail(err)
+				}
 
-			if !c.Bool("install") {
 				if err := install(storePath, version); err != nil {
 					return fail(err)
 				}
