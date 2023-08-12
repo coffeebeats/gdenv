@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.2 (2023-08-12)
+
+## What's Changed
+* feat(gdenv): create skeleton implementations of `gdenv` and `gdenv-shim` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/27
+* feat(gdenv): define flag options for all commands by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/29
+* feat(internal/godot): implement a package with Godot specification functionality by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/31
+* feat(pkg/pin): implement pin operations in `pkg/pin` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/32
+* feat(pkg/store): implement core store functionality by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/33
+* feat(gdenv/cmd): enable suggestions and short option handling by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/34
+* feat(cmd/gdenv): implement more command functionality by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/35
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.1.1...v0.1.2
+
 ## 0.1.1 (2023-08-08)
 
 ## What's Changed
