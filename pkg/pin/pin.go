@@ -76,7 +76,7 @@ func Resolve(path string) (string, error) {
 	return "", ErrFileNotFound
 }
 
-/* ----------------------------- Function: Write ---------------------------- */
+/* ---------------------------- Function: Remove ---------------------------- */
 
 // Deletes the specified pin file if it exists.
 func Remove(path string) error {
