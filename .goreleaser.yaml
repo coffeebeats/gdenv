@@ -45,7 +45,7 @@ archives:
       # Include the 'gdenv-shim' binary for the appropriate build target
       - gdenv-shim_{{ .Os }}_{{ .Arch }}/*
     name_template: >-
-      {{ .ProjectName }}-{{ .Version }}-
+      {{ .ProjectName }}-v{{ .Version }}-
 
       {{- if eq .Os "darwin" }}macos
       {{- else }}{{ .Os }}{{ end }}-
