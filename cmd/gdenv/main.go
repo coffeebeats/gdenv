@@ -51,7 +51,7 @@ func fail(err error) error {
 }
 
 func failWithUsage(c *cli.Context, err error) error {
-	cli.ShowAppHelp(c)
+	cli.ShowSubcommandHelp(c)
 	log.Println()
 
 	return cli.Exit(fmt.Errorf("command failed: %w", err), 1)
