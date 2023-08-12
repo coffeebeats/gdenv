@@ -54,6 +54,23 @@ func Init(path string) error {
 	return nil
 }
 
+/* -------------------------- Function: InitAtPath -------------------------- */
+
+// A convenience method which initializes a store at the path specified by
+// the 'envVarStore' environment variable.
+func InitAtPath() (string, error) {
+	storePath, err := Path()
+	if err != nil {
+		return "", err
+	}
+
+	if err := Init(storePath); err != nil {
+		return "", err
+	}
+
+	return storePath, nil
+}
+
 /* ------------------------------ Function: Add ----------------------------- */
 
 // Move the specified file into the store for the specified version.
