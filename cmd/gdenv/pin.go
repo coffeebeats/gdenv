@@ -2,12 +2,17 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
+)
+
+var (
+	ErrOptionUsage = errors.New("gdenv: invalid option usage")
 )
 
 /* ---------------------------- Function: NewPin ---------------------------- */
@@ -42,7 +47,8 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				return failWithUsage(c, errors.New("cannot specify both '--global' and '--path'"))
+				err := fmt.Errorf("%w: cannot specify both '--global' and '--path'", ErrOptionUsage)
+				return failWithUsage(c, err)
 			}
 
 			// Determine 'path' option

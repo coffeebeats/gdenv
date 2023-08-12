@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/urfave/cli/v2"
@@ -32,7 +32,8 @@ func NewUnpin() *cli.Command {
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				return failWithUsage(c, errors.New("cannot specify both '--global' and '--path'"))
+				err := fmt.Errorf("%w: cannot specify both '--global' and '--path'", ErrOptionUsage)
+				return failWithUsage(c, err)
 			}
 
 			// Determine 'path' option

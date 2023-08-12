@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -51,8 +52,9 @@ func fail(err error) error {
 }
 
 func failWithUsage(c *cli.Context, err error) error {
-	cli.ShowSubcommandHelp(c)
-	log.Println()
+	if e := cli.ShowSubcommandHelp(c); e != nil {
+		err = errors.Join(err, e)
+	}
 
 	return cli.Exit(fmt.Errorf("command failed: %w", err), 1)
 }
