@@ -34,18 +34,18 @@ func NewWhich() *cli.Command {
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			toolPath, err := which(storePath, path)
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			log.Println(toolPath)

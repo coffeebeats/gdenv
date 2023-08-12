@@ -35,11 +35,11 @@ func NewUninstall() *cli.Command {
 				// Validate arguments
 				version, err := godot.ParseVersion(c.Args().First())
 				if err != nil && !c.Bool("all") {
-					return err
+					return fail(err)
 				}
 
 				if err := store.Remove(storePath, version); err != nil {
-					return err
+					return fail(err)
 				}
 
 				return nil
@@ -48,12 +48,12 @@ func NewUninstall() *cli.Command {
 			// Uninstall all versions.
 			versions, err := store.Versions(storePath)
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			for _, v := range versions {
 				if err := store.Remove(storePath, v); err != nil {
-					return err
+					return fail(err)
 				}
 			}
 

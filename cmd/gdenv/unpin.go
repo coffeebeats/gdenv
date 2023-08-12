@@ -39,7 +39,11 @@ func NewUnpin() *cli.Command {
 				return err
 			}
 
-			return pin.Remove(path)
+			if err := pin.Remove(path); err != nil {
+				return fail(err)
+			}
+
+			return nil
 		},
 	}
 }

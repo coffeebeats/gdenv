@@ -44,6 +44,10 @@ func main() {
 	}
 }
 
+func fail(err error) cli.ExitCoder {
+	return cli.Exit(err, 1)
+}
+
 func versionPrinter(cCtx *cli.Context) {
 	log.Printf("gdenv %s\n", cCtx.App.Version)
 }

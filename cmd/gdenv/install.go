@@ -27,13 +27,13 @@ func NewInstall() *cli.Command {
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			if store.Has(storePath, version) && !c.Bool("force") {
@@ -41,7 +41,7 @@ func NewInstall() *cli.Command {
 			}
 
 			if err := install(storePath, version); err != nil {
-				return err
+				return fail(err)
 			}
 
 			return nil

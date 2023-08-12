@@ -12,7 +12,7 @@ import (
 /* ---------------------------- Function: NewPin ---------------------------- */
 
 // A 'urfave/cli' command to pin a Godot version globally or for a directory.
-func NewPin() *cli.Command {
+func NewPin() *cli.Command { //nolint:funlen
 	return &cli.Command{
 		Name:     "pin",
 		Category: "Pin",
@@ -47,28 +47,32 @@ func NewPin() *cli.Command {
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return cli.Exit(err, 1)
+				return fail(err)
 			}
 
 			// Validate arguments
 			version, err := godot.ParseVersion(c.Args().First())
 			if err != nil {
-				return cli.Exit(err, 1)
+				return fail(err)
 			}
 
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			if !c.Bool("install") {
 				if err := install(storePath, version); err != nil {
-					return cli.Exit(err, 1)
+					return fail(err)
 				}
 			}
 
-			return pin.Write(version, path)
+			if err := pin.Write(version, path); err != nil {
+				return fail(err)
+			}
+
+			return nil
 		},
 	}
 }

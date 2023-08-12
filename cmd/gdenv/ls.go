@@ -25,12 +25,12 @@ func NewLs() *cli.Command {
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			results, err := ls(storePath)
 			if err != nil {
-				return err
+				return fail(err)
 			}
 
 			if wd, err := os.Getwd(); err == nil {
