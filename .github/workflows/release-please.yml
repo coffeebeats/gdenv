@@ -77,7 +77,7 @@ jobs:
       - name: Attach assets to release
         shell: bash
         run: |
-          ASSETS=(dist/gdenv-* dist/checksums.txt)
+          ASSETS=(dist/gdenv-${{ needs.release-please.outputs.release-tag }}* dist/checksums.txt)
           for asset in "${ASSETS[@]}"; do
             gh release upload \
               --clobber \
