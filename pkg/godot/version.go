@@ -33,9 +33,9 @@ var (
 type Version struct {
 	major, minor, patch int
 
-	// Equivalent to "pre-release version" (see semver.org), though Godot
-	// affixes "stable" to its stable releases. Note that an empty 'Label'
-	// will be interpreted as a stable version.
+	// Equivalent to "pre-release version" (see ttps://semver.org/#spec-item-9),
+	// though Godot affixes "stable" to its stable releases. Note that an empty
+	// 'Label' will be interpreted as a stable version.
 	label string
 }
 
