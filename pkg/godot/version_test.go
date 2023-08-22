@@ -11,6 +11,8 @@ import (
 /* -------------------------- Test: Version.String -------------------------- */
 
 func TestVersionString(t *testing.T) {
+	testLabel := "label"
+
 	tests := []struct {
 		v    Version
 		want string
@@ -29,16 +31,16 @@ func TestVersionString(t *testing.T) {
 		{Version{patch: 1}, "v0.0.1-" + labelDefault},
 
 		// Specific label
-		{Version{label: "label"}, "v0.0-label"},
+		{Version{label: testLabel}, "v0.0-" + testLabel},
 
-		{Version{major: 1, label: "label"}, "v1.0-label"},
-		{Version{major: 1, minor: 1, label: "label"}, "v1.1-label"},
-		{Version{major: 1, minor: 1, patch: 1, label: "label"}, "v1.1.1-label"},
+		{Version{major: 1, label: testLabel}, "v1.0-" + testLabel},
+		{Version{major: 1, minor: 1, label: testLabel}, "v1.1-" + testLabel},
+		{Version{major: 1, minor: 1, patch: 1, label: testLabel}, "v1.1.1-" + testLabel},
 
-		{Version{minor: 1, label: "label"}, "v0.1-label"},
-		{Version{minor: 1, patch: 1, label: "label"}, "v0.1.1-label"},
+		{Version{minor: 1, label: testLabel}, "v0.1-" + testLabel},
+		{Version{minor: 1, patch: 1, label: testLabel}, "v0.1.1-" + testLabel},
 
-		{Version{patch: 1, label: "label"}, "v0.0.1-label"},
+		{Version{patch: 1, label: testLabel}, "v0.0.1-" + testLabel},
 	}
 
 	for i, tc := range tests {
