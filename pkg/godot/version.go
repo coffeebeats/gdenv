@@ -9,7 +9,7 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-const labelStable = "stable"
+const labelDefault = "stable"
 
 const prefixVersion = "v"
 const separatorBuildMetadata = "+"     // https://semver.org/#spec-item-10
@@ -41,31 +41,31 @@ type Version struct {
 
 /* ------------------------------ Method: Major ----------------------------- */
 
-// Returns the major version component as an 'int' (see https://semver.org/#spec-item-4).
+// Returns the major version component (see https://semver.org/#spec-item-4).
 func (v Version) Major() int {
 	return v.major
 }
 
 /* ------------------------------ Method: Minor ----------------------------- */
 
-// Returns the minor version component as an 'int' (see https://semver.org/#spec-item-7).
+// Returns the minor version component (see https://semver.org/#spec-item-7).
 func (v Version) Minor() int {
 	return v.minor
 }
 
 /* ------------------------------ Method: Patch ----------------------------- */
 
-// Returns the patch version component as an 'int' (see https://semver.org/#spec-item-6).
+// Returns the patch version component (see https://semver.org/#spec-item-6).
 func (v Version) Patch() int {
 	return v.patch
 }
 
 /* ------------------------------ Method: Label ----------------------------- */
 
-// Returns the version label associated with the Godot version specification.
+// Returns the version label or a default if not defined.
 func (v Version) Label() string {
 	if v.label == "" {
-		return labelStable
+		return labelDefault
 	}
 
 	return v.label
