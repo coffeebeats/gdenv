@@ -11,11 +11,18 @@ import (
 
 const labelStable = "stable"
 
+const prefixVersion = "v"
+const separatorBuildMetadata = "+"     // https://semver.org/#spec-item-10
+const separatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
+
 var (
 	ErrInvalidInput       = errors.New("invalid input")
 	ErrInvalidNumber      = errors.New("invalid number")
 	ErrMissingInput       = errors.New("missing input")
+	ErrUnrecognizedInput  = errors.New("unrecognized input")
 	ErrUnsupportedVersion = errors.New("unsupported version")
+
+	errNonNormalVersion = errors.New("implementation error: found non-normal version")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -93,81 +100,80 @@ func (v Version) String() string {
 /* -------------------------------------------------------------------------- */
 
 // Parses a 'Version' struct from a semantic version string.
-func ParseVersion(input string) (Version, error) { //nolint:funlen
-	var out Version
+func ParseVersion(input string) (Version, error) {
+	var version Version
 
 	if input == "" {
-		return out, ErrMissingInput
+		return version, ErrMissingInput
 	}
 
-	// Golang's 'semver' requires a 'v' prefix, but 'gdenv' and Semantic
-	// Versioning do not (as of version 2.0.0 - see semver.org/#semantic-versioning-200).
-	if !strings.HasPrefix(input, "v") {
-		input = "v" + input
-	}
+	// 'gdenv' and Semantic Versioning do not require a 'v' prefix (as of
+	// version 2.0.0 - see semver.org/#semantic-versioning-200), but Golang's
+	// 'semver' does.
+	input = prefixVersion + strings.TrimPrefix(input, prefixVersion)
 
 	// Trim the label off, but store it for later.
-	version, label, found := strings.Cut(input, "-")
-	if (found && label == "") || !semver.IsValid(version) {
-		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
+	input, label, found := strings.Cut(input, separatorPreReleaseVersion)
+	if (found && label == "") || !semver.IsValid(input) {
+		return version, fmt.Errorf("%w: %s", ErrInvalidInput, input)
 	}
 
-	out.label = label
+	version.label = label
 
 	// Trim build metadata - Godot does not use these (see https://semver.org/#spec-item-10).
 
 	// NOTE: This step occurs *after* label extraction, so labels will keep any
-	// build metadata suffixes. This future-proofs 'gdenv' if Godot changes its build
-	// labeling practices. However, 'gdenv' doesn't support metadata directly
-	// following the "normal version number".
-	version, _, found = strings.Cut(version, "+")
+	// build metadata suffixes. This future-proofs 'gdenv' if Godot changes its
+	// build labeling practices. However, 'gdenv' doesn't support metadata
+	// directly following the "normal version number".
+	normalVersion, _, found := strings.Cut(input, separatorBuildMetadata)
 	if found {
-		return out, fmt.Errorf("%w: %s", ErrUnsupportedVersion, version)
+		return version, fmt.Errorf("%w: %s", ErrUnsupportedVersion, input)
 	}
 
-	switch parts := strings.Split(version, "."); len(parts) {
-	case 3: //nolint:gomnd
-		n, err := parseNumber(parts[2])
+	parts, err := parseNormalVersion(normalVersion)
+	if err != nil {
+		return version, errors.Join(ErrInvalidInput, err)
+	}
+
+	version.major, version.minor, version.patch = parts[0], parts[1], parts[2]
+
+	return version, nil
+}
+
+/* ---------------------- Function: parseNormalVersion ---------------------- */
+
+// Parses the "normal version" (see https://semver.org/#spec-item-2) from a
+// 'semver'-validated version string.
+//
+// NOTE: This implementation requires that there are *no* build or version
+// specifiers.
+func parseNormalVersion(input string) ([3]int, error) {
+	out := [3]int{0, 0, 0}
+
+	if !semver.IsValid(input) ||
+		strings.Contains(input, separatorBuildMetadata) ||
+		strings.Contains(input, separatorPreReleaseVersion) {
+		panic(errNonNormalVersion)
+	}
+
+	// Remove the 'v' prefix to simplify version parsing below.
+	input = strings.TrimPrefix(input, prefixVersion)
+
+	parts := strings.Split(input, ".")
+	// NOTE: This should never occur for a 'semver'-validated string.
+	if len(parts) < 1 || len(parts) > 3 {
+		return out, fmt.Errorf("%w: %s", ErrUnrecognizedInput, input)
+	}
+
+	for i, version := range parts { //nolint:varnamelen
+		n, err := strconv.ParseUint(version, 10, 0)
 		if err != nil {
-			return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
+			return out, fmt.Errorf("%w: %s", ErrInvalidNumber, version)
 		}
 
-		out.patch = n
-
-		fallthrough // let 'Minor' and 'Major' be set
-	case 2: //nolint:gomnd
-		n, err := parseNumber(parts[1])
-		if err != nil {
-			return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
-		}
-
-		out.minor = n
-
-		fallthrough // let 'Major' be set
-	case 1:
-		n, err := parseNumber(strings.TrimPrefix(parts[0], "v"))
-		if err != nil {
-			return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
-		}
-
-		out.major = n
-	default:
-		return out, fmt.Errorf("%w: %s", ErrInvalidInput, version)
+		out[i] = int(n)
 	}
 
 	return out, nil
-}
-
-/* -------------------------- Function: parseNumber ------------------------- */
-
-// Parses an unsigned integer from a string, but returns an 'int'. This is a
-// convenience function when parsing Semantic Versioning components, ensuring
-// integers are greater than '0'.
-func parseNumber(s string) (int, error) {
-	n, err := strconv.ParseUint(s, 10, 0)
-	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrInvalidNumber, s)
-	}
-
-	return int(n), nil
 }
