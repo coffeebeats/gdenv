@@ -3,6 +3,7 @@ package godot
 import (
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 )
 
@@ -97,4 +98,35 @@ func ParseArch(input string) (Arch, error) {
 	default:
 		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedTargetInput, input)
 	}
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              Struct: Platform                              */
+/* -------------------------------------------------------------------------- */
+
+// A platform specification representing a target to run the Godot editor on.
+type Platform struct {
+	Arch Arch
+	OS   OS
+}
+
+/* ------------------------- Function: HostPlatform ------------------------- */
+
+// Returns a 'Platform' struct pertaining to the host machine, if recognized.
+func HostPlatform() (Platform, error) {
+	var platform Platform
+
+	oS, err := ParseOS(runtime.GOOS)
+	if err != nil {
+		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
+	}
+
+	arch, err := ParseArch(runtime.GOARCH)
+	if err != nil {
+		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
+	}
+
+	platform.Arch, platform.OS = arch, oS
+
+	return platform, nil
 }
