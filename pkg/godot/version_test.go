@@ -54,6 +54,51 @@ func TestVersionString(t *testing.T) {
 	}
 }
 
+/* -------------------------- Test: Version.Normal -------------------------- */
+
+func TestVersionNormal(t *testing.T) {
+	type test struct {
+		v    Version
+		want string
+	}
+
+	tests := []test{
+		{Version{}, "v0.0.0"},
+
+		{Version{major: 1}, "v1.0.0"},
+		{Version{major: 1, minor: 1}, "v1.1.0"},
+		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1"},
+
+		{Version{minor: 1}, "v0.1.0"},
+		{Version{minor: 1, patch: 1}, "v0.1.1"},
+
+		{Version{patch: 1}, "v0.0.1"},
+	}
+
+	// Produce an additional test with a specific label applied.
+	withLabels := func(tc []test) []test {
+		out := make([]test, len(tc))
+
+		for i, t := range tc {
+			v := t.v
+			v.label = "label"
+			out[i] = test{v, t.want}
+		}
+
+		return out
+	}
+
+	for i, tc := range append(tests, withLabels(tests)...) {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			got := tc.v.Normal()
+
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
 /* --------------------------- Test: ParseVersion --------------------------- */
 
 func TestParseVersion(t *testing.T) {

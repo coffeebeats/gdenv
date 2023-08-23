@@ -71,6 +71,13 @@ func (v Version) Label() string {
 	return v.label
 }
 
+/* ----------------------------- Method: Normal ----------------------------- */
+
+// Returns the "normal version" format of the 'Version'.
+func (v Version) Normal() string {
+	return fmt.Sprintf("v%d.%d.%d", v.major, v.minor, v.patch)
+}
+
 /* ----------------------------- Impl: Stringer ----------------------------- */
 
 func (v Version) String() string {
