@@ -15,11 +15,11 @@ func TestParseOS(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{s: "", err: ErrMissingTargetInput},
-		{s: "abc", err: ErrUnrecognizedTargetInput},
-		{s: "linux-", err: ErrUnrecognizedTargetInput},
-		{s: "mac.os", err: ErrUnrecognizedTargetInput},
-		{s: "win32", err: ErrUnrecognizedTargetInput},
+		{s: "", err: ErrMissingOSInput},
+		{s: "abc", err: ErrUnrecognizedOSInput},
+		{s: "linux-", err: ErrUnrecognizedOSInput},
+		{s: "mac.os", err: ErrUnrecognizedOSInput},
+		{s: "win32", err: ErrUnrecognizedOSInput},
 
 		// Valid inputs (Go-defined)
 		{s: "linux", want: Linux},
@@ -60,8 +60,8 @@ func TestParseArch(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{s: "", err: ErrMissingTargetInput},
-		{s: "abc", err: ErrUnrecognizedTargetInput},
+		{s: "", err: ErrMissingArchInput},
+		{s: "abc", err: ErrUnrecognizedArchInput},
 
 		// Valid inputs (Go-defined)
 		{s: "amd64", want: Amd64},

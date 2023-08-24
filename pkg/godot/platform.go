@@ -8,8 +8,12 @@ import (
 )
 
 var (
-	ErrMissingTargetInput      = errors.New("missing input")
-	ErrUnrecognizedTargetInput = errors.New("unrecognized input")
+	ErrMissingArchInput      = errors.New("missing architecture input")
+	ErrMissingOSInput        = errors.New("missing OS input")
+	ErrUnrecognizedArchInput = errors.New("unrecognized architecture input")
+	ErrUnrecognizedOSInput   = errors.New("unrecognized OS input")
+	ErrUnsupportedArchInput  = errors.New("unsupported architecture input")
+	ErrUnsupportedOSInput    = errors.New("unsupported OS input")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -38,7 +42,7 @@ const (
 func ParseOS(input string) (OS, error) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
 	case "":
-		return 0, ErrMissingTargetInput
+		return 0, ErrMissingOSInput
 
 	case "darwin", "macos", "osx":
 		return MacOS, nil
@@ -50,7 +54,7 @@ func ParseOS(input string) (OS, error) {
 		return Windows, nil
 
 	default:
-		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedTargetInput, input)
+		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedOSInput, input)
 	}
 }
 
@@ -81,7 +85,7 @@ const (
 func ParseArch(input string) (Arch, error) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
 	case "":
-		return 0, ErrMissingTargetInput
+		return 0, ErrMissingArchInput
 
 	case "386", "i386", "x86", "x86_32":
 		return I386, nil
@@ -96,7 +100,7 @@ func ParseArch(input string) (Arch, error) {
 		return Universal, nil
 
 	default:
-		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedTargetInput, input)
+		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedArchInput, input)
 	}
 }
 
@@ -106,8 +110,8 @@ func ParseArch(input string) (Arch, error) {
 
 // A platform specification representing a target to run the Godot editor on.
 type Platform struct {
-	Arch Arch
-	OS   OS
+	arch Arch
+	os   OS
 }
 
 /* ------------------------- Function: HostPlatform ------------------------- */
@@ -126,7 +130,7 @@ func HostPlatform() (Platform, error) {
 		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
 	}
 
-	platform.Arch, platform.OS = arch, oS
+	platform.arch, platform.os = arch, oS
 
 	return platform, nil
 }
