@@ -60,9 +60,9 @@ var (
 type OS int
 
 const (
-	Linux OS = iota + 1
-	MacOS
-	Windows
+	linux OS = iota + 1
+	macOS
+	windows
 )
 
 /* ---------------------------- Function: ParseOS --------------------------- */
@@ -81,13 +81,13 @@ func ParseOS(input string) (OS, error) {
 		return 0, ErrMissingOSInput
 
 	case "darwin", "macos", "osx":
-		return MacOS, nil
+		return macOS, nil
 
 	case "dragonfly", "freebsd", "linux", "netbsd", "openbsd":
-		return Linux, nil
+		return linux, nil
 
 	case "win", "windows":
-		return Windows, nil
+		return windows, nil
 
 	default:
 		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedOSInput, input)
@@ -186,11 +186,11 @@ func HostPlatform() (Platform, error) {
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func FormatPlatform(p Platform, v Version) (string, error) {
 	switch p.os {
-	case Linux:
+	case linux:
 		return formatLinuxPlatform(p.arch, v)
-	case MacOS:
+	case macOS:
 		return formatMacOSPlatform(p.arch, v)
-	case Windows:
+	case windows:
 		return formatWindowsPlatform(p.arch, v)
 
 	case 0:
