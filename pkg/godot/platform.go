@@ -270,10 +270,10 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) {
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
 		}
 	// Godot v3.2.4-beta3 - v4.0-alpha12
-	case v.Compare(versionGodot4) < 0 ||
+	case v.CompareNormal(versionGodot4) < 0 ||
 		// An O(n) check here is fine - the data is small and this will run at
 		// most once per CLI invocation.
-		(v.Compare(versionGodot4) == 0 && slices.Contains(versionsGodot4WithOSXUniversal, v.label)):
+		(v.CompareNormal(versionGodot4) == 0 && slices.Contains(versionsGodot4WithOSXUniversal, v.label)):
 		switch a {
 		case Amd64, Arm64:
 			return "osx.universal", nil
