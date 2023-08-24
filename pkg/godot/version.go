@@ -73,9 +73,20 @@ func (v Version) Label() string {
 
 /* ----------------------------- Method: Normal ----------------------------- */
 
-// Returns the "normal version" format of the 'Version'.
+// Returns the "normal version" format of the 'Version' (see
+// https://semver.org/#spec-item-2).
 func (v Version) Normal() string {
 	return fmt.Sprintf("v%d.%d.%d", v.major, v.minor, v.patch)
+}
+
+/* ----------------------------- Method: Compare ---------------------------- */
+
+// Returns a comparison with the other 'Version' struct, where the value is -1
+// if it's older, 0 if it's the same version, and +1 if it's newer. Note that
+// this method only looks at the "normal version" (see
+// https://semver.org/#spec-item-2).
+func (v Version) Compare(other Version) int {
+	return semver.Compare(v.Normal(), other.Normal())
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
