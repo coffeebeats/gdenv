@@ -19,7 +19,7 @@ var (
 	// This expression matches all Godot v4.0 pre-release versions which utilize
 	// a 'osx.universal' platform label. These include 'alpha1' - 'alpha12' and
 	// all of the 'dev.*' pre-alpha versions. This expressions has been tested
-	// manually, but some unit tests should validate this as well.
+	// manually and some unit tests validate this as well.
 	reV4LabelsWithOSXUniversal = regexp.MustCompile(`^(alpha([1-9]|1[0-2])|(dev\.[0-9]{8}))$`)
 )
 
@@ -27,7 +27,8 @@ var (
 /*                                  Enum: OS                                  */
 /* -------------------------------------------------------------------------- */
 
-// Operating systems which the Godot project provides prebuilt binaries for.
+// Operating systems which the Godot project provides prebuilt editor binaries
+// for.
 type OS int
 
 const (
@@ -69,7 +70,8 @@ func ParseOS(input string) (OS, error) {
 /*                                 Enum: Arch                                 */
 /* -------------------------------------------------------------------------- */
 
-// CPU architectures which the Godot project provides prebuilt binaries for.
+// CPU architectures which the Godot project provides prebuilt editor binaries
+// for.
 type Arch int
 
 const (
@@ -127,7 +129,7 @@ type Platform struct {
 func HostPlatform() (Platform, error) {
 	var platform Platform
 
-	oS, err := ParseOS(runtime.GOOS)
+	os, err := ParseOS(runtime.GOOS)
 	if err != nil {
 		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
 	}
@@ -137,7 +139,7 @@ func HostPlatform() (Platform, error) {
 		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
 	}
 
-	platform.arch, platform.os = arch, oS
+	platform.arch, platform.os = arch, os
 
 	return platform, nil
 }

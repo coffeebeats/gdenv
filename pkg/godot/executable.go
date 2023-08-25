@@ -2,7 +2,7 @@ package godot
 
 import "strings"
 
-const executableNamePrefix = "Godot_"
+const executableNamePrefix = "Godot"
 
 /* -------------------------------------------------------------------------- */
 /*                          Function: ExecutableName                          */
@@ -19,6 +19,7 @@ func ExecutableName(p Platform, v Version) (string, error) {
 	var name strings.Builder
 
 	name.WriteString(executableNamePrefix)
+	name.WriteRune('_')
 
 	name.WriteString(v.String())
 	name.WriteRune('_')
