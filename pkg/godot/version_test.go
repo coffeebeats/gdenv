@@ -54,6 +54,51 @@ func TestVersionString(t *testing.T) {
 	}
 }
 
+/* -------------------------- Test: Version.Normal -------------------------- */
+
+func TestVersionNormal(t *testing.T) {
+	type test struct {
+		v    Version
+		want string
+	}
+
+	tests := []test{
+		{Version{}, "v0.0.0"},
+
+		{Version{major: 1}, "v1.0.0"},
+		{Version{major: 1, minor: 1}, "v1.1.0"},
+		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1"},
+
+		{Version{minor: 1}, "v0.1.0"},
+		{Version{minor: 1, patch: 1}, "v0.1.1"},
+
+		{Version{patch: 1}, "v0.0.1"},
+	}
+
+	// Produce an additional test with a specific label applied.
+	withLabels := func(tc []test) []test {
+		out := make([]test, len(tc))
+
+		for i, t := range tc {
+			v := t.v
+			v.label = "label"
+			out[i] = test{v, t.want}
+		}
+
+		return out
+	}
+
+	for i, tc := range append(tests, withLabels(tests)...) {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			got := tc.v.Normal()
+
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
 /* --------------------------- Test: ParseVersion --------------------------- */
 
 func TestParseVersion(t *testing.T) {
@@ -69,12 +114,12 @@ func TestParseVersion(t *testing.T) {
 
 		for i, t := range tc {
 			// Invalid
-			out[i*2] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalidInput}
+			out[i*2] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalidVersionInput}
 
 			// Valid (depending on input)
 			err := t.err
 			if t.s == "" || !unicode.IsDigit(rune(t.s[0])) {
-				err = ErrInvalidInput
+				err = ErrInvalidVersionInput
 			}
 
 			out[i*2+1] = test{fmt.Sprintf("v%s", t.s), t.want, err}
@@ -89,14 +134,14 @@ func TestParseVersion(t *testing.T) {
 
 		for i, t := range tc {
 			// Invalid
-			out[i*2] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalidInput}
+			out[i*2] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalidVersionInput}
 
 			// Valid (depending on input)
 			s := "suffix"
 			want, err := Version{t.want.major, t.want.minor, t.want.patch, s}, t.err
 			if t.err != nil {
 				want.label = ""
-				err = ErrInvalidInput
+				err = ErrInvalidVersionInput
 			}
 
 			out[i*2+1] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
@@ -109,23 +154,23 @@ func TestParseVersion(t *testing.T) {
 	// include prefixed, suffixed, and prefix-and-suffixed versions.
 	tests := []test{
 		// Invalid inputs
-		{s: "", want: Version{}, err: ErrMissingInput},
+		{s: "", want: Version{}, err: ErrMissingVersionInput},
 
-		{s: "a", want: Version{}, err: ErrInvalidInput},
-		{s: "0.a", want: Version{}, err: ErrInvalidInput},
-		{s: "0.0.a", want: Version{}, err: ErrInvalidInput},
+		{s: "a", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.a", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.0.a", want: Version{}, err: ErrInvalidVersionInput},
 
-		{s: "0.", want: Version{}, err: ErrInvalidInput},
-		{s: "0.0.", want: Version{}, err: ErrInvalidInput},
-		{s: "0.0.0.", want: Version{}, err: ErrInvalidInput},
+		{s: "0.", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.0.", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.0.0.", want: Version{}, err: ErrInvalidVersionInput},
 
-		{s: "-0", want: Version{}, err: ErrInvalidInput},
-		{s: "0.-0", want: Version{}, err: ErrInvalidInput},
-		{s: "0.0.-0", want: Version{}, err: ErrInvalidInput},
+		{s: "-0", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.-0", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.0.-0", want: Version{}, err: ErrInvalidVersionInput},
 
-		{s: "00", want: Version{}, err: ErrInvalidInput},
-		{s: "0.00", want: Version{}, err: ErrInvalidInput},
-		{s: "0.0.00", want: Version{}, err: ErrInvalidInput},
+		{s: "00", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.00", want: Version{}, err: ErrInvalidVersionInput},
+		{s: "0.0.00", want: Version{}, err: ErrInvalidVersionInput},
 
 		// Valid inputs
 		{s: "1", want: Version{major: 1}, err: nil},
