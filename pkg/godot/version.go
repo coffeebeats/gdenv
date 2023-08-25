@@ -135,6 +135,10 @@ func ParseVersion(input string) (Version, error) {
 		return version, fmt.Errorf("%w: %s", ErrInvalidVersionInput, input)
 	}
 
+	if label == labelDefault {
+		label = ""
+	}
+
 	version.label = label
 
 	// Trim build metadata - Godot does not use these (see https://semver.org/#spec-item-10).
@@ -156,6 +160,19 @@ func ParseVersion(input string) (Version, error) {
 	version.major, version.minor, version.patch = parts[0], parts[1], parts[2]
 
 	return version, nil
+}
+
+/* ----------------------- Function: MustParseVersion ----------------------- */
+
+// Parses a 'Version' struct from a semantic version string or panics if it
+// would fail.
+func MustParseVersion(input string) Version {
+	v, err := ParseVersion(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return v
 }
 
 /* ---------------------- Function: parseNormalVersion ---------------------- */
