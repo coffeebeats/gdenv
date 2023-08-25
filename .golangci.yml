@@ -31,9 +31,13 @@ linters:
     # Not useful here
     - depguard
     - nlreturn
+    - varnamelen
     - wrapcheck
 
 linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+
   exhaustruct:
     exclude:
       - "^github.com/urfave/cli/v2.App$"
