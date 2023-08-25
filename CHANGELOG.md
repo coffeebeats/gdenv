@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4 (2023-08-25)
+
+## What's Changed
+* feat(pkg/godot): implement a public `godot` package with a `Version` struct by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/38
+* feat(pkg/godot): refactor `internal/godot` and add improved platform-handling logic by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/40
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.1.3...v0.1.4
+
 ## 0.1.3 (2023-08-12)
 
 ## What's Changed
