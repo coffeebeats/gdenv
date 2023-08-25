@@ -15,11 +15,11 @@ func TestParseOS(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{s: "", err: ErrMissingOSInput},
-		{s: "abc", err: ErrUnrecognizedOSInput},
-		{s: "linux-", err: ErrUnrecognizedOSInput},
-		{s: "mac.os", err: ErrUnrecognizedOSInput},
-		{s: "win32", err: ErrUnrecognizedOSInput},
+		{s: "", err: ErrMissingOS},
+		{s: "abc", err: ErrUnrecognizedOS},
+		{s: "linux-", err: ErrUnrecognizedOS},
+		{s: "mac.os", err: ErrUnrecognizedOS},
+		{s: "win32", err: ErrUnrecognizedOS},
 
 		// Valid inputs (Go-defined)
 		{s: "linux", want: linux},
@@ -60,28 +60,28 @@ func TestParseArch(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{s: "", err: ErrMissingArchInput},
-		{s: "abc", err: ErrUnrecognizedArchInput},
+		{s: "", err: ErrMissingArch},
+		{s: "abc", err: ErrUnrecognizedArch},
 
 		// Valid inputs (Go-defined)
-		{s: "amd64", want: Amd64},
-		{s: "x86_64", want: Amd64},
-		{s: "x86-64", want: Amd64},
+		{s: "amd64", want: amd64},
+		{s: "x86_64", want: amd64},
+		{s: "x86-64", want: amd64},
 
-		{s: "arm64", want: Arm64},
-		{s: "arm64be", want: Arm64},
+		{s: "arm64", want: arm64},
+		{s: "arm64be", want: arm64},
 
-		{s: "386", want: I386},
-		{s: "i386", want: I386},
-		{s: "x86", want: I386},
+		{s: "386", want: i386},
+		{s: "i386", want: i386},
+		{s: "x86", want: i386},
 
-		{s: "fat", want: Universal},
-		{s: "universal", want: Universal},
+		{s: "fat", want: universal},
+		{s: "universal", want: universal},
 
 		// Valid inputs (user-supplied)
-		{s: "AMD64", want: Amd64},
-		{s: " X86_64\n", want: Amd64},
-		{s: "\tuniversal ", want: Universal},
+		{s: "AMD64", want: amd64},
+		{s: " X86_64\n", want: amd64},
+		{s: "\tuniversal ", want: universal},
 	}
 
 	for i, tc := range tests {
@@ -108,117 +108,117 @@ func TestFormatPlatform(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{Platform{}, Version{}, "", ErrMissingOSInput},
-		{Platform{os: linux}, Version{}, "", ErrMissingArchInput},
-		{Platform{os: linux, arch: Amd64}, Version{}, "", ErrUnsupportedVersion},
+		{Platform{}, Version{}, "", ErrMissingOS},
+		{Platform{os: linux}, Version{}, "", ErrMissingArch},
+		{Platform{os: linux, arch: amd64}, Version{}, "", ErrUnsupportedVersion},
 
-		{Platform{os: linux, arch: Amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: macOS, arch: Amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: windows, arch: Amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{os: linux, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{os: macOS, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{os: windows, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
 
 		// Valid inputs - linux
 
 		// v3.*
-		{Platform{os: linux, arch: I386}, Version{major: 3}, "x11.32", nil},
-		{Platform{os: linux, arch: Amd64}, Version{major: 3}, "x11.64", nil},
-		{Platform{os: linux, arch: Arm64}, Version{major: 3}, "", ErrUnsupportedArchInput},
-		{Platform{os: linux, arch: Universal}, Version{major: 3}, "", ErrUnsupportedArchInput},
+		{Platform{os: linux, arch: i386}, Version{major: 3}, "x11.32", nil},
+		{Platform{os: linux, arch: amd64}, Version{major: 3}, "x11.64", nil},
+		{Platform{os: linux, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{os: linux, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{os: linux, arch: I386}, Version{major: 4}, "linux.x86_32", nil},
-		{Platform{os: linux, arch: Amd64}, Version{major: 4}, "linux.x86_64", nil},
-		{Platform{os: linux, arch: Arm64}, Version{major: 4}, "", ErrUnsupportedArchInput},
-		{Platform{os: linux, arch: Universal}, Version{major: 4}, "", ErrUnsupportedArchInput},
+		{Platform{os: linux, arch: i386}, Version{major: 4}, "linux.x86_32", nil},
+		{Platform{os: linux, arch: amd64}, Version{major: 4}, "linux.x86_64", nil},
+		{Platform{os: linux, arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{os: linux, arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
 
 		// Valid inputs - MacOS
 
 		// v3.0 - v3.0.6
-		{Platform{os: macOS, arch: I386}, Version{major: 3}, "osx.fat", nil},
-		{Platform{os: macOS, arch: Amd64}, Version{major: 3}, "osx.fat", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 3}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 3}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: i386}, Version{major: 3}, "osx.fat", nil},
+		{Platform{os: macOS, arch: amd64}, Version{major: 3}, "osx.fat", nil},
+		{Platform{os: macOS, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: I386}, Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{os: macOS, arch: Amd64}, Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 3, patch: 6}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 3, patch: 6}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: i386}, Version{major: 3, patch: 6}, "osx.fat", nil},
+		{Platform{os: macOS, arch: amd64}, Version{major: 3, patch: 6}, "osx.fat", nil},
+		{Platform{os: macOS, arch: arm64}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
 
 		// v3.1 - v3.2.4-beta2
-		{Platform{os: macOS, arch: Amd64}, Version{major: 3, minor: 1}, "osx.64", nil},
-		{Platform{os: macOS, arch: I386}, Version{major: 3, minor: 1}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 3, minor: 1}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 3, minor: 1}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{major: 3, minor: 1}, "osx.64", nil},
+		{Platform{os: macOS, arch: i386}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: arm64}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{3, 2, 4, "beta2"}, "osx.64", nil},
-		{Platform{os: macOS, arch: I386}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Arm64}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "beta2"}, "osx.64", nil},
+		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
 
 		// v3.2.4-beta3 - v4.0-alpha12
-		{Platform{os: macOS, arch: Amd64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
 
 		// v4.0-alpha13+
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: Amd64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArchInput},
+		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
+		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
+		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
 
 		// Valid inputs - Windows
 
 		// v3.*
-		{Platform{os: windows, arch: I386}, Version{major: 3}, "win32", nil},
-		{Platform{os: windows, arch: Amd64}, Version{major: 3}, "win64", nil},
-		{Platform{os: windows, arch: Arm64}, Version{major: 3}, "", ErrUnsupportedArchInput},
-		{Platform{os: windows, arch: Universal}, Version{major: 3}, "", ErrUnsupportedArchInput},
+		{Platform{os: windows, arch: i386}, Version{major: 3}, "win32", nil},
+		{Platform{os: windows, arch: amd64}, Version{major: 3}, "win64", nil},
+		{Platform{os: windows, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{os: windows, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{os: windows, arch: I386}, Version{major: 4}, "win32", nil},
-		{Platform{os: windows, arch: Amd64}, Version{major: 4}, "win64", nil},
-		{Platform{os: windows, arch: Arm64}, Version{major: 4}, "", ErrUnsupportedArchInput},
-		{Platform{os: windows, arch: Universal}, Version{major: 4}, "", ErrUnsupportedArchInput},
+		{Platform{os: windows, arch: i386}, Version{major: 4}, "win32", nil},
+		{Platform{os: windows, arch: amd64}, Version{major: 4}, "win64", nil},
+		{Platform{os: windows, arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{os: windows, arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
 	}
 
 	for _, tc := range tests {
