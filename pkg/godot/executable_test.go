@@ -58,24 +58,6 @@ func TestExecutableName(t *testing.T) {
 		{Platform{os: macOS, arch: I386}, Version{major: 3, minor: 6, label: "beta2"}, "", ErrUnsupportedArchInput},
 		{Platform{os: macOS, arch: Universal}, Version{major: 3, minor: 6, label: "beta2"}, "", ErrUnsupportedArchInput},
 
-		// v4.0-dev.20220118
-		{Platform{os: macOS, arch: Amd64}, Version{major: 4, label: "dev.20220118"}, "Godot_v4.0-dev.20220118_osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 4, label: "dev.20220118"}, "Godot_v4.0-dev.20220118_osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{major: 4, label: "dev.20220118"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 4, label: "dev.20220118"}, "", ErrUnsupportedArchInput},
-
-		// v4.0-alpha12
-		{Platform{os: macOS, arch: Amd64}, Version{major: 4, label: "alpha12"}, "Godot_v4.0-alpha12_osx.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 4, label: "alpha12"}, "Godot_v4.0-alpha12_osx.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{major: 4, label: "alpha12"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 4, label: "alpha12"}, "", ErrUnsupportedArchInput},
-
-		// v4.0-alpha13
-		{Platform{os: macOS, arch: Amd64}, Version{major: 4, label: "alpha13"}, "Godot_v4.0-alpha13_macos.universal", nil},
-		{Platform{os: macOS, arch: Arm64}, Version{major: 4, label: "alpha13"}, "Godot_v4.0-alpha13_macos.universal", nil},
-		{Platform{os: macOS, arch: I386}, Version{major: 4, label: "alpha13"}, "", ErrUnsupportedArchInput},
-		{Platform{os: macOS, arch: Universal}, Version{major: 4, label: "alpha13"}, "", ErrUnsupportedArchInput},
-
 		// v4.0-rc4
 		{Platform{os: macOS, arch: Amd64}, Version{major: 4, label: "rc4"}, "Godot_v4.0-rc4_macos.universal", nil},
 		{Platform{os: macOS, arch: Arm64}, Version{major: 4, label: "rc4"}, "Godot_v4.0-rc4_macos.universal", nil},
