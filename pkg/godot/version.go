@@ -81,10 +81,9 @@ func (v Version) Normal() string {
 
 /* -------------------------- Method: CompareNormal ------------------------- */
 
-// Returns a comparison with the other 'Version' struct, where the value is -1
-// if it's older, 0 if it's the same version, and +1 if it's newer. Note that
-// this method only looks at the "normal version" (see
-// https://semver.org/#spec-item-2).
+// Compares the "normal version" (see https://semver.org/#spec-item-2) to
+// another 'Version' struct. The value returned is '-1' if 'other' is older, '0'
+// if 'other' is the same "normal version", and '+1' if 'other' is newer.
 func (v Version) CompareNormal(other Version) int {
 	return semver.Compare(v.Normal(), other.Normal())
 }
