@@ -3,8 +3,8 @@ package godot
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"runtime"
-	"slices"
 	"strings"
 )
 
@@ -16,40 +16,11 @@ var (
 	ErrUnsupportedArchInput  = errors.New("unsupported architecture input")
 	ErrUnsupportedOSInput    = errors.New("unsupported OS input")
 
-	versionGodot4          = Version{major: 4, minor: 0} //nolint:gomnd
-	versionMacOSArmSupport = Version{3, 2, 4, "beta3"}
-
-	// NOTE: Unfortunately, there isn't a clean logic to how these versions are
-	// labeled. Rather than implementing some rules based on label parsing, just
-	// maintain a list of labels still using the 'osx.universal' identifier.
-	versionsGodot4WithOSXUniversal = []string{
-		"alpha1",
-		"alpha2",
-		"alpha3",
-		"alpha4",
-		"alpha5",
-		"alpha6",
-		"alpha7",
-		"alpha8",
-		"alpha9",
-		"alpha10",
-		"alpha11",
-		"alpha12",
-
-		"dev.20210727",
-		"dev.20210811",
-		"dev.20210820",
-		"dev.20210916",
-		"dev.20210924",
-		"dev.20211004",
-		"dev.20211015",
-		"dev.20211027",
-		"dev.20211108",
-		"dev.20211117",
-		"dev.20211210",
-		"dev.20220105",
-		"dev.20220118",
-	}
+	// This expression matches all Godot v4.0 pre-release versions which utilize
+	// a 'osx.universal' platform label. These include 'alpha1' - 'alpha12' and
+	// all of the 'dev.*' pre-alpha versions. This expressions has been tested
+	// manually, but some unit tests should validate this as well.
+	reV4LabelsWithOSXUniversal = regexp.MustCompile(`^(alpha([1-9]|1[0-2])|(dev\.[0-9]{8}))$`)
 )
 
 /* -------------------------------------------------------------------------- */
@@ -202,7 +173,9 @@ func FormatPlatform(p Platform, v Version) (string, error) {
 
 /* ---------------------- Function: formatLinuxPlatform --------------------- */
 
-func formatLinuxPlatform(a Arch, v Version) (string, error) {
+// Given an architecture, returns the Linux platform identifier used by Godot
+// executable names.
+func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArchInput
 	}
@@ -240,7 +213,12 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) {
 
 /* ---------------------- Function: formatMacOSPlatform --------------------- */
 
-func formatMacOSPlatform(a Arch, v Version) (string, error) {
+// Given an architecture, returns the macOS platform identifier used by Godot
+// executable names.
+//
+// NOTE: This is rather convoluted; consider a better way of organizing this
+// logic.
+func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArchInput
 	}
@@ -270,10 +248,8 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) {
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
 		}
 	// Godot v3.2.4-beta3 - v4.0-alpha12
-	case v.CompareNormal(versionGodot4) < 0 ||
-		// An O(n) check here is fine - the data is small and this will run at
-		// most once per CLI invocation.
-		(v.CompareNormal(versionGodot4) == 0 && slices.Contains(versionsGodot4WithOSXUniversal, v.label)):
+	case v.CompareNormal(godotVersion4()) < 0 ||
+		(v.CompareNormal(godotVersion4()) == 0 && reV4LabelsWithOSXUniversal.MatchString(v.label)):
 		switch a {
 		case Amd64, Arm64:
 			return "osx.universal", nil
@@ -295,6 +271,8 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) {
 
 /* --------------------- Function: formatWindowsPlatform -------------------- */
 
+// Given an architecture, returns the Windows platform identifier used by Godot
+// executable names.
 func formatWindowsPlatform(a Arch, v Version) (string, error) {
 	if a == 0 {
 		return "", ErrMissingArchInput
@@ -316,4 +294,12 @@ func formatWindowsPlatform(a Arch, v Version) (string, error) {
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
 		}
 	}
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: godotVersion4                          */
+/* -------------------------------------------------------------------------- */
+
+func godotVersion4() Version {
+	return Version{major: 4} //nolint:exhaustruct,gomnd
 }
