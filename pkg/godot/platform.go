@@ -211,6 +211,19 @@ func ParsePlatform(input string) (Platform, error) {
 	}
 }
 
+/* ----------------------- Function: MustParsePlatform ---------------------- */
+
+// Parses an input string as a 'Platform' specification but panics if it would
+// fail.
+func MustParsePlatform(input string) Platform {
+	platform, err := ParsePlatform(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return platform
+}
+
 /* -------------------------------------------------------------------------- */
 /*                          Function: FormatPlatform                          */
 /* -------------------------------------------------------------------------- */
