@@ -71,6 +71,14 @@ func (v Version) Label() string {
 	return v.label
 }
 
+/* ---------------------------- Method: IsStable ---------------------------- */
+
+// Returns whether the version specifies a "stable" release (e.g. 'stable' or
+// 'stable_mono').
+func (v Version) IsStable() bool {
+	return v.label == "stable" || v.label == "stable_mono"
+}
+
 /* ----------------------------- Method: Normal ----------------------------- */
 
 // Returns the "normal version" format of the 'Version' (see
@@ -123,6 +131,9 @@ func ParseVersion(input string) (Version, error) {
 	if input == "" {
 		return version, ErrMissingVersion
 	}
+
+	// Normalize input by trimming excess space and using lowercase.
+	input = strings.ToLower(strings.TrimSpace(input))
 
 	// 'gdenv' and Semantic Versioning do not require a 'v' prefix (as of
 	// version 2.0.0 - see semver.org/#semantic-versioning-200), but Golang's
