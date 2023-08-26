@@ -83,6 +83,9 @@ func (a Asset) Download(w io.Writer) error {
 		return errors.Join(ErrNetwork, err)
 	}
 
+	defer res.RawBody().Close()
+
+	// Copy the asset contents into the writer.
 	if _, err := io.Copy(w, res.RawBody()); err != nil {
 		return errors.Join(ErrFileSystem, err)
 	}
