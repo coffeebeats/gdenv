@@ -9,6 +9,9 @@ import (
 const namePrefix = "Godot"
 const nameSeparator = '_'
 
+// Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>'.
+const nameSchemeParts = 3
+
 var (
 	ErrInvalidName = errors.New("invalid name")
 	ErrMissingName = errors.New("missing name")
@@ -81,8 +84,8 @@ func ParseExecutable(input string) (Executable, error) {
 	}
 
 	// Try to split the input into 'Godot_', '<VERSION>' and '<LABEL>'.
-	parts := strings.SplitAfterN(input, string(nameSeparator), 2) //nolint:gomnd
-	if len(parts) != 3 {                                          //nolint:gomnd
+	parts := strings.SplitN(input, string(nameSeparator), nameSchemeParts)
+	if len(parts) != nameSchemeParts {
 		return executable, fmt.Errorf("%w: '%s'", ErrInvalidName, input)
 	}
 
@@ -100,4 +103,17 @@ func ParseExecutable(input string) (Executable, error) {
 	executable.Version = version
 
 	return executable, nil
+}
+
+/* ---------------------- Function: MustParseExecutable --------------------- */
+
+// Parses an 'Executable' struct from the name of a Godot executable or panics
+// if it would fail.
+func MustParseExecutable(input string) Executable {
+	ex, err := ParseExecutable(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return ex
 }
