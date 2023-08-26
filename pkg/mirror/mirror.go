@@ -3,9 +3,17 @@ package mirror
 import (
 	"io"
 	"net/url"
+	"time"
 
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/go-resty/resty/v2"
+)
+
+// Configure common retry policies for mirrors.
+const (
+	retryCount   = 3
+	retryWait    = time.Second
+	retryWaitMax = 10 * time.Second
 )
 
 /* -------------------------------------------------------------------------- */
@@ -60,4 +68,26 @@ func (a *asset) URL() url.URL {
 
 func (a *asset) Download(w io.Writer) error {
 	return nil
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Function: newClient                            */
+/* -------------------------------------------------------------------------- */
+
+// Configures a default HTTP client for mirrors.
+func newClient() *resty.Client {
+	client := resty.New()
+
+	client.SetRetryCount(retryCount)
+	client.SetRetryWaitTime(retryWait)
+	client.SetRetryMaxWaitTime(retryWaitMax)
+
+	// Retry on any error response.
+	client.AddRetryCondition(
+		func(r *resty.Response, err error) bool {
+			return err != nil || r.IsError()
+		},
+	)
+
+	return client
 }
