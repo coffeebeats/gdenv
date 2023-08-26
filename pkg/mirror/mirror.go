@@ -20,8 +20,11 @@ const (
 )
 
 var (
+	ErrFileSystem           = errors.New("file system operation failed")
 	ErrInvalidSpecification = errors.New("invalid specification")
 	ErrInvalidURL           = errors.New("invalid URL")
+	ErrMissingClient        = errors.New("missing client")
+	ErrNetwork              = errors.New("network request failure")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -50,19 +53,40 @@ type Asset struct {
 
 /* ------------------------------ Method: Name ------------------------------ */
 
+// Returns the filename of the asset to download.
 func (a Asset) Name() string {
 	return a.name
 }
 
 /* ------------------------------- Method: URL ------------------------------ */
 
+// Returns the URL of the asset to download.
 func (a Asset) URL() *url.URL {
 	return a.url
 }
 
 /* ---------------------------- Method: Download ---------------------------- */
 
+// Downloads the asset, outputting the contents to the passed-in 'io.Writer'.
 func (a Asset) Download(w io.Writer) error {
+	if a.client == nil {
+		return ErrMissingClient
+	}
+
+	// Assume control of response parsing.
+	a.client.SetDoNotParseResponse(true)
+	defer a.client.SetDoNotParseResponse(false)
+
+	// Issue the HTTP request.
+	res, err := a.client.R().Get(a.url.String())
+	if err != nil {
+		return errors.Join(ErrNetwork, err)
+	}
+
+	if _, err := io.Copy(w, res.RawBody()); err != nil {
+		return errors.Join(ErrFileSystem, err)
+	}
+
 	return nil
 }
 
