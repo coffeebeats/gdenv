@@ -53,7 +53,7 @@ func (m *TuxFamily) Checksum(v godot.Version) (Asset, error) {
 		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
-	urlVersionDir, err := tuxFamilyURLVersionDir(v)
+	urlVersionDir, err := urlTuxFamilyVersionDir(v)
 	if err != nil {
 		return a, err
 	}
@@ -91,7 +91,7 @@ func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
 
 	filename := name + ".zip"
 
-	urlVersionDir, err := tuxFamilyURLVersionDir(ex.Version)
+	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version)
 	if err != nil {
 		return a, err
 	}
@@ -119,7 +119,7 @@ func (m *TuxFamily) Supports(_ godot.Version) bool {
 	return true
 }
 
-/* -------------------- Function: tuxFamilyURLVersionDir -------------------- */
+/* -------------------- Function: urlTuxFamilyVersionDir -------------------- */
 
 // Returns a URL to the version-specific directory containing release assets.
 //
@@ -127,7 +127,7 @@ func (m *TuxFamily) Supports(_ godot.Version) bool {
 // route is built up in parts by replicating the directory structure. It's
 // possible some edge cases are mishandled; please open an issue if one's found:
 // https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md
-func tuxFamilyURLVersionDir(v godot.Version) (string, error) {
+func urlTuxFamilyVersionDir(v godot.Version) (string, error) {
 	p := make([]string, 0)
 
 	p = append(p, v.Normal())
