@@ -170,12 +170,16 @@ func TestFormatPlatform(t *testing.T) {
 		// v3.*
 		{Platform{OS: linux, Arch: i386}, Version{major: 3}, "x11.32", nil},
 		{Platform{OS: linux, Arch: amd64}, Version{major: 3}, "x11.64", nil},
+		{Platform{OS: linux, Arch: i386}, Version{major: 3, label: LabelMono}, "x11_32", nil},
+		{Platform{OS: linux, Arch: amd64}, Version{major: 3, label: LabelMono}, "x11_64", nil},
 		{Platform{OS: linux, Arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
 		{Platform{OS: linux, Arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
 		// v4.0+
 		{Platform{OS: linux, Arch: i386}, Version{major: 4}, "linux.x86_32", nil},
 		{Platform{OS: linux, Arch: amd64}, Version{major: 4}, "linux.x86_64", nil},
+		{Platform{OS: linux, Arch: i386}, Version{major: 4, label: LabelMono}, "linux_x86_32", nil},
+		{Platform{OS: linux, Arch: amd64}, Version{major: 4, label: LabelMono}, "linux_x86_64", nil},
 		{Platform{OS: linux, Arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
 		{Platform{OS: linux, Arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
 

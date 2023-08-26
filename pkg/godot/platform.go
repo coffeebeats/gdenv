@@ -262,6 +262,8 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		return "", ErrMissingArch
 	}
 
+	var p string
+
 	switch {
 	// Godot v1-v2 not supported
 	case v.major < 3: //nolint:gomnd
@@ -272,9 +274,9 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		// are not supported.
 		switch a {
 		case i386:
-			return "x11.32", nil
+			p = "x11.32"
 		case amd64:
-			return "x11.64", nil
+			p = "x11.64"
 
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
@@ -283,14 +285,22 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	default:
 		switch a {
 		case i386:
-			return "linux.x86_32", nil
+			p = "linux.x86_32"
 		case amd64:
-			return "linux.x86_64", nil
+			p = "linux.x86_64"
 
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
+
+	// For some reason, "mono"-flavored builds have the '.' rune replaced by a
+	// '_' rune.
+	if v.IsMono() {
+		p = strings.ReplaceAll(p, ".", "_")
+	}
+
+	return p, nil
 }
 
 /* ---------------------- Function: formatMacOSPlatform --------------------- */
