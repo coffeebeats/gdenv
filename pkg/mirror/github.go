@@ -79,7 +79,9 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
-	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, ex.Version.String(), name+".zip")
+	filename := name + ".zip"
+
+	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, ex.Version.String(), filename)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
@@ -89,7 +91,7 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+	a.client, a.name, a.url = m.client, filename, urlParsed
 
 	return a, nil
 }

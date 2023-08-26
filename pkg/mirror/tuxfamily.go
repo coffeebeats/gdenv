@@ -89,12 +89,14 @@ func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
+	filename := name + ".zip"
+
 	urlVersionDir, err := tuxFamilyURLVersionDir(ex.Version)
 	if err != nil {
 		return a, err
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, name)
+	urlRaw, err := url.JoinPath(urlVersionDir, filename)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
@@ -104,7 +106,7 @@ func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+	a.client, a.name, a.url = m.client, filename, urlParsed
 
 	return a, nil
 }
