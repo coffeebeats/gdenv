@@ -14,6 +14,8 @@ const (
 	gitHubAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
 )
 
+var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1")
+
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
 /* -------------------------------------------------------------------------- */
@@ -48,14 +50,17 @@ func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
 		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
-	tag := fmt.Sprintf("%s-%s", v.Normal(), v.Label())
-
-	urlRaw, err := url.JoinPath(gitHubAssetsURLBase, tag, filenameChecksums)
+	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlRaw)
+	urlAsset, err := url.JoinPath(urlRelease, filenameChecksums)
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
@@ -81,14 +86,19 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
-	filename, tag := name+".zip", fmt.Sprintf("%s-%s", ex.Version.Normal(), ex.Version.Label())
-
-	urlRaw, err := url.JoinPath(gitHubAssetsURLBase, tag, filename)
+	urlRelease, err := urlGitHubRelease(ex.Version)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlRaw)
+	filename := name + ".zip"
+
+	urlAsset, err := url.JoinPath(urlRelease, filename)
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
@@ -103,5 +113,13 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 // Returns whether the mirror supports the specified version. This does *NOT*
 // guarantee that the mirror has the version.
 func (m *GitHub) Supports(v godot.Version) bool {
-	return v.IsStable()
+	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
+}
+
+/* ----------------------- Function: urlGitHubRelease ----------------------- */
+
+// Returns a URL to the version-specific release containing release assets.
+func urlGitHubRelease(v godot.Version) (string, error) {
+	tag := fmt.Sprintf("%s-%s", v.Normal(), godot.LabelStable)
+	return url.JoinPath(gitHubAssetsURLBase, tag)
 }
