@@ -17,7 +17,9 @@ type TuxFamily struct {
 /* ------------------------- Function: NewTuxFamily ------------------------- */
 
 func NewTuxFamily() TuxFamily {
-	return TuxFamily{}
+	client := newClient()
+
+	return TuxFamily{client}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */

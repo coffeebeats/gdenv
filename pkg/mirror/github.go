@@ -5,6 +5,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+const gitHubContentDomain = "githubusercontent.com"
+
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
 /* -------------------------------------------------------------------------- */
@@ -17,8 +19,15 @@ type GitHub struct {
 
 /* --------------------------- Function: NewGitHub -------------------------- */
 
+// Creates a new GitHub 'Mirror' client with default retry mechanisms and
+// redirect policies configured.
 func NewGitHub() GitHub {
-	return GitHub{}
+	client := newClient()
+
+	// Allow redirects to the GitHub content domain.
+	client.SetRedirectPolicy(resty.DomainCheckRedirectPolicy(gitHubContentDomain))
+
+	return GitHub{client}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */
