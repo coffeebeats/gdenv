@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 (2023-08-26)
+
+## What's Changed
+* refactor!: migrate `cmd/gdenv`, `pkg/store`, and `pkg/pin` onto public `pkg/godot` package by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/41
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.1.4...v0.2.0
+
 ## 0.1.4 (2023-08-25)
 
 ## What's Changed
