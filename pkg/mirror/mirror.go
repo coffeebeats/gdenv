@@ -65,6 +65,23 @@ func (a Asset) URL() *url.URL {
 	return a.url
 }
 
+/* ------------------------------ Method: Size ------------------------------ */
+
+// Checks the size of the asset via the "Content-Length" response header.
+func (a Asset) Size() (int64, error) {
+	if a.client == nil {
+		return 0, ErrMissingClient
+	}
+
+	// Issue the HTTP request.
+	res, err := a.client.R().Head(a.url.String())
+	if err != nil {
+		return 0, errors.Join(ErrNetwork, err)
+	}
+
+	return res.RawResponse.ContentLength, nil
+}
+
 /* ---------------------------- Method: Download ---------------------------- */
 
 // Downloads the asset, outputting the contents to the passed-in 'io.Writer'.
