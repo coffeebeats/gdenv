@@ -63,16 +63,16 @@ func TestVersionNormal(t *testing.T) {
 	}
 
 	tests := []test{
-		{Version{}, "v0.0.0"},
+		{Version{}, "0.0.0"},
 
-		{Version{major: 1}, "v1.0.0"},
-		{Version{major: 1, minor: 1}, "v1.1.0"},
-		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1"},
+		{Version{major: 1}, "1.0.0"},
+		{Version{major: 1, minor: 1}, "1.1.0"},
+		{Version{major: 1, minor: 1, patch: 1}, "1.1.1"},
 
-		{Version{minor: 1}, "v0.1.0"},
-		{Version{minor: 1, patch: 1}, "v0.1.1"},
+		{Version{minor: 1}, "0.1.0"},
+		{Version{minor: 1, patch: 1}, "0.1.1"},
 
-		{Version{patch: 1}, "v0.0.1"},
+		{Version{patch: 1}, "0.0.1"},
 	}
 
 	// Produce an additional test with a specific label applied.

@@ -9,11 +9,15 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-const labelDefault = "stable"
+const (
+	LabelMono    = "stable_mono"
+	LabelStable  = "stable"
+	labelDefault = LabelStable
 
-const prefixVersion = "v"
-const separatorBuildMetadata = "+"     // https://semver.org/#spec-item-10
-const separatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
+	prefixVersion              = "v"
+	separatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
+	separatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
+)
 
 var (
 	ErrInvalidVersion       = errors.New("invalid version")
@@ -71,12 +75,19 @@ func (v Version) Label() string {
 	return v.label
 }
 
+/* ----------------------------- Method: IsMono ----------------------------- */
+
+// Returns whether the version specifies a "mono" release (i.e. 'stable_mono').
+func (v Version) IsMono() bool {
+	return v.label == LabelMono
+}
+
 /* ---------------------------- Method: IsStable ---------------------------- */
 
 // Returns whether the version specifies a "stable" release (e.g. 'stable' or
 // 'stable_mono').
 func (v Version) IsStable() bool {
-	return v.label == "stable" || v.label == "stable_mono"
+	return v.label == LabelStable || v.label == LabelMono
 }
 
 /* ----------------------------- Method: Normal ----------------------------- */
@@ -84,7 +95,7 @@ func (v Version) IsStable() bool {
 // Returns the "normal version" format of the 'Version' (see
 // https://semver.org/#spec-item-2).
 func (v Version) Normal() string {
-	return fmt.Sprintf("v%d.%d.%d", v.major, v.minor, v.patch)
+	return fmt.Sprintf("%d.%d.%d", v.major, v.minor, v.patch)
 }
 
 /* -------------------------- Method: CompareNormal ------------------------- */
@@ -93,7 +104,7 @@ func (v Version) Normal() string {
 // another 'Version' struct. The value returned is '-1' if 'other' is older, '0'
 // if 'other' is the same "normal version", and '+1' if 'other' is newer.
 func (v Version) CompareNormal(other Version) int {
-	return semver.Compare(v.Normal(), other.Normal())
+	return semver.Compare(prefixVersion+v.Normal(), prefixVersion+other.Normal())
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
