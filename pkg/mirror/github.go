@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	gitHubContentDomain        = "githubusercontent.com"
-	gitHubReleaseAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
+	gitHubContentDomain = "objects.githubusercontent.com"
+	gitHubAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
 )
 
 /* -------------------------------------------------------------------------- */
@@ -48,7 +48,9 @@ func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
 		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
-	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, v.String(), filenameChecksums)
+	tag := fmt.Sprintf("%s-%s", v.Normal(), v.Label())
+
+	urlRaw, err := url.JoinPath(gitHubAssetsURLBase, tag, filenameChecksums)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
@@ -79,9 +81,9 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
-	filename := name + ".zip"
+	filename, tag := name+".zip", fmt.Sprintf("%s-%s", ex.Version.Normal(), ex.Version.Label())
 
-	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, ex.Version.String(), filename)
+	urlRaw, err := url.JoinPath(gitHubAssetsURLBase, tag, filename)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
