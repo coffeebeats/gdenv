@@ -132,7 +132,8 @@ func ParseVersion(input string) (Version, error) {
 	// Trim the label off, but store it for later.
 	input, label, found := strings.Cut(input, separatorPreReleaseVersion)
 	if (found && label == "") || !semver.IsValid(input) {
-		return version, fmt.Errorf("%w: '%s'", ErrInvalidVersion, input)
+		err := fmt.Errorf("%w: '%s'", ErrInvalidVersion, strings.TrimPrefix(input, prefixVersion))
+		return version, err
 	}
 
 	if label == labelDefault {
