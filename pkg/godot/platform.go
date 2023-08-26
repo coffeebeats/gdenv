@@ -9,12 +9,14 @@ import (
 )
 
 var (
-	ErrMissingArchInput      = errors.New("missing architecture input")
-	ErrMissingOSInput        = errors.New("missing OS input")
-	ErrUnrecognizedArchInput = errors.New("unrecognized architecture input")
-	ErrUnrecognizedOSInput   = errors.New("unrecognized OS input")
-	ErrUnsupportedArchInput  = errors.New("unsupported architecture input")
-	ErrUnsupportedOSInput    = errors.New("unsupported OS input")
+	ErrMissingArch          = errors.New("missing architecture")
+	ErrMissingOS            = errors.New("missing OS")
+	ErrMissingPlatform      = errors.New("missing platform")
+	ErrUnrecognizedArch     = errors.New("unrecognized architecture")
+	ErrUnrecognizedOS       = errors.New("unrecognized OS")
+	ErrUnrecognizedPlatform = errors.New("unrecognized platform")
+	ErrUnsupportedArch      = errors.New("unsupported architecture")
+	ErrUnsupportedOS        = errors.New("unsupported OS")
 
 	// This expression matches all Godot v4.0 pre-release versions which utilize
 	// a 'osx.universal' platform label. These include 'alpha1' - 'alpha12' and
@@ -50,7 +52,7 @@ const (
 func ParseOS(input string) (OS, error) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
 	case "":
-		return 0, ErrMissingOSInput
+		return 0, ErrMissingOS
 
 	case "darwin", "macos", "osx":
 		return macOS, nil
@@ -62,8 +64,21 @@ func ParseOS(input string) (OS, error) {
 		return windows, nil
 
 	default:
-		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedOSInput, input)
+		return 0, fmt.Errorf("%w: '%s'", ErrUnrecognizedOS, input)
 	}
+}
+
+/* -------------------------- Function: MustParseOS ------------------------- */
+
+// Parses an input string as an operating system specification but panics if it
+// would fail.
+func MustParseOS(input string) OS {
+	os, err := ParseOS(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return os
 }
 
 /* -------------------------------------------------------------------------- */
@@ -75,10 +90,10 @@ func ParseOS(input string) (OS, error) {
 type Arch int
 
 const (
-	Amd64 Arch = iota + 1
-	Arm64
-	I386
-	Universal
+	amd64 Arch = iota + 1
+	arm64
+	i386
+	universal
 )
 
 /* --------------------------- Function: ParseArch -------------------------- */
@@ -94,23 +109,36 @@ const (
 func ParseArch(input string) (Arch, error) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
 	case "":
-		return 0, ErrMissingArchInput
+		return 0, ErrMissingArch
 
 	case "386", "i386", "x86", "x86_32":
-		return I386, nil
+		return i386, nil
 
 	case "amd64", "x86_64", "x86-64":
-		return Amd64, nil
+		return amd64, nil
 
 	case "arm64", "arm64be":
-		return Arm64, nil
+		return arm64, nil
 
 	case "fat", "universal":
-		return Universal, nil
+		return universal, nil
 
 	default:
-		return 0, fmt.Errorf("%w: %s", ErrUnrecognizedArchInput, input)
+		return 0, fmt.Errorf("%w: '%s'", ErrUnrecognizedArch, input)
 	}
+}
+
+/* ------------------------- Function: MustParseArch ------------------------ */
+
+// Parses an input string as a CPU architecture specification but panics if it
+// would fail.
+func MustParseArch(input string) Arch {
+	arch, err := ParseArch(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return arch
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,8 +147,8 @@ func ParseArch(input string) (Arch, error) {
 
 // A platform specification representing a target to run the Godot editor on.
 type Platform struct {
-	arch Arch
-	os   OS
+	Arch Arch
+	OS   OS
 }
 
 /* ------------------------- Function: HostPlatform ------------------------- */
@@ -131,17 +159,69 @@ func HostPlatform() (Platform, error) {
 
 	os, err := ParseOS(runtime.GOOS)
 	if err != nil {
-		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
+		return platform, fmt.Errorf("%w: '%s'", err, runtime.GOOS)
 	}
 
 	arch, err := ParseArch(runtime.GOARCH)
 	if err != nil {
-		return platform, fmt.Errorf("%w: %s", err, runtime.GOOS)
+		return platform, fmt.Errorf("%w: '%s'", err, runtime.GOOS)
 	}
 
-	platform.arch, platform.os = arch, os
+	platform.Arch, platform.OS = arch, os
 
 	return platform, nil
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: ParsePlatform                          */
+/* -------------------------------------------------------------------------- */
+
+// Parses a 'Platform' struct from a platform identifier. There are potentially
+// multiple valid identifiers for any given platform due to schema differences
+// across Godot versions.
+func ParsePlatform(input string) (Platform, error) {
+	if input == "" {
+		return Platform{}, ErrMissingPlatform
+	}
+
+	switch strings.ToLower(strings.TrimSpace(input)) {
+	// Linux
+	case "x11.32", "linux.x86_32":
+		return Platform{i386, linux}, nil
+	case "x11.64", "linux.x86_64":
+		return Platform{amd64, linux}, nil
+
+	// MacOS - Note that the supported architectures between 'osx.fat' and
+	// 'osx.universal' are *NOT* the same. It's important to maintain the
+	// 'Version' alongside this result so that the architectures can be
+	// correctly determined.
+	case "osx.64":
+		return Platform{amd64, macOS}, nil
+	case "macos.universal", "osx.fat", "osx.universal":
+		return Platform{universal, macOS}, nil
+
+	// Windows
+	case "win32":
+		return Platform{i386, windows}, nil
+	case "win64":
+		return Platform{amd64, windows}, nil
+
+	default:
+		return Platform{}, fmt.Errorf("%w: '%s'", ErrUnrecognizedPlatform, input)
+	}
+}
+
+/* ----------------------- Function: MustParsePlatform ---------------------- */
+
+// Parses an input string as a 'Platform' specification but panics if it would
+// fail.
+func MustParsePlatform(input string) Platform {
+	platform, err := ParsePlatform(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return platform
 }
 
 /* -------------------------------------------------------------------------- */
@@ -158,18 +238,18 @@ func HostPlatform() (Platform, error) {
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func FormatPlatform(p Platform, v Version) (string, error) {
-	switch p.os {
+	switch p.OS {
 	case linux:
-		return formatLinuxPlatform(p.arch, v)
+		return formatLinuxPlatform(p.Arch, v)
 	case macOS:
-		return formatMacOSPlatform(p.arch, v)
+		return formatMacOSPlatform(p.Arch, v)
 	case windows:
-		return formatWindowsPlatform(p.arch, v)
+		return formatWindowsPlatform(p.Arch, v)
 
 	case 0:
-		return "", ErrMissingOSInput
+		return "", ErrMissingOS
 	default:
-		return "", ErrUnrecognizedOSInput
+		return "", ErrUnrecognizedOS
 	}
 }
 
@@ -179,36 +259,36 @@ func FormatPlatform(p Platform, v Version) (string, error) {
 // executable names.
 func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	if a == 0 {
-		return "", ErrMissingArchInput
+		return "", ErrMissingArch
 	}
 
 	switch {
 	// Godot v1-v2 not supported
 	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: %s", ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
 	// Godot v3
 	case v.major < 4: //nolint:gomnd
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
 		// are not supported.
 		switch a {
-		case I386:
+		case i386:
 			return "x11.32", nil
-		case Amd64:
+		case amd64:
 			return "x11.64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// Godot v4+
 	default:
 		switch a {
-		case I386:
+		case i386:
 			return "linux.x86_32", nil
-		case Amd64:
+		case amd64:
 			return "linux.x86_64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
 }
@@ -222,51 +302,51 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 // logic.
 func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	if a == 0 {
-		return "", ErrMissingArchInput
+		return "", ErrMissingArch
 	}
 
 	switch {
 	// Godot v1 - v2 not supported
 	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: %s", ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
 	// Godot v3.0 - v3.0.6
 	case v.major == 3 && v.minor < 1:
 		switch a {
-		case I386, Amd64:
+		case i386, amd64:
 			return "osx.fat", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// Godot v3.1 - v3.2.4-beta2
 	// NOTE: Because v3.2.4 labels are only "beta" and "rc" *and* "beta"
 	// versions do not exceed 6, lexicographic  sorting works.
 	case v.major == 3 && v.minor <= 2 && (v.patch < 4 || v.patch == 4 && v.label <= "beta2"):
 		switch a {
-		case Amd64:
+		case amd64:
 			return "osx.64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// Godot v3.2.4-beta3 - v4.0-alpha12
 	case v.CompareNormal(godotVersion4()) < 0 ||
 		(v.CompareNormal(godotVersion4()) == 0 && reV4LabelsWithOSXUniversal.MatchString(v.label)):
 		switch a {
-		case Amd64, Arm64:
+		case amd64, arm64:
 			return "osx.universal", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// Godot v4.0-alpha13+
 	default:
 		switch a {
-		case Amd64, Arm64:
+		case amd64, arm64:
 			return "macos.universal", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
 }
@@ -277,23 +357,23 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 // executable names.
 func formatWindowsPlatform(a Arch, v Version) (string, error) {
 	if a == 0 {
-		return "", ErrMissingArchInput
+		return "", ErrMissingArch
 	}
 
 	switch {
 	// Godot v1-v2 not supported
 	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: %s", ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
 	// Godot v3+
 	default:
 		switch a {
-		case I386:
+		case i386:
 			return "win32", nil
-		case Amd64:
+		case amd64:
 			return "win64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArchInput, a)
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
 }

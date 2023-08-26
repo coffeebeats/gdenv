@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 /* ------------------------------- Test: Read ------------------------------- */
 
 func TestRead(t *testing.T) {
-	version := godot.Version{}.Canonical()
+	version := godot.MustParseVersion("1.0.0-stable")
 
 	tests := []struct {
 		path     string
@@ -168,10 +168,10 @@ func TestWrite(t *testing.T) {
 		want    string
 		err     error
 	}{
-		{"v4", "", "v4.0.0-stable", nil},
-		{"v4", pinFilename, "v4.0.0-stable", nil},
-		{"v4.1-rc1", "a/b/c", "v4.1.0-rc1", nil},
-		{"v4.1-rc1", "a/b/c/" + pinFilename, "v4.1.0-rc1", nil},
+		{"v4", "", "v4.0-stable", nil},
+		{"v4", pinFilename, "v4.0-stable", nil},
+		{"v4.1-rc1", "a/b/c", "v4.1-rc1", nil},
+		{"v4.1-rc1", "a/b/c/" + pinFilename, "v4.1-rc1", nil},
 	}
 
 	for i, tc := range tests {

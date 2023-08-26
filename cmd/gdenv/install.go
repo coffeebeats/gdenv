@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -36,11 +36,20 @@ func NewInstall() *cli.Command {
 				return fail(err)
 			}
 
-			if store.Has(storePath, version) && !c.Bool("force") {
+			// Define the host 'Platform'.
+			platform, err := godot.HostPlatform()
+			if err != nil {
+				return fail(err)
+			}
+
+			// Define the target 'Executable'.
+			ex := godot.Executable{Platform: platform, Version: version}
+
+			if store.Has(storePath, ex) && !c.Bool("force") {
 				return nil
 			}
 
-			if err := install(storePath, version); err != nil {
+			if err := install(storePath, ex); err != nil {
 				return fail(err)
 			}
 
@@ -51,6 +60,7 @@ func NewInstall() *cli.Command {
 
 /* ---------------------------- Function: install --------------------------- */
 
-func install(_ string, _ godot.Version) error {
+// Downloads and caches a platform-specific version of Godot.
+func install(_ string, _ godot.Executable) error {
 	return nil
 }

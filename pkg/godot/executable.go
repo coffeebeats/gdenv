@@ -1,12 +1,34 @@
 package godot
 
-import "strings"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
 
-const executableNamePrefix = "Godot"
+const namePrefix = "Godot"
+const nameSeparator = '_'
+
+// Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>'.
+const nameSchemeParts = 3
+
+var (
+	ErrInvalidName = errors.New("invalid name")
+	ErrMissingName = errors.New("missing name")
+)
 
 /* -------------------------------------------------------------------------- */
-/*                          Function: ExecutableName                          */
+/*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
+
+// A specification of a Godot executable (i.e. has a specific platform and
+// version).
+type Executable struct {
+	Platform Platform
+	Version  Version
+}
+
+/* ------------------------------ Method: Name ------------------------------ */
 
 // Returns the name of the Godot executable, given the specified 'Version' and
 // 'Platform'.
@@ -15,25 +37,83 @@ const executableNamePrefix = "Godot"
 // with Windows executables getting an extra '.exe' extension. Both the version
 // and platform identifiers are version-specific, but the overall naming scheme
 // has not changed (as of v4.2).
-func ExecutableName(p Platform, v Version) (string, error) {
+func (e Executable) Name() (string, error) {
 	var name strings.Builder
 
-	name.WriteString(executableNamePrefix)
-	name.WriteRune('_')
+	name.WriteString(namePrefix)
+	name.WriteRune(nameSeparator)
 
-	name.WriteString(v.String())
-	name.WriteRune('_')
+	name.WriteString(e.Version.String())
+	name.WriteRune(nameSeparator)
 
-	platformIdentifier, err := FormatPlatform(p, v)
+	platformIdentifier, err := FormatPlatform(e.Platform, e.Version)
 	if err != nil {
 		return "", err
 	}
 
 	name.WriteString(platformIdentifier)
 
-	if p.os == windows {
+	if e.Platform.OS == windows {
 		name.WriteString(".exe")
 	}
 
 	return name.String(), nil
+}
+
+/* ----------------------------- Impl: Stringer ----------------------------- */
+
+func (e Executable) String() string {
+	name, err := e.Name()
+	if err != nil {
+		return ""
+	}
+
+	return name
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Function: ParseExecutable                         */
+/* -------------------------------------------------------------------------- */
+
+// Parses an 'Executable' struct from the name of a Godot executable.
+func ParseExecutable(input string) (Executable, error) {
+	var executable Executable
+
+	if input == "" {
+		return executable, ErrMissingName
+	}
+
+	// Try to split the input into 'Godot_', '<VERSION>' and '<LABEL>'.
+	parts := strings.SplitN(input, string(nameSeparator), nameSchemeParts)
+	if len(parts) != nameSchemeParts {
+		return executable, fmt.Errorf("%w: '%s'", ErrInvalidName, input)
+	}
+
+	version, err := ParseVersion(parts[1])
+	if err != nil {
+		return executable, err
+	}
+
+	platform, err := ParsePlatform(parts[2])
+	if err != nil {
+		return executable, err
+	}
+
+	executable.Platform = platform
+	executable.Version = version
+
+	return executable, nil
+}
+
+/* ---------------------- Function: MustParseExecutable --------------------- */
+
+// Parses an 'Executable' struct from the name of a Godot executable or panics
+// if it would fail.
+func MustParseExecutable(input string) Executable {
+	ex, err := ParseExecutable(input)
+	if err != nil {
+		panic(err)
+	}
+
+	return ex
 }

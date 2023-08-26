@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 var (
@@ -108,8 +108,8 @@ func Write(version godot.Version, path string) error {
 		return errors.Join(ErrIOFailed, err)
 	}
 
-	contents := version.Canonical().String()
-	if err := os.WriteFile(path, []byte(contents), os.ModePerm); err != nil {
+	contents := []byte(version.String())
+	if err := os.WriteFile(path, contents, os.ModePerm); err != nil {
 		return errors.Join(ErrIOFailed, err)
 	}
 

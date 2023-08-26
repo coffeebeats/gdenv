@@ -2,13 +2,12 @@ package store
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/godot"
+	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 /* ------------------------------- Test: Init ------------------------------- */
@@ -48,15 +47,21 @@ func TestInit(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	tests := []struct {
-		version godot.Version
-		err     error
+		os, arch, v string
+		err         error
 	}{
-		{godot.Version{}, nil},
-		{godot.Version{}.Canonical(), nil},
+		{"linux", "amd64", "4.0", nil},
+		{"linux", "amd64", "4.0-alpha1", nil},
+
+		{"macos", "amd64", "4.0", nil},
+		{"macos", "amd64", "4.0-alpha1", nil},
+
+		{"windows", "i386", "4.0", nil},
+		{"windows", "i386", "4.0-alpha1", nil},
 	}
 
 	for _, tc := range tests {
-		t.Run(fmt.Sprint(tc.version), func(t *testing.T) {
+		t.Run(tc.v, func(t *testing.T) {
 			tmp := t.TempDir()
 			store, tool := filepath.Join(tmp, "store"), filepath.Join(tmp, "tool")
 
@@ -65,23 +70,35 @@ func TestAdd(t *testing.T) {
 				t.Fatalf("err: %v", err)
 			}
 
+			// Define the 'Version' for the test.
+			v := godot.MustParseVersion(tc.v)
+
+			// Define the 'Platform' for the test.
+			p := godot.Platform{
+				OS:   godot.MustParseOS(tc.os),
+				Arch: godot.MustParseArch(tc.arch),
+			}
+
+			// Define the 'Executable' for the test.
+			ex := godot.Executable{Platform: p, Version: v}
+
 			// Create the tool to be moved.
 			if err := os.WriteFile(tool, []byte(""), os.ModePerm); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
 			// Invoke the 'Add' function.
-			if err := Add(store, tool, tc.version); !errors.Is(err, tc.err) {
+			if err := Add(store, tool, ex); !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// Verify the tool exists.
-			name, err := godot.ExecutableName(tc.version.Canonical())
+			name, err := ex.Name()
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			toolWant := filepath.Join(store, storeDirGodot, tc.version.Canonical().String(), name)
+			toolWant := filepath.Join(store, storeDirGodot, v.String(), name)
 			info, err := os.Stat(toolWant)
 			if err != nil {
 				t.Fatalf("output: %s", err)
@@ -97,39 +114,71 @@ func TestAdd(t *testing.T) {
 /* ------------------------------ Test: Remove ------------------------------ */
 
 func TestRemove(t *testing.T) {
-	tmp, version := t.TempDir(), godot.Version{}
+	tests := []struct {
+		os, arch, v string
+		err         error
+	}{
+		{"linux", "amd64", "4.0", nil},
+		{"linux", "amd64", "4.0-alpha1", nil},
 
-	err := Init(tmp)
-	if err != nil {
-		t.Fatalf("err: %v", err)
-	}
+		{"macos", "amd64", "4.0", nil},
+		{"macos", "amd64", "4.0-alpha1", nil},
 
-	// Create the tool to be moved.
-	name, err := godot.ExecutableName(version.Canonical())
-	if err != nil {
-		t.Fatalf("test setup: %v", err)
-	}
-
-	toolWant := filepath.Join(tmp, storeDirGodot, version.Canonical().String(), name)
-	if err := os.MkdirAll(filepath.Dir(toolWant), os.ModePerm); err != nil {
-		t.Fatalf("test setup: %v", err)
-	}
-	if err := os.WriteFile(toolWant, []byte(""), os.ModePerm); err != nil {
-		t.Fatalf("test setup: %v", err)
+		{"windows", "i386", "4.0", nil},
+		{"windows", "i386", "4.0-alpha1", nil},
 	}
 
-	// Invoke the 'Remove' function.
-	if err := Remove(tmp, version); !errors.Is(err, nil) {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+	for _, tc := range tests {
+
+		t.Run(tc.v, func(t *testing.T) {
+			tmp := t.TempDir()
+
+			err := Init(tmp)
+			if err != nil {
+				t.Fatalf("err: %v", err)
+			}
+
+			// Define the 'Version' for the test.
+			v := godot.MustParseVersion(tc.v)
+
+			// Define the 'Platform' for the test.
+			p := godot.Platform{
+				OS:   godot.MustParseOS(tc.os),
+				Arch: godot.MustParseArch(tc.arch),
+			}
+
+			// Define the 'Executable' for the test.
+			ex := godot.Executable{Platform: p, Version: v}
+
+			// Create the tool to be moved.
+			name, err := ex.Name()
+			if err != nil {
+				t.Fatalf("test setup: %v", err)
+			}
+
+			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), name)
+			if err := os.MkdirAll(filepath.Dir(toolWant), os.ModePerm); err != nil {
+				t.Fatalf("test setup: %v", err)
+			}
+			if err := os.WriteFile(toolWant, []byte(""), os.ModePerm); err != nil {
+				t.Fatalf("test setup: %v", err)
+			}
+
+			// Invoke the 'Remove' function.
+			if err := Remove(tmp, ex); !errors.Is(err, nil) {
+				t.Fatalf("err: got %#v, want %#v", err, nil)
+			}
+
+			// Verify the tool is removed, along with the parent directory.
+			info, err := os.Stat(filepath.Dir(toolWant))
+			if !errors.Is(err, fs.ErrNotExist) {
+				t.Fatalf("output: %s", err)
+			}
+
+			if info != nil && info.Mode().IsDir() {
+				t.Fatalf("output is not removed: %s", toolWant)
+			}
+		})
 	}
 
-	// Verify the tool is removed, along with the parent directory.
-	info, err := os.Stat(filepath.Dir(toolWant))
-	if !errors.Is(err, fs.ErrNotExist) {
-		t.Fatalf("output: %s", err)
-	}
-
-	if info != nil && info.Mode().IsDir() {
-		t.Fatalf("output is not removed: %s", toolWant)
-	}
 }

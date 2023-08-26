@@ -35,7 +35,7 @@ func NewLs() *cli.Command {
 
 			if wd, err := os.Getwd(); err == nil {
 				if version, err := pin.Read(wd); err == nil {
-					log.Printf("🤖 Currently active version: %s\n\n", version.Canonical())
+					log.Printf("🤖 Currently active version: %s\n\n", version)
 				}
 			}
 
@@ -48,15 +48,15 @@ func NewLs() *cli.Command {
 
 /* ------------------------------ Function: ls ------------------------------ */
 
-func ls(path string) ([]string, error) {
-	versions, err := store.Versions(path)
+func ls(storePath string) ([]string, error) {
+	executables, err := store.Executables(storePath)
 	if err != nil {
 		return nil, err
 	}
 
-	out := make([]string, len(versions))
-	for i, v := range versions {
-		out[i] = v.String()
+	out := make([]string, len(executables))
+	for i, ex := range executables {
+		out[i] = ex.String()
 	}
 
 	return out, nil

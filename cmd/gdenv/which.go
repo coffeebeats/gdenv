@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -43,7 +44,13 @@ func NewWhich() *cli.Command {
 				return fail(err)
 			}
 
-			toolPath, err := which(storePath, path)
+			// Define the host 'Platform'.
+			platform, err := godot.HostPlatform()
+			if err != nil {
+				return fail(err)
+			}
+
+			toolPath, err := which(storePath, path, platform)
 			if err != nil {
 				return fail(err)
 			}
@@ -55,7 +62,7 @@ func NewWhich() *cli.Command {
 	}
 }
 
-func which(storePath, pinPath string) (string, error) {
+func which(storePath, pinPath string, platform godot.Platform) (string, error) {
 	path, err := pin.Resolve(pinPath)
 	if err != nil {
 		if !errors.Is(err, pin.ErrFileNotFound) {
@@ -69,9 +76,15 @@ func which(storePath, pinPath string) (string, error) {
 	}
 
 	version, err := pin.Read(path)
-	if err != nil || !store.Has(storePath, version) {
+	if err != nil {
 		return "", ErrGodotNotFound
 	}
 
-	return store.ToolPath(storePath, version)
+	// Define the target 'Executable'.
+	ex := godot.Executable{Platform: platform, Version: version}
+	if !store.Has(storePath, ex) {
+		return "", ErrGodotNotFound
+	}
+
+	return store.ToolPath(storePath, ex)
 }
