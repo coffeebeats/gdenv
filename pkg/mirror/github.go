@@ -1,11 +1,18 @@
 package mirror
 
 import (
+	"errors"
+	"fmt"
+	"net/url"
+
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/go-resty/resty/v2"
 )
 
-const gitHubContentDomain = "githubusercontent.com"
+const (
+	gitHubContentDomain        = "githubusercontent.com"
+	gitHubReleaseAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
+)
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
@@ -32,18 +39,65 @@ func NewGitHub() GitHub {
 
 /* ---------------------------- Method: Checksum ---------------------------- */
 
-func (m *GitHub) Checksum(v godot.Version) (asset, error) {
-	return asset{client: m.client}, nil
+// Returns an 'Asset' to download the checksums file for the specified version
+// from GitHub.
+func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
+	var a Asset
+
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
+	}
+
+	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, v.String(), filenameChecksums)
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	urlParsed, err := url.Parse(urlRaw)
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+
+	return a, nil
 }
 
 /* --------------------------- Method: Executable --------------------------- */
 
-func (m *GitHub) Executable(ex godot.Executable) (asset, error) {
-	return asset{client: m.client}, nil
+// Returns an 'Asset' to download a Godot executable for the specified version
+// from GitHub.
+func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
+	var a Asset
+
+	if !m.Supports(ex.Version) {
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
+	}
+
+	name, err := ex.Name()
+	if err != nil {
+		return a, errors.Join(ErrInvalidSpecification, err)
+	}
+
+	urlRaw, err := url.JoinPath(gitHubReleaseAssetsURLBase, ex.Version.String(), name+".zip")
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	urlParsed, err := url.Parse(urlRaw)
+	if err != nil {
+		return a, errors.Join(ErrInvalidURL, err)
+	}
+
+	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+
+	return a, nil
 }
 
 /* ------------------------------- Method: Has ------------------------------ */
 
-func (m *GitHub) Has(ex godot.Executable) bool {
-	return false
+// Returns whether the mirror supports the specified version. This does *NOT*
+// guarantee that the mirror has the version.
+func (m *GitHub) Supports(v godot.Version) bool {
+	return v.IsStable()
 }
