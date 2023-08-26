@@ -79,7 +79,7 @@ func (v Version) Label() string {
 
 // Returns whether the version specifies a "mono" release (i.e. 'stable_mono').
 func (v Version) IsMono() bool {
-	return v.label == LabelMono
+	return v.Label() == LabelMono
 }
 
 /* ---------------------------- Method: IsStable ---------------------------- */
@@ -87,7 +87,7 @@ func (v Version) IsMono() bool {
 // Returns whether the version specifies a "stable" release (e.g. 'stable' or
 // 'stable_mono').
 func (v Version) IsStable() bool {
-	return v.label == LabelStable || v.label == LabelMono
+	return v.Label() == LabelStable || v.Label() == LabelMono
 }
 
 /* ----------------------------- Method: Normal ----------------------------- */
@@ -101,10 +101,10 @@ func (v Version) Normal() string {
 /* -------------------------- Method: CompareNormal ------------------------- */
 
 // Compares the "normal version" (see https://semver.org/#spec-item-2) to
-// another 'Version' struct. The value returned is '-1' if 'other' is older, '0'
-// if 'other' is the same "normal version", and '+1' if 'other' is newer.
-func (v Version) CompareNormal(other Version) int {
-	return semver.Compare(prefixVersion+v.Normal(), prefixVersion+other.Normal())
+// another 'Version' struct. The result will be '0' if 'v' == 'w', '-1' if
+// 'v' < 'w', or '+1' if 'v' > 'w'.
+func (v Version) CompareNormal(w Version) int {
+	return semver.Compare(prefixVersion+v.Normal(), prefixVersion+w.Normal())
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
