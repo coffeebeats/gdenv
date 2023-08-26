@@ -173,6 +173,45 @@ func HostPlatform() (Platform, error) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                           Function: ParsePlatform                          */
+/* -------------------------------------------------------------------------- */
+
+// Parses a 'Platform' struct from a platform identifier. There are potentially
+// multiple valid identifiers for any given platform due to schema differences
+// across Godot versions.
+func ParsePlatform(input string) (Platform, error) {
+	if input == "" {
+		return Platform{}, ErrMissingPlatform
+	}
+
+	switch strings.ToLower(strings.TrimSpace(input)) {
+	// Linux
+	case "x11.32", "linux.x86_32":
+		return Platform{i386, linux}, nil
+	case "x11.64", "linux.x86_64":
+		return Platform{amd64, linux}, nil
+
+	// MacOS - Note that the supported architectures between 'osx.fat' and
+	// 'osx.universal' are *NOT* the same. It's important to maintain the
+	// 'Version' alongside this result so that the architectures can be
+	// correctly determined.
+	case "osx.64":
+		return Platform{amd64, macOS}, nil
+	case "macos.universal", "osx.fat", "osx.universal":
+		return Platform{universal, macOS}, nil
+
+	// Windows
+	case "win32":
+		return Platform{i386, windows}, nil
+	case "win64":
+		return Platform{amd64, windows}, nil
+
+	default:
+		return Platform{}, fmt.Errorf("%w: '%s'", ErrUnrecognizedPlatform, input)
+	}
+}
+
+/* -------------------------------------------------------------------------- */
 /*                          Function: FormatPlatform                          */
 /* -------------------------------------------------------------------------- */
 

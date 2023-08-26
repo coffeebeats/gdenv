@@ -98,6 +98,55 @@ func TestParseArch(t *testing.T) {
 	}
 }
 
+/* --------------------------- Test: ParsePlatform -------------------------- */
+
+func TestParsePlatform(t *testing.T) {
+	tests := []struct {
+		s    string
+		want Platform
+		err  error
+	}{
+		// Invalid inputs
+		{s: "", err: ErrMissingPlatform},
+		{s: "abc", err: ErrUnrecognizedPlatform},
+
+		// Valid inputs (Go-defined)
+		// Linux
+		{s: "x11.32", want: Platform{i386, linux}, err: nil},
+		{s: "x11.64", want: Platform{amd64, linux}, err: nil},
+		{s: "linux.x86_32", want: Platform{i386, linux}, err: nil},
+		{s: "linux.x86_64", want: Platform{amd64, linux}, err: nil},
+
+		// MacOS
+		{s: "osx.64", want: Platform{amd64, macOS}, err: nil},
+		{s: "macos.universal", want: Platform{universal, macOS}, err: nil},
+		{s: "osx.fat", want: Platform{universal, macOS}, err: nil},
+		{s: "osx.universal", want: Platform{universal, macOS}, err: nil},
+
+		// Windows
+		{s: "win32", want: Platform{i386, windows}, err: nil},
+		{s: "win64", want: Platform{amd64, windows}, err: nil},
+
+		// Valid inputs (user-supplied)
+		{s: "WIN64", want: Platform{amd64, windows}, err: nil},
+		{s: " MACOS.UNIVERSAL\n", want: Platform{universal, macOS}},
+		{s: "\tlinux.x86_64 ", want: Platform{amd64, linux}, err: nil},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.s, func(t *testing.T) {
+			got, err := ParsePlatform(tc.s)
+
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+			}
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
 /* -------------------------- Test: FormatPlatform -------------------------- */
 
 func TestFormatPlatform(t *testing.T) {
