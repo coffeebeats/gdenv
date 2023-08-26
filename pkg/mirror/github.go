@@ -14,7 +14,7 @@ const (
 	gitHubAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
 )
 
-var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1")
+var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1") //nolint:gochecknoglobals
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
