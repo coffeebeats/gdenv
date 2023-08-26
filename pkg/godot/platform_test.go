@@ -109,116 +109,116 @@ func TestFormatPlatform(t *testing.T) {
 	}{
 		// Invalid inputs
 		{Platform{}, Version{}, "", ErrMissingOS},
-		{Platform{os: linux}, Version{}, "", ErrMissingArch},
-		{Platform{os: linux, arch: amd64}, Version{}, "", ErrUnsupportedVersion},
+		{Platform{OS: linux}, Version{}, "", ErrMissingArch},
+		{Platform{OS: linux, Arch: amd64}, Version{}, "", ErrUnsupportedVersion},
 
-		{Platform{os: linux, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: macOS, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: windows, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{OS: linux, Arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{OS: macOS, Arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{OS: windows, Arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
 
 		// Valid inputs - linux
 
 		// v3.*
-		{Platform{os: linux, arch: i386}, Version{major: 3}, "x11.32", nil},
-		{Platform{os: linux, arch: amd64}, Version{major: 3}, "x11.64", nil},
-		{Platform{os: linux, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
-		{Platform{os: linux, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: linux, Arch: i386}, Version{major: 3}, "x11.32", nil},
+		{Platform{OS: linux, Arch: amd64}, Version{major: 3}, "x11.64", nil},
+		{Platform{OS: linux, Arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: linux, Arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{os: linux, arch: i386}, Version{major: 4}, "linux.x86_32", nil},
-		{Platform{os: linux, arch: amd64}, Version{major: 4}, "linux.x86_64", nil},
-		{Platform{os: linux, arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
-		{Platform{os: linux, arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{OS: linux, Arch: i386}, Version{major: 4}, "linux.x86_32", nil},
+		{Platform{OS: linux, Arch: amd64}, Version{major: 4}, "linux.x86_64", nil},
+		{Platform{OS: linux, Arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{OS: linux, Arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
 
 		// Valid inputs - MacOS
 
 		// v3.0 - v3.0.6
-		{Platform{os: macOS, arch: i386}, Version{major: 3}, "osx.fat", nil},
-		{Platform{os: macOS, arch: amd64}, Version{major: 3}, "osx.fat", nil},
-		{Platform{os: macOS, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: i386}, Version{major: 3}, "osx.fat", nil},
+		{Platform{OS: macOS, Arch: amd64}, Version{major: 3}, "osx.fat", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: i386}, Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{os: macOS, arch: amd64}, Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{os: macOS, arch: arm64}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: i386}, Version{major: 3, patch: 6}, "osx.fat", nil},
+		{Platform{OS: macOS, Arch: amd64}, Version{major: 3, patch: 6}, "osx.fat", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{major: 3, patch: 6}, "", ErrUnsupportedArch},
 
 		// v3.1 - v3.2.4-beta2
-		{Platform{os: macOS, arch: amd64}, Version{major: 3, minor: 1}, "osx.64", nil},
-		{Platform{os: macOS, arch: i386}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: arm64}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{major: 3, minor: 1}, "osx.64", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: arm64}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{major: 3, minor: 1}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "beta2"}, "osx.64", nil},
-		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{3, 2, 4, "beta2"}, "osx.64", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: arm64}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{3, 2, 4, "beta2"}, "", ErrUnsupportedArch},
 
 		// v3.2.4-beta3 - v4.0-alpha12
-		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{3, 2, 4, "beta3"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{3, 2, 4, "beta3"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{3, 2, 4, "rc1"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{3, 2, 4, "rc1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{3, 2, 4, "stable"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{3, 2, 4, "stable"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "dev.20210727"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "alpha1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "alpha12"}, "", ErrUnsupportedArch},
 
 		// v4.0-alpha13+
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "alpha13"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "beta1"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "beta1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "rc1"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "rc1"}, "", ErrUnsupportedArch},
 
-		{Platform{os: macOS, arch: amd64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: arm64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{os: macOS, arch: i386}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
-		{Platform{os: macOS, arch: universal}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: amd64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: arm64}, Version{4, 0, 0, "stable"}, "macos.universal", nil},
+		{Platform{OS: macOS, Arch: i386}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
+		{Platform{OS: macOS, Arch: universal}, Version{4, 0, 0, "stable"}, "", ErrUnsupportedArch},
 
 		// Valid inputs - Windows
 
 		// v3.*
-		{Platform{os: windows, arch: i386}, Version{major: 3}, "win32", nil},
-		{Platform{os: windows, arch: amd64}, Version{major: 3}, "win64", nil},
-		{Platform{os: windows, arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
-		{Platform{os: windows, arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: windows, Arch: i386}, Version{major: 3}, "win32", nil},
+		{Platform{OS: windows, Arch: amd64}, Version{major: 3}, "win64", nil},
+		{Platform{OS: windows, Arch: arm64}, Version{major: 3}, "", ErrUnsupportedArch},
+		{Platform{OS: windows, Arch: universal}, Version{major: 3}, "", ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{os: windows, arch: i386}, Version{major: 4}, "win32", nil},
-		{Platform{os: windows, arch: amd64}, Version{major: 4}, "win64", nil},
-		{Platform{os: windows, arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
-		{Platform{os: windows, arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{OS: windows, Arch: i386}, Version{major: 4}, "win32", nil},
+		{Platform{OS: windows, Arch: amd64}, Version{major: 4}, "win64", nil},
+		{Platform{OS: windows, Arch: arm64}, Version{major: 4}, "", ErrUnsupportedArch},
+		{Platform{OS: windows, Arch: universal}, Version{major: 4}, "", ErrUnsupportedArch},
 	}
 
 	for _, tc := range tests {
