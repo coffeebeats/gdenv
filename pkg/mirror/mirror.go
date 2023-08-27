@@ -10,10 +10,10 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Configure common retry policies for mirrors.
 const (
 	filenameChecksums = "SHA512-SUMS.txt"
 
+	// Configure common retry policies for mirrors.
 	retryCount   = 3
 	retryWait    = time.Second
 	retryWaitMax = 10 * time.Second

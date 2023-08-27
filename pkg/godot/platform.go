@@ -311,7 +311,7 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		}
 	}
 
-	// "mono"-flavored builds have the '.' rune replaced by a '_' rune.
+	// All "mono"-flavored builds have the '.' rune replaced by a '_' rune.
 	if v.IsMono() {
 		p = strings.ReplaceAll(p, ".", "_")
 	}
