@@ -10,13 +10,13 @@ import (
 )
 
 const (
+	PrefixVersion              = "v"
+	SeparatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
+	SeparatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
+
 	LabelMono    = "stable_mono"
 	LabelStable  = "stable"
 	labelDefault = LabelStable
-
-	prefixVersion              = "v"
-	separatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
-	separatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
 )
 
 var (
@@ -28,6 +28,20 @@ var (
 
 	errNonNormalVersion = errors.New("implementation error: found non-normal version")
 )
+
+/* -------------------------------------------------------------------------- */
+/*                        Functions: Version Constants                        */
+/* -------------------------------------------------------------------------- */
+
+// Returns a 'Version' struct for Godot v3.
+func V3() Version {
+	return Version{major: 3} //nolint:exhaustruct,gomnd
+}
+
+// Returns a 'Version' struct for Godot v4.
+func V4() Version {
+	return Version{major: 4} //nolint:exhaustruct,gomnd
+}
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Version                              */
@@ -104,7 +118,7 @@ func (v Version) Normal() string {
 // another 'Version' struct. The result will be '0' if 'v' == 'w', '-1' if
 // 'v' < 'w', or '+1' if 'v' > 'w'.
 func (v Version) CompareNormal(w Version) int {
-	return semver.Compare(prefixVersion+v.Normal(), prefixVersion+w.Normal())
+	return semver.Compare(PrefixVersion+v.Normal(), PrefixVersion+w.Normal())
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
@@ -149,12 +163,12 @@ func ParseVersion(input string) (Version, error) {
 	// 'gdenv' and Semantic Versioning do not require a 'v' prefix (as of
 	// version 2.0.0 - see semver.org/#semantic-versioning-200), but Golang's
 	// 'semver' does.
-	input = prefixVersion + strings.TrimPrefix(input, prefixVersion)
+	input = PrefixVersion + strings.TrimPrefix(input, PrefixVersion)
 
 	// Trim the label off, but store it for later.
-	input, label, found := strings.Cut(input, separatorPreReleaseVersion)
+	input, label, found := strings.Cut(input, SeparatorPreReleaseVersion)
 	if (found && label == "") || !semver.IsValid(input) {
-		err := fmt.Errorf("%w: '%s'", ErrInvalidVersion, strings.TrimPrefix(input, prefixVersion))
+		err := fmt.Errorf("%w: '%s'", ErrInvalidVersion, strings.TrimPrefix(input, PrefixVersion))
 		return version, err
 	}
 
@@ -170,7 +184,7 @@ func ParseVersion(input string) (Version, error) {
 	// build metadata suffixes. This future-proofs 'gdenv' if Godot changes its
 	// build labeling practices. However, 'gdenv' doesn't support metadata
 	// directly following the "normal version number".
-	normalVersion, _, found := strings.Cut(input, separatorBuildMetadata)
+	normalVersion, _, found := strings.Cut(input, SeparatorBuildMetadata)
 	if found {
 		return version, fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, input)
 	}
@@ -209,13 +223,13 @@ func parseNormalVersion(input string) ([3]int, error) {
 	out := [3]int{0, 0, 0}
 
 	if !semver.IsValid(input) ||
-		strings.Contains(input, separatorBuildMetadata) ||
-		strings.Contains(input, separatorPreReleaseVersion) {
+		strings.Contains(input, SeparatorBuildMetadata) ||
+		strings.Contains(input, SeparatorPreReleaseVersion) {
 		panic(errNonNormalVersion)
 	}
 
 	// Remove the 'v' prefix to simplify version parsing below.
-	input = strings.TrimPrefix(input, prefixVersion)
+	input = strings.TrimPrefix(input, PrefixVersion)
 
 	parts := strings.Split(input, ".")
 	// NOTE: This should never occur for a 'semver'-validated string.
