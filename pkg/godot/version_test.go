@@ -63,16 +63,16 @@ func TestVersionNormal(t *testing.T) {
 	}
 
 	tests := []test{
-		{Version{}, "v0.0.0"},
+		{Version{}, "0.0.0"},
 
-		{Version{major: 1}, "v1.0.0"},
-		{Version{major: 1, minor: 1}, "v1.1.0"},
-		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1"},
+		{Version{major: 1}, "1.0.0"},
+		{Version{major: 1, minor: 1}, "1.1.0"},
+		{Version{major: 1, minor: 1, patch: 1}, "1.1.1"},
 
-		{Version{minor: 1}, "v0.1.0"},
-		{Version{minor: 1, patch: 1}, "v0.1.1"},
+		{Version{minor: 1}, "0.1.0"},
+		{Version{minor: 1, patch: 1}, "0.1.1"},
 
-		{Version{patch: 1}, "v0.0.1"},
+		{Version{patch: 1}, "0.0.1"},
 	}
 
 	// Produce an additional test with a specific label applied.
@@ -110,11 +110,11 @@ func TestParseVersion(t *testing.T) {
 
 	// Produce one test with a valid prefix and one with an invalid prefix
 	withPrefixes := func(tc []test) []test {
-		out := make([]test, len(tc)*2)
+		out := make([]test, len(tc)*3)
 
 		for i, t := range tc {
 			// Invalid
-			out[i*2] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalidVersion}
+			out[i*3] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalidVersion}
 
 			// Valid (depending on input)
 			err := t.err
@@ -122,7 +122,15 @@ func TestParseVersion(t *testing.T) {
 				err = ErrInvalidVersion
 			}
 
-			out[i*2+1] = test{fmt.Sprintf("v%s", t.s), t.want, err}
+			out[i*3+1] = test{fmt.Sprintf("v%s", t.s), t.want, err}
+
+			// Valid (depending on input)
+			err = t.err
+			if t.s == "" || !unicode.IsDigit(rune(t.s[0])) {
+				err = ErrInvalidVersion
+			}
+
+			out[i*3+2] = test{fmt.Sprintf("\t \nV%s", t.s), t.want, err}
 		}
 
 		return out
@@ -130,11 +138,11 @@ func TestParseVersion(t *testing.T) {
 
 	// Produce tests with varying types of valid and invalid suffixes.
 	withSuffixes := func(tc []test) []test {
-		out := make([]test, len(tc)*2)
+		out := make([]test, len(tc)*3)
 
 		for i, t := range tc {
 			// Invalid
-			out[i*2] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalidVersion}
+			out[i*3] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalidVersion}
 
 			// Valid (depending on input)
 			s := "suffix"
@@ -144,7 +152,18 @@ func TestParseVersion(t *testing.T) {
 				err = ErrInvalidVersion
 			}
 
-			out[i*2+1] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
+			out[i*3+1] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
+
+			// Valid (depending on input)
+			sNormalized, s := s, "SUFFIX\t\n "
+
+			want, err = Version{t.want.major, t.want.minor, t.want.patch, sNormalized}, t.err
+			if t.err != nil {
+				want.label = ""
+				err = ErrInvalidVersion
+			}
+
+			out[i*3+2] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
 		}
 
 		return out

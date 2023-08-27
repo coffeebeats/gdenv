@@ -18,11 +18,17 @@ var (
 	ErrUnsupportedArch      = errors.New("unsupported architecture")
 	ErrUnsupportedOS        = errors.New("unsupported OS")
 
-	// This expression matches all Godot v4.0 pre-release versions which utilize
-	// a 'osx.universal' platform label. These include 'alpha1' - 'alpha12' and
-	// all of the 'dev.*' pre-alpha versions. This expressions has been tested
-	// manually and some unit tests validate this as well.
-	reV4LabelsWithOSXUniversal = regexp.MustCompile(`^(alpha([1-9]|1[0-2])|(dev\.[0-9]{8}))$`)
+	// This expression matches all Godot v4.0 macOS pre-release versions which
+	// utilize a 'osx.universal' platform label. These include 'alpha1' -
+	// 'alpha12' and all of the 'dev.*' pre-alpha versions. This expressions has
+	// been tested manually and some unit tests validate this as well.
+	reV4MacOSLabelsWithOSXUniversal = regexp.MustCompile(`^(alpha([1-9]|1[0-2])|(dev\.[0-9]{8}))$`)
+
+	// This expression matches all Godot v4.0 Linux pre-release versions which
+	// utilize a platform label. These include 'alpha1' - 'alpha14' and all of
+	// the 'dev.*' pre-alpha versions. This expressions has been tested manually
+	// and some unit tests validate this as well.
+	reV4LinuxLabelsWithoutX86 = regexp.MustCompile(`^(alpha([1-9]|1[0-4])|(dev\.[0-9]{8}))$`)
 )
 
 /* -------------------------------------------------------------------------- */
@@ -262,35 +268,55 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		return "", ErrMissingArch
 	}
 
+	var p string
+
 	switch {
-	// Godot v1-v2 not supported
+	// v1-v2 not supported
 	case v.major < 3: //nolint:gomnd
 		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
-	// Godot v3
+	// v3
 	case v.major < 4: //nolint:gomnd
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
 		// are not supported.
 		switch a {
 		case i386:
-			return "x11.32", nil
+			p = "x11.32"
 		case amd64:
-			return "x11.64", nil
+			p = "x11.64"
 
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
-	// Godot v4+
+	// v4.0-dev.20210727 - Godot v4.0-alpha14
+	case v.CompareNormal(V4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.label):
+		switch a {
+		case i386:
+			p = "linux.32"
+		case amd64:
+			p = "linux.64"
+
+		default:
+			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+		}
+	// v4.0-alpha15+
 	default:
 		switch a {
 		case i386:
-			return "linux.x86_32", nil
+			p = "linux.x86_32"
 		case amd64:
-			return "linux.x86_64", nil
+			p = "linux.x86_64"
 
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
+
+	// All "mono"-flavored builds have the '.' rune replaced by a '_' rune.
+	if v.IsMono() {
+		p = strings.ReplaceAll(p, ".", "_")
+	}
+
+	return p, nil
 }
 
 /* ---------------------- Function: formatMacOSPlatform --------------------- */
@@ -306,10 +332,10 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	}
 
 	switch {
-	// Godot v1 - v2 not supported
+	// v1 - v2 not supported
 	case v.major < 3: //nolint:gomnd
 		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
-	// Godot v3.0 - v3.0.6
+	// v3.0 - v3.0.6
 	case v.major == 3 && v.minor < 1:
 		switch a {
 		case i386, amd64:
@@ -318,7 +344,7 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
-	// Godot v3.1 - v3.2.4-beta2
+	// v3.1 - v3.2.4-beta2
 	// NOTE: Because v3.2.4 labels are only "beta" and "rc" *and* "beta"
 	// versions do not exceed 6, lexicographic  sorting works.
 	case v.major == 3 && v.minor <= 2 && (v.patch < 4 || v.patch == 4 && v.label <= "beta2"):
@@ -329,9 +355,9 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
-	// Godot v3.2.4-beta3 - v4.0-alpha12
-	case v.CompareNormal(godotVersion4()) < 0 ||
-		(v.CompareNormal(godotVersion4()) == 0 && reV4LabelsWithOSXUniversal.MatchString(v.label)):
+	// v3.2.4-beta3 - v4.0-alpha12
+	case v.CompareNormal(V4()) < 0 ||
+		(v.CompareNormal(V4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.label)):
 		switch a {
 		case amd64, arm64:
 			return "osx.universal", nil
@@ -339,7 +365,7 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 		default:
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
-	// Godot v4.0-alpha13+
+	// v4.0-alpha13+
 	default:
 		switch a {
 		case amd64, arm64:
@@ -361,10 +387,10 @@ func formatWindowsPlatform(a Arch, v Version) (string, error) {
 	}
 
 	switch {
-	// Godot v1-v2 not supported
+	// v1-v2 not supported
 	case v.major < 3: //nolint:gomnd
 		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
-	// Godot v3+
+	// v3+
 	default:
 		switch a {
 		case i386:
@@ -376,12 +402,4 @@ func formatWindowsPlatform(a Arch, v Version) (string, error) {
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	}
-}
-
-/* -------------------------------------------------------------------------- */
-/*                           Function: godotVersion4                          */
-/* -------------------------------------------------------------------------- */
-
-func godotVersion4() Version {
-	return Version{major: 4} //nolint:exhaustruct,gomnd
 }
