@@ -18,7 +18,7 @@ var (
 	ErrUnsupportedArch      = errors.New("unsupported architecture")
 	ErrUnsupportedOS        = errors.New("unsupported OS")
 
-	// This expression matches all Godot v4.0 nacOS pre-release versions which
+	// This expression matches all Godot v4.0 macOS pre-release versions which
 	// utilize a 'osx.universal' platform label. These include 'alpha1' -
 	// 'alpha12' and all of the 'dev.*' pre-alpha versions. This expressions has
 	// been tested manually and some unit tests validate this as well.
