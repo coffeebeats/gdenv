@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/go-resty/resty/v2"
@@ -14,8 +15,6 @@ const (
 	tuxFamilyAssetsURLBase   = "https://downloads.tuxfamily.org/godotengine"
 	tuxFamilyDirnameMono     = "mono"
 	tuxFamilyDirnamePreAlpha = "pre-alpha"
-
-	versionNormalV4 = "4.0.0"
 )
 
 var (
@@ -130,14 +129,29 @@ func (m *TuxFamily) Supports(_ godot.Version) bool {
 func urlTuxFamilyVersionDir(v godot.Version) (string, error) {
 	p := make([]string, 0)
 
-	p = append(p, v.Normal())
+	// The first directory will be the "normal version", but a patch version of
+	// '0' will be dropped.
+	var normal string
 
+	switch v.Patch() {
+	case 0:
+		normal = fmt.Sprintf("%d.%d", v.Major(), v.Minor())
+	default:
+		normal = v.Normal()
+	}
+
+	p = append(p, normal)
+
+	// If the build is a "stable", non-"mono" flavor, then the assets will be in
+	// the version directory. Otherwise, the assets will be in one or more sub-
+	// directories corresponding to build labels.
 	switch isMono, isStable := v.IsMono(), v.IsStable(); {
 	case isMono:
 		p = append(p, tuxFamilyDirnameMono)
-	// For v4.0, the 'dev.*' labels are placed under the 'pre-alpha' directory.
-	case v.Normal() == versionNormalV4 && reV4PreAlphaLabel.MatchString(v.Label()):
-		p = append(p, tuxFamilyDirnamePreAlpha)
+	// For v4.0, the 'dev.*' labels are placed under label subdirectories,
+	// themselves under the 'pre-alpha' directory.
+	case v.CompareNormal(godot.V4()) == 0 && reV4PreAlphaLabel.MatchString(v.Label()):
+		p = append(p, tuxFamilyDirnamePreAlpha, strings.TrimPrefix(v.String(), godot.PrefixVersion))
 	case !isStable:
 		p = append(p, v.Label())
 	}
