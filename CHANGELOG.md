@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 (2023-08-28)
+
+## What's Changed
+* feat(pkg/mirror): implement asset downloading by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/43
+* chore(deps): bump tj-actions/changed-files from 37 to 38 by @dependabot in https://github.com/coffeebeats/gdenv/pull/45
+* feat(cmd/gdenv): implement a `gdenv`-specific platform resolution function by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/46
+* feat(pkg/godot): implement checksum operations `ExtractChecksum` and `ComputeChecksum` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/48
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.2.0...v0.2.1
+
 ## 0.2.0 (2023-08-26)
 
 ## What's Changed
