@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"runtime"
 	"strings"
 )
 
@@ -155,27 +154,6 @@ func MustParseArch(input string) Arch {
 type Platform struct {
 	Arch Arch
 	OS   OS
-}
-
-/* ------------------------- Function: HostPlatform ------------------------- */
-
-// Returns a 'Platform' struct pertaining to the host machine, if recognized.
-func HostPlatform() (Platform, error) {
-	var platform Platform
-
-	os, err := ParseOS(runtime.GOOS)
-	if err != nil {
-		return platform, fmt.Errorf("%w: '%s'", err, runtime.GOOS)
-	}
-
-	arch, err := ParseArch(runtime.GOARCH)
-	if err != nil {
-		return platform, fmt.Errorf("%w: '%s'", err, runtime.GOOS)
-	}
-
-	platform.Arch, platform.OS = arch, os
-
-	return platform, nil
 }
 
 /* -------------------------------------------------------------------------- */
