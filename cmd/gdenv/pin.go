@@ -71,7 +71,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				}
 
 				// Define the host 'Platform'.
-				platform, err := godot.HostPlatform()
+				platform, err := detectPlatform()
 				if err != nil {
 					return fail(err)
 				}
