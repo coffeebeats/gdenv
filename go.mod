@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/urfave/cli/v2 v2.25.7
 	golang.org/x/mod v0.12.0
 	golang.org/x/tools v0.12.0
