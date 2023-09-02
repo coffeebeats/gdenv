@@ -26,12 +26,15 @@ type GitHub struct {
 	client *resty.Client
 }
 
+// Validate at compile-time that 'GitHub' implements 'Mirror'.
+var _ Mirror = &GitHub{} //nolint:exhaustruct
+
 /* --------------------------- Function: NewGitHub -------------------------- */
 
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
 func NewGitHub() GitHub {
-	client := newClient()
+	client := defaultRestyClient()
 
 	// Allow redirects to the GitHub content domain.
 	client.SetRedirectPolicy(resty.DomainCheckRedirectPolicy(gitHubContentDomain))

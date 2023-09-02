@@ -33,10 +33,13 @@ type TuxFamily struct {
 	client *resty.Client
 }
 
+// Validate at compile-time that 'TuxFamily' implements 'Mirror'.
+var _ Mirror = &TuxFamily{} //nolint:exhaustruct
+
 /* ------------------------- Function: NewTuxFamily ------------------------- */
 
 func NewTuxFamily() TuxFamily {
-	client := newClient()
+	client := defaultRestyClient()
 
 	return TuxFamily{client}
 }
