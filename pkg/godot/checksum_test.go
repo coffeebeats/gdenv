@@ -74,13 +74,13 @@ func TestExtractChecksum(t *testing.T) {
 		{f: "", exists: false, err: ErrMissingPath},
 		{f: "checksums.txt", exists: false, ex: exV4, err: ErrFileSystem},
 		{f: "checksums.txt", exists: true, contents: "abc 123 filename", ex: exV4, err: ErrUnrecognizedFormat},
-		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum %s", nameV5), ex: exV4, err: ErrMissingChecksum},
-		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum1 %s\nchecksum2 %s", nameV4, nameV4), ex: exV4, err: ErrConflictingChecksum},
+		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum %s", nameV5+".zip"), ex: exV4, err: ErrMissingChecksum},
+		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum1 %s\nchecksum2 %s", nameV4+".zip", nameV4+".zip"), ex: exV4, err: ErrConflictingChecksum},
 
 		// Valid inputs
 		{
 			f:        "checksums.txt",
-			contents: fmt.Sprintf("checksumV4 %s\nchecksumV5 %s", nameV4, nameV5),
+			contents: fmt.Sprintf("checksumV4 %s\nchecksumV5 %s", nameV4+".zip", nameV5+".zip"),
 			exists:   true,
 			ex:       exV5,
 			want:     "checksumV5",

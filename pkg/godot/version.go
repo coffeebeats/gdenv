@@ -14,9 +14,10 @@ const (
 	SeparatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
 	SeparatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
 
-	LabelMono    = "stable_mono"
+	LabelMono    = LabelStable + "_" + mono
 	LabelStable  = "stable"
 	labelDefault = LabelStable
+	mono         = "mono"
 )
 
 var (

@@ -163,7 +163,7 @@ type Platform struct {
 // Parses a 'Platform' struct from a platform identifier. There are potentially
 // multiple valid identifiers for any given platform due to schema differences
 // across Godot versions.
-func ParsePlatform(input string) (Platform, error) {
+func ParsePlatform(input string) (Platform, error) { //nolint:cyclop
 	if input == "" {
 		return Platform{}, ErrMissingPlatform
 	}
@@ -173,6 +173,12 @@ func ParsePlatform(input string) (Platform, error) {
 	case "x11.32", "linux.x86_32":
 		return Platform{i386, linux}, nil
 	case "x11.64", "linux.x86_64":
+		return Platform{amd64, linux}, nil
+
+	// Linux (mono builds)
+	case "linux_x86_32":
+		return Platform{i386, linux}, nil
+	case "linux_x86_64":
 		return Platform{amd64, linux}, nil
 
 	// MacOS - Note that the supported architectures between 'osx.fat' and

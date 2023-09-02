@@ -7,7 +7,7 @@ import (
 )
 
 const namePrefix = "Godot"
-const nameSeparator = '_'
+const nameSeparator = "_"
 
 // Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>'.
 const nameSchemeParts = 3
@@ -41,10 +41,10 @@ func (e Executable) Name() (string, error) {
 	var name strings.Builder
 
 	name.WriteString(namePrefix)
-	name.WriteRune(nameSeparator)
+	name.WriteString(nameSeparator)
 
 	name.WriteString(e.Version.String())
-	name.WriteRune(nameSeparator)
+	name.WriteString(nameSeparator)
 
 	platformIdentifier, err := FormatPlatform(e.Platform, e.Version)
 	if err != nil {
@@ -83,10 +83,24 @@ func ParseExecutable(input string) (Executable, error) {
 		return executable, ErrMissingName
 	}
 
-	// Try to split the input into 'Godot_', '<VERSION>' and '<LABEL>'.
-	parts := strings.SplitN(input, string(nameSeparator), nameSchemeParts)
+	// In the event it's a Windows executable, trim the extension suffix. No
+	// effect if it's a non-Windows build.
+	input = strings.TrimSuffix(input, ".exe")
+
+	// Try to split the input into 'Godot', '<VERSION>' and '<LABEL>'.
+	parts := strings.SplitN(input, nameSeparator, nameSchemeParts)
 	if len(parts) != nameSchemeParts {
 		return executable, fmt.Errorf("%w: '%s'", ErrInvalidName, input)
+	}
+
+	// If the build is a "mono"-flavored build (i.e. the version label is
+	// 'stable_mono'), then the third part will start with 'mono' instead of
+	// the platform due to the "mono" version label containing the
+	// 'nameSeparator' rune. Fix that here by removing the 'mono' prefix from
+	// the platform and attaching it as a suffix to the version.
+	if version, platform := 1, nameSchemeParts-1; strings.HasPrefix(parts[platform], mono) {
+		parts[version] = parts[version] + nameSeparator + mono
+		parts[platform] = strings.TrimPrefix(parts[platform], mono+nameSeparator)
 	}
 
 	version, err := ParseVersion(parts[1])

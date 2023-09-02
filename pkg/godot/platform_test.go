@@ -116,6 +116,8 @@ func TestParsePlatform(t *testing.T) {
 		{s: "x11.64", want: Platform{amd64, linux}, err: nil},
 		{s: "linux.x86_32", want: Platform{i386, linux}, err: nil},
 		{s: "linux.x86_64", want: Platform{amd64, linux}, err: nil},
+		{s: "linux_x86_32", want: Platform{i386, linux}, err: nil},
+		{s: "linux_x86_64", want: Platform{amd64, linux}, err: nil},
 
 		// MacOS
 		{s: "osx.64", want: Platform{amd64, macOS}, err: nil},
