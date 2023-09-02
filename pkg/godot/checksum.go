@@ -90,7 +90,8 @@ func ExtractChecksum(path string, ex Executable) (string, error) {
 		return "", errors.Join(ErrFileSystem, err)
 	}
 
-	checksum, has := checksums[name]
+	// NOTE: This is brittle; find a better way of handling the extensions.
+	checksum, has := checksums[name+".zip"]
 	if !has {
 		return "", ErrMissingChecksum
 	}
