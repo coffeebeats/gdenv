@@ -49,30 +49,30 @@ func NewTuxFamily() TuxFamily {
 // Returns an 'Asset' to download the checksums file for the specified version
 // from TuxFamily.
 func (m *TuxFamily) Checksum(v godot.Version) (Asset, error) {
-	var a Asset
+	var asset Asset
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
+		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
 	if err != nil {
-		return a, err
+		return asset, err
 	}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, filenameChecksums)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlRaw)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.name, a.url = filenameChecksums, urlParsed
+	asset.name, asset.url = filenameChecksums, urlParsed
 
-	return a, nil
+	return asset, nil
 }
 
 /* --------------------------- Method: Executable --------------------------- */
@@ -80,37 +80,37 @@ func (m *TuxFamily) Checksum(v godot.Version) (Asset, error) {
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from TuxFamily.
 func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
-	var a Asset
+	var asset Asset
 
 	if !m.Supports(ex.Version) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
+		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
 	}
 
 	name, err := ex.Name()
 	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
+		return asset, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	filename := name + ".zip"
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version)
 	if err != nil {
-		return a, err
+		return asset, err
 	}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, filename)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlRaw)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.name, a.url = filename, urlParsed
+	asset.name, asset.url = filename, urlParsed
 
-	return a, nil
+	return asset, nil
 }
 
 /* ------------------------------- Method: Has ------------------------------ */

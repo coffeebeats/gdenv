@@ -47,30 +47,30 @@ func NewGitHub() GitHub {
 // Returns an 'Asset' to download the checksums file for the specified version
 // from GitHub.
 func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
-	var a Asset
+	var asset Asset
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
+		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	urlAsset, err := url.JoinPath(urlRelease, filenameChecksums)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.name, a.url = filenameChecksums, urlParsed
+	asset.name, asset.url = filenameChecksums, urlParsed
 
-	return a, nil
+	return asset, nil
 }
 
 /* --------------------------- Method: Executable --------------------------- */
@@ -78,37 +78,37 @@ func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from GitHub.
 func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
-	var a Asset
+	var asset Asset
 
 	if !m.Supports(ex.Version) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
+		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
 	}
 
 	name, err := ex.Name()
 	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
+		return asset, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	urlRelease, err := urlGitHubRelease(ex.Version)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	filename := name + ".zip"
 
 	urlAsset, err := url.JoinPath(urlRelease, filename)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
+		return asset, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.name, a.url = filename, urlParsed
+	asset.name, asset.url = filename, urlParsed
 
-	return a, nil
+	return asset, nil
 }
 
 /* ------------------------------- Method: Has ------------------------------ */
