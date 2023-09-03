@@ -1,9 +1,12 @@
 package progress
 
 import (
-	"math"
+	"errors"
+	"fmt"
 	"sync/atomic"
 )
+
+var ErrInvalidTotal = errors.New("invalid total")
 
 /* -------------------------------------------------------------------------- */
 /*                              Struct: Progress                              */
@@ -12,16 +15,22 @@ import (
 // A thread-safe progress tracker; does minimal error-case handling, will wrap
 // any invalid values around '0', and reports percentages exactly (i.e. greater
 // than '1.0' is possible).
+//
+// NOTE: Avoid copying this struct, as it will be unlinked from other consumers.
 type Progress struct {
 	current atomic.Uint64
 	total   float64
 }
 
-/* -------------------------- Function: NewProgress ------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
-// Creates a new 'Progress' struct with the 'size' bounded above '0'.
-func NewProgress(size int64) Progress {
-	return Progress{total: math.Max(float64(size), 0)} //nolint:exhaustruct
+// Creates a new 'Progress' struct with the 'total' bounded above '0'.
+func New(total int64) (Progress, error) {
+	if total <= 0 {
+		return Progress{}, fmt.Errorf("%w: %d", ErrInvalidTotal, total)
+	}
+
+	return Progress{current: atomic.Uint64{}, total: float64(total)}, nil
 }
 
 /* --------------------------- Method: Percentage --------------------------- */
@@ -38,6 +47,6 @@ func (p *Progress) Percentage() float64 {
 /* ------------------------------- Method: add ------------------------------ */
 
 // Adds the specified amount to the current progress.
-func (p *Progress) add(n uint64) {
-	p.current.Add(n)
+func (p *Progress) add(n uint64) uint64 {
+	return p.current.Add(n)
 }
