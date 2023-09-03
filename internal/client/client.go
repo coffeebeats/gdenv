@@ -19,10 +19,8 @@ const (
 )
 
 var (
-	ErrMissingResponse = errors.New("missing response")
-	ErrMissingClient   = errors.New("missing client")
-	ErrMissingSize     = errors.New("missing progress size")
-	ErrNetwork         = errors.New("network request failure")
+	ErrMissingSize = errors.New("missing progress size")
+	ErrNetwork     = errors.New("network request failure")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -80,10 +78,6 @@ func (c *Client) AllowRedirectsTo(d ...string) {
 // 'io.Writer' writers.
 func (c *Client) Download(u *url.URL, w ...io.Writer) error {
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		// Copy the asset contents into provided writers.
 		if _, err := io.Copy(io.MultiWriter(w...), r.RawBody()); err != nil {
 			return err
@@ -105,10 +99,6 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 	defer f.Close()
 
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		// Copy the response contents into the writer.
 		if _, err := io.Copy(f, r.RawBody()); err != nil {
 			return err
@@ -131,10 +121,6 @@ func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Prog
 	defer f.Close()
 
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		w := progress.NewWriter(p)
 
 		// Copy the asset contents into the writer.
@@ -149,10 +135,6 @@ func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Prog
 /* ------------------------------ Function: get ----------------------------- */
 
 func get(c *Client, u *url.URL, h func(*resty.Response) error) error {
-	if c.client == nil {
-		return ErrMissingClient
-	}
-
 	req := c.client.R()
 
 	// Assume control of response parsing.
