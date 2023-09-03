@@ -1,5 +1,5 @@
 # ----------------------------- Setting: Default ----------------------------- #
-# Automatically normalize line endings by default.
+# Automatically normalize line endings for all files by default.
 
 * text=auto
 
