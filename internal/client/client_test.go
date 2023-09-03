@@ -126,7 +126,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 		httpmock.NewStringResponder(200, want).SetContentLength())
 
 	// When: The file is downloaded.
-	if err := c.DownloadToWithProgress(u, f, &p); err != nil {
+	if err := c.DownloadToWithProgress(u, f, p); err != nil {
 		t.Fatalf("err: got %#v, want %#v", err, nil)
 	}
 

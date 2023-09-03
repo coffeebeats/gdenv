@@ -115,6 +115,8 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.
+//
+// NOTE: The provided 'Progress' struct will be reconfigured as needed.
 func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
 	f, err := os.Create(out)
 	if err != nil {
@@ -124,10 +126,16 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 	defer f.Close()
 
 	return get(c, u, func(r *resty.Response) error {
-		w := progress.NewWriter(p)
+		// Reset any pre-existing progress in the 'Progress' reporter.
+		p.Reset()
 
-		// Copy the asset contents into the writer.
-		_, err := io.Copy(io.MultiWriter(f, &w), r.RawBody())
+		// Set the 'Progress' total based on the response header.
+		if err := p.Total(uint64(r.RawResponse.ContentLength)); err != nil {
+			return err
+		}
+
+		// Copy the asset contents into the file and progress writer.
+		_, err := io.Copy(io.MultiWriter(f, progress.NewWriter(p)), r.RawBody())
 
 		return err
 	})
