@@ -41,7 +41,9 @@ func (w *Writer) Write(data []byte) (int, error) {
 
 	n := len(data)
 
-	w.progress.add(uint64(n))
+	if _, err := w.progress.add(uint64(n)); err != nil {
+		return 0, err
+	}
 
 	return n, nil
 }

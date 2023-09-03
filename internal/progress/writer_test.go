@@ -1,6 +1,7 @@
 package progress
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -44,7 +45,11 @@ func TestWriter(t *testing.T) {
 
 	for i := range [4]int{} {
 		// Given: The correct initial progress value.
-		if got, want := p.Percentage(), float64(i)/float64(4); got != want {
+		got, err := p.Percentage()
+		if !errors.Is(err, nil) {
+			t.Fatalf("err: got %#v, want %#v", err, nil)
+		}
+		if want := float64(i) / float64(4); got != want {
 			t.Fatalf("output: got %#v, want %#v", got, want)
 		}
 
@@ -53,8 +58,12 @@ func TestWriter(t *testing.T) {
 
 		select {
 		case <-wrote:
+			got, err := p.Percentage()
+			if !errors.Is(err, nil) {
+				t.Fatalf("err: got %#v, want %#v", err, nil)
+			}
 			// Then: The 'Progress' value in this thread updates accordingly.
-			if got, want := p.Percentage(), float64(i+1)/float64(4); got != want {
+			if want := float64(i+1) / float64(4); got != want {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}
 		case err := <-errs:

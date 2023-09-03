@@ -3,6 +3,8 @@ package progress
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"sync/atomic"
 	"testing"
 )
 
@@ -19,7 +21,7 @@ func TestNew(t *testing.T) {
 		{size: 0, want: &Progress{}, err: ErrInvalidTotal},
 
 		// Valid inputs
-		{size: 10, want: &Progress{total: float64(10)}},
+		{size: 10, want: &Progress{total: float64(10), current: &atomic.Uint64{}}},
 	}
 
 	for i, tc := range tests {
@@ -32,8 +34,8 @@ func TestNew(t *testing.T) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 
 			}
-			if got != *tc.want { // NOTE: Copy OK; synchronization is unneeded.
-				t.Fatalf("output: got %#v, want %#v", &got, tc.want)
+			if !reflect.DeepEqual(got, *tc.want) { // NOTE: Copy OK; no synchronization needed.
+				t.Fatalf("output: got %#v, want %#v", got, *tc.want)
 			}
 		})
 	}
@@ -45,10 +47,11 @@ func TestProgressPercentage(t *testing.T) {
 	tests := []struct {
 		current, size int64
 		want          float64
+		err           error
 	}{
 		// Invalid inputs
-		{size: -1, want: 0},
-		{size: 0, want: 0},
+		{size: -1, want: 0, err: ErrInvalidTotal},
+		{size: 0, want: 0, err: ErrInvalidTotal},
 
 		// Valid inputs
 		{current: 0, size: 10, want: 0},
@@ -60,13 +63,16 @@ func TestProgressPercentage(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
-			p := Progress{total: float64(tc.size)}
+			p := Progress{total: float64(tc.size), current: &atomic.Uint64{}}
 
 			// Given: The specified progress is already made.
 			p.add(uint64(tc.current))
 
 			// When: The current progress percentage is collected.
-			got := p.Percentage()
+			got, err := p.Percentage()
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+			}
 
 			// Then: It matches the expected value of 'current' / 'total'.
 			if got != tc.want {
@@ -100,13 +106,22 @@ func TestProgressAdd(t *testing.T) {
 			}
 
 			// When: The specified progress amount is added.
-			got := p.add(uint64(tc.add))
+			got, err := p.add(uint64(tc.add))
+			if !errors.Is(err, nil) {
+				t.Fatalf("err: got %#v, want %#v", err, nil)
+			}
 
 			// Then: It returns the expected new value.
 			if got != tc.want {
 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
-			if p.Percentage() != tc.percentage {
+
+			// Then: The reported progress reflects the added value.
+			percentage, err := p.Percentage()
+			if !errors.Is(err, nil) {
+				t.Fatalf("err: got %#v, want %#v", err, nil)
+			}
+			if percentage != tc.percentage {
 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
