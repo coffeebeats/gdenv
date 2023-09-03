@@ -13,15 +13,15 @@ import (
 func TestNew(t *testing.T) {
 	tests := []struct {
 		size int
-		want *Progress
+		want Progress
 		err  error
 	}{
 		// Invalid inputs
-		{size: -1, want: &Progress{}, err: ErrInvalidTotal},
-		{size: 0, want: &Progress{}, err: ErrInvalidTotal},
+		{size: -1, want: Progress{}, err: ErrInvalidTotal},
+		{size: 0, want: Progress{}, err: ErrInvalidTotal},
 
 		// Valid inputs
-		{size: 10, want: &Progress{total: float64(10), current: &atomic.Uint64{}}},
+		{size: 10, want: Progress{total: float64(10), current: &atomic.Uint64{}}},
 	}
 
 	for i, tc := range tests {
@@ -34,8 +34,8 @@ func TestNew(t *testing.T) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 
 			}
-			if !reflect.DeepEqual(got, *tc.want) { // NOTE: Copy OK; no synchronization needed.
-				t.Fatalf("output: got %#v, want %#v", got, *tc.want)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
