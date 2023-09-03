@@ -10,9 +10,9 @@ import (
 const envVarStore = "GDENV_HOME"
 
 var (
-	ErrInvalidPath   = errors.New("store: invalid file path")
-	ErrMissingEnvVar = fmt.Errorf("store: environment variable '%s' not defined", envVarStore)
-	ErrMissingPath   = errors.New("store: missing file path")
+	ErrInvalidPath   = errors.New("invalid file path")
+	ErrMissingEnvVar = fmt.Errorf("environment variable '%s' not defined", envVarStore)
+	ErrMissingPath   = errors.New("missing file path")
 )
 
 /* ----------------------------- Function: Clean ---------------------------- */
