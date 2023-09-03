@@ -6,8 +6,6 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
-const FilenameChecksums = "SHA512-SUMS.txt"
-
 var (
 	ErrInvalidSpecification = errors.New("invalid specification")
 	ErrInvalidURL           = errors.New("invalid URL")

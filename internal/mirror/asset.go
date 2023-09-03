@@ -6,6 +6,8 @@ import (
 	"net/url"
 )
 
+const FilenameChecksums = "SHA512-SUMS.txt"
+
 var (
 	ErrMissingName = errors.New("missing name")
 	ErrMissingURL  = errors.New("missing URL")
