@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot"
-	"github.com/go-resty/resty/v2"
 )
 
 const (
@@ -30,7 +30,7 @@ var (
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
 type TuxFamily struct {
-	client *resty.Client
+	client *client.Client
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
@@ -39,7 +39,7 @@ var _ Mirror = &TuxFamily{} //nolint:exhaustruct
 /* ------------------------- Function: NewTuxFamily ------------------------- */
 
 func NewTuxFamily() TuxFamily {
-	client := defaultRestyClient()
+	client := client.Default()
 
 	return TuxFamily{client}
 }
@@ -70,7 +70,7 @@ func (m *TuxFamily) Checksum(v godot.Version) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+	a.name, a.url = filenameChecksums, urlParsed
 
 	return a, nil
 }
@@ -108,7 +108,7 @@ func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filename, urlParsed
+	a.name, a.url = filename, urlParsed
 
 	return a, nil
 }

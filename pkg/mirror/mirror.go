@@ -3,20 +3,11 @@ package mirror
 import (
 	"errors"
 	"net/url"
-	"time"
 
 	"github.com/coffeebeats/gdenv/pkg/godot"
-	"github.com/go-resty/resty/v2"
 )
 
-const (
-	filenameChecksums = "SHA512-SUMS.txt"
-
-	// Configure common retry policies for clients.
-	retryCount   = 3
-	retryWait    = time.Second
-	retryWaitMax = 10 * time.Second
-)
+const filenameChecksums = "SHA512-SUMS.txt"
 
 var (
 	ErrInvalidSpecification = errors.New("invalid specification")
@@ -42,9 +33,8 @@ type Mirror interface {
 // A struct representing a file/directory that can be downloaded from a Godot
 // project mirror.
 type Asset struct {
-	client *resty.Client
-	name   string
-	url    *url.URL
+	name string
+	url  *url.URL
 }
 
 /* ------------------------------ Method: Name ------------------------------ */

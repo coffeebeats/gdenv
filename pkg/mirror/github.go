@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot"
-	"github.com/go-resty/resty/v2"
 )
 
 const (
@@ -23,7 +23,7 @@ var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1") //nolint:gochec
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
 type GitHub struct {
-	client *resty.Client
+	client *client.Client
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
@@ -34,10 +34,10 @@ var _ Mirror = &GitHub{} //nolint:exhaustruct
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
 func NewGitHub() GitHub {
-	client := defaultRestyClient()
+	client := client.Default()
 
 	// Allow redirects to the GitHub content domain.
-	client.SetRedirectPolicy(resty.DomainCheckRedirectPolicy(gitHubContentDomain))
+	client.AllowRedirectsTo(gitHubContentDomain)
 
 	return GitHub{client}
 }
@@ -68,7 +68,7 @@ func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filenameChecksums, urlParsed
+	a.name, a.url = filenameChecksums, urlParsed
 
 	return a, nil
 }
@@ -106,7 +106,7 @@ func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.client, a.name, a.url = m.client, filename, urlParsed
+	a.name, a.url = filename, urlParsed
 
 	return a, nil
 }
