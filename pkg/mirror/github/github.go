@@ -1,4 +1,4 @@
-package mirror
+package github
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/pkg/mirror"
 )
 
 const (
@@ -27,13 +28,13 @@ type GitHub struct {
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
-var _ Mirror = &GitHub{} //nolint:exhaustruct
+var _ mirror.Mirror = &GitHub{} //nolint:exhaustruct
 
-/* --------------------------- Function: NewGitHub -------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
-func NewGitHub() GitHub {
+func New() GitHub {
 	client := client.Default()
 
 	// Allow redirects to the GitHub content domain.
@@ -46,69 +47,61 @@ func NewGitHub() GitHub {
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from GitHub.
-func (m *GitHub) Checksum(v godot.Version) (Asset, error) {
-	var asset Asset
-
+func (m *GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
-		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
+		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
 
 	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlAsset, err := url.JoinPath(urlRelease, filenameChecksums)
+	urlAsset, err := url.JoinPath(urlRelease, mirror.FilenameChecksums)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	asset.name, asset.url = filenameChecksums, urlParsed
-
-	return asset, nil
+	return mirror.NewAsset(mirror.FilenameChecksums, urlParsed)
 }
 
 /* --------------------------- Method: Executable --------------------------- */
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from GitHub.
-func (m *GitHub) Executable(ex godot.Executable) (Asset, error) {
-	var asset Asset
-
+func (m *GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 	if !m.Supports(ex.Version) {
-		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
+		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
 	}
 
 	name, err := ex.Name()
 	if err != nil {
-		return asset, errors.Join(ErrInvalidSpecification, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidSpecification, err)
 	}
 
 	urlRelease, err := urlGitHubRelease(ex.Version)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	filename := name + ".zip"
 
 	urlAsset, err := url.JoinPath(urlRelease, filename)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlAsset)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	asset.name, asset.url = filename, urlParsed
-
-	return asset, nil
+	return mirror.NewAsset(filename, urlParsed)
 }
 
 /* ------------------------------- Method: Has ------------------------------ */
