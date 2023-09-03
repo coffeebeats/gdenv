@@ -31,9 +31,13 @@ var (
 /*                               Struct: Client                               */
 /* -------------------------------------------------------------------------- */
 
+// A struct implementing an HTTP client with simple methods for file downloads.
 type Client struct {
 	client *resty.Client
 }
+
+// Validate at compile-time that 'Client' implements 'FileDownloader'.
+var _ FileDownloader = &Client{} //nolint:exhaustruct
 
 /* ---------------------------- Function: Default --------------------------- */
 
@@ -72,7 +76,7 @@ func (c *Client) AllowRedirectsTo(d ...string) {
 	c.client.SetRedirectPolicy(p)
 }
 
-/* ---------------------------- Method: Download ---------------------------- */
+/* ----------------------------- Impl: Download ----------------------------- */
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
@@ -91,7 +95,7 @@ func (c *Client) Download(u *url.URL, w ...io.Writer) error {
 	})
 }
 
-/* --------------------------- Method: DownloadTo --------------------------- */
+/* ---------------------------- Impl: DownloadTo ---------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
 func (c *Client) DownloadTo(u *url.URL, out string) error {
@@ -116,7 +120,7 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 	})
 }
 
-/* --------------------- Method: DownloadToWithProgress --------------------- */
+/* ---------------------- Impl: DownloadToWithProgress ---------------------- */
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.
