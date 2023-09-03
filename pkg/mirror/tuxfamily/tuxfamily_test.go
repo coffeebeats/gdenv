@@ -1,4 +1,4 @@
-package mirror
+package tuxfamily
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/pkg/mirror"
 )
 
 /* ----------------------- Test: TuxFamily.Executable ----------------------- */
@@ -20,8 +21,8 @@ func TestTuxFamilyExecutable(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{ex: godot.Executable{}, err: ErrInvalidSpecification},
-		{ex: godot.MustParseExecutable("Godot_v0.0.0-stable_linux.x86_64"), err: ErrInvalidSpecification},
+		{ex: godot.Executable{}, err: mirror.ErrInvalidSpecification},
+		{ex: godot.MustParseExecutable("Godot_v0.0.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
 
 		// Valid inputs
 		{
@@ -57,7 +58,7 @@ func TestTuxFamilyExecutable(t *testing.T) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want := Asset{name: tc.name, url: u}
+			want, _ := mirror.NewAsset(tc.name, u) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				fmt.Println(got.URL().String())
 				t.Fatalf("output: got %#v, want %#v", got, want)
@@ -78,18 +79,18 @@ func TestTuxFamilyChecksum(t *testing.T) {
 		// Valid inputs
 		{
 			v:    godot.MustParseVersion("4.1.1-stable"),
-			name: filenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/" + filenameChecksums,
+			name: mirror.FilenameChecksums,
+			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/" + mirror.FilenameChecksums,
 		},
 		{
 			v:    godot.MustParseVersion("4.1-stable"),
-			name: filenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1/" + filenameChecksums,
+			name: mirror.FilenameChecksums,
+			url:  "https://downloads.tuxfamily.org/godotengine/4.1/" + mirror.FilenameChecksums,
 		},
 		{
 			v:    godot.MustParseVersion("4.0-dev.20220118"),
-			name: filenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/" + filenameChecksums,
+			name: mirror.FilenameChecksums,
+			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/" + mirror.FilenameChecksums,
 		},
 	}
 
@@ -109,7 +110,7 @@ func TestTuxFamilyChecksum(t *testing.T) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want := Asset{name: tc.name, url: u}
+			want, _ := mirror.NewAsset(tc.name, u) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}

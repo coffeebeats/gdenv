@@ -1,4 +1,4 @@
-package mirror
+package tuxfamily
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/pkg/mirror"
 )
 
 const (
@@ -34,7 +35,7 @@ type TuxFamily struct {
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
-var _ Mirror = &TuxFamily{} //nolint:exhaustruct
+var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
 
 /* ------------------------- Function: NewTuxFamily ------------------------- */
 
@@ -48,69 +49,61 @@ func NewTuxFamily() TuxFamily {
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from TuxFamily.
-func (m *TuxFamily) Checksum(v godot.Version) (Asset, error) {
-	var asset Asset
-
+func (m *TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
-		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
+		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
 	if err != nil {
-		return asset, err
+		return mirror.Asset{}, err
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, filenameChecksums)
+	urlRaw, err := url.JoinPath(urlVersionDir, mirror.FilenameChecksums)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlRaw)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	asset.name, asset.url = filenameChecksums, urlParsed
-
-	return asset, nil
+	return mirror.NewAsset(mirror.FilenameChecksums, urlParsed)
 }
 
 /* --------------------------- Method: Executable --------------------------- */
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from TuxFamily.
-func (m *TuxFamily) Executable(ex godot.Executable) (Asset, error) {
-	var asset Asset
-
+func (m *TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 	if !m.Supports(ex.Version) {
-		return asset, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version.String())
+		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
 	}
 
 	name, err := ex.Name()
 	if err != nil {
-		return asset, errors.Join(ErrInvalidSpecification, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidSpecification, err)
 	}
 
 	filename := name + ".zip"
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version)
 	if err != nil {
-		return asset, err
+		return mirror.Asset{}, err
 	}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, filename)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	urlParsed, err := url.Parse(urlRaw)
 	if err != nil {
-		return asset, errors.Join(ErrInvalidURL, err)
+		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	asset.name, asset.url = filename, urlParsed
-
-	return asset, nil
+	return mirror.NewAsset(filename, urlParsed)
 }
 
 /* ------------------------------- Method: Has ------------------------------ */
@@ -161,7 +154,7 @@ func urlTuxFamilyVersionDir(v godot.Version) (string, error) {
 
 	urlVersionDir, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
 	if err != nil {
-		return "", errors.Join(ErrInvalidURL, err)
+		return "", errors.Join(mirror.ErrInvalidURL, err)
 	}
 
 	return urlVersionDir, nil
