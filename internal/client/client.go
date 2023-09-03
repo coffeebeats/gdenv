@@ -37,7 +37,7 @@ type Client struct {
 }
 
 // Validate at compile-time that 'Client' implements 'FileDownloader'.
-var _ FileDownloader = &Client{} //nolint:exhaustruct
+var _ FileDownloader[*url.URL] = &Client{} //nolint:exhaustruct
 
 /* ---------------------------- Function: Default --------------------------- */
 
