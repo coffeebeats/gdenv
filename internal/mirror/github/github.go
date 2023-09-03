@@ -24,7 +24,7 @@ var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1") //nolint:gochec
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
 type GitHub struct {
-	client client.Client
+	client *client.Client
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
@@ -35,12 +35,8 @@ var _ mirror.Mirror = &GitHub{} //nolint:exhaustruct
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
 func New() GitHub {
-	client := client.New()
-
-	// Allow redirects to the GitHub content domain.
-	client.AllowRedirectsTo(gitHubContentDomain)
-
-	return GitHub{client}
+	c := client.NewWithRedirectDomains(gitHubContentDomain)
+	return GitHub{&c}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */
