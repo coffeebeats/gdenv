@@ -14,8 +14,10 @@ var ErrInvalidTotal = errors.New("invalid total")
 
 // A thread-safe progress tracker; reports percentages exactly (i.e. greater
 // than '1.0' is possible), but will fail on denominators <= '0'.
+//
+// NOTE: A 'Progress' struct must not be copied after first use.
 type Progress struct {
-	current *atomic.Uint64
+	current atomic.Uint64
 	total   float64
 }
 
@@ -27,7 +29,7 @@ func New(total uint64) (Progress, error) {
 		return Progress{}, fmt.Errorf("%w: %d", ErrInvalidTotal, total)
 	}
 
-	return Progress{current: &atomic.Uint64{}, total: float64(total)}, nil
+	return Progress{total: float64(total)}, nil //nolint:exhaustruct
 }
 
 /* --------------------------- Method: Percentage --------------------------- */
