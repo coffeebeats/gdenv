@@ -2,7 +2,6 @@ package github
 
 import (
 	"errors"
-	"net/url"
 	"reflect"
 	"testing"
 
@@ -34,21 +33,13 @@ func TestGitHubExecutable(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.ex.String(), func(t *testing.T) {
-			u, err := url.Parse(tc.url)
-			if err != nil {
-				t.Fatalf("test setup: %#v", err)
-			}
-			if tc.url == "" {
-				u = nil
-			}
-
 			got, err := (&GitHub{}).Executable(tc.ex)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want, _ := mirror.NewAsset(tc.name, u) // NOTE: Ignore 'err'; some expected.
+			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}
@@ -80,21 +71,13 @@ func TestGitHubChecksum(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.v.String(), func(t *testing.T) {
-			u, err := url.Parse(tc.url)
-			if err != nil {
-				t.Fatalf("test setup: %#v", err)
-			}
-			if tc.url == "" {
-				u = nil
-			}
-
 			got, err := (&GitHub{}).Checksum(tc.v)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want, _ := mirror.NewAsset(tc.name, u) // NOTE: Ignore 'err'; some expected.
+			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}

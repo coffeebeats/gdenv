@@ -64,12 +64,7 @@ func (m *TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
 		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlRaw)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(mirror.FilenameChecksums, urlParsed)
+	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
 }
 
 /* --------------------------- Method: Executable --------------------------- */
@@ -98,12 +93,7 @@ func (m *TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlRaw)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(filename, urlParsed)
+	return mirror.NewAsset(filename, urlRaw)
 }
 
 /* ------------------------------- Method: Has ------------------------------ */

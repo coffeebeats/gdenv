@@ -57,17 +57,12 @@ func (m *GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
 		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlAsset, err := url.JoinPath(urlRelease, mirror.FilenameChecksums)
+	urlRaw, err := url.JoinPath(urlRelease, mirror.FilenameChecksums)
 	if err != nil {
 		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlAsset)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(mirror.FilenameChecksums, urlParsed)
+	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
 }
 
 /* --------------------------- Method: Executable --------------------------- */
@@ -91,17 +86,12 @@ func (m *GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 
 	filename := name + ".zip"
 
-	urlAsset, err := url.JoinPath(urlRelease, filename)
+	urlRaw, err := url.JoinPath(urlRelease, filename)
 	if err != nil {
 		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlParsed, err := url.Parse(urlAsset)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(filename, urlParsed)
+	return mirror.NewAsset(filename, urlRaw)
 }
 
 /* ------------------------------- Method: Has ------------------------------ */

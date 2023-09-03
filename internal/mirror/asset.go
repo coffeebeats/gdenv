@@ -2,6 +2,7 @@ package mirror
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 )
 
@@ -24,15 +25,20 @@ type Asset struct {
 /* --------------------------- Function: NewAsset --------------------------- */
 
 // Returns a new 'Asset' after validating inputs.
-func NewAsset(name string, u *url.URL) (Asset, error) {
+func NewAsset(name, urlRaw string) (Asset, error) {
 	var asset Asset
 
 	if name == "" {
 		return asset, ErrMissingName
 	}
 
-	if u == nil {
+	if urlRaw == "" {
 		return asset, ErrMissingURL
+	}
+
+	u, err := url.Parse(urlRaw)
+	if err != nil {
+		return asset, fmt.Errorf("%w: %s", ErrInvalidURL, urlRaw)
 	}
 
 	asset.name, asset.url = name, u
