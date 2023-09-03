@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/mirror"
 	"github.com/coffeebeats/gdenv/pkg/godot"
-	"github.com/coffeebeats/gdenv/pkg/mirror"
 )
 
 /* ------------------------- Test: GitHub.Executable ------------------------ */
