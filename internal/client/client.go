@@ -42,7 +42,7 @@ var _ FileDownloader = &Client{} //nolint:exhaustruct
 /* ---------------------------- Function: Default --------------------------- */
 
 // Configures a default 'Client' for mirrors.
-func Default() *Client {
+func Default() Client {
 	client := resty.New()
 
 	client.SetRetryCount(retryCount)
@@ -56,7 +56,7 @@ func Default() *Client {
 		},
 	)
 
-	return &Client{client}
+	return Client{client}
 }
 
 /* ------------------------ Method: AllowRedirectsTo ------------------------ */

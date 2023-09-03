@@ -31,7 +31,7 @@ var (
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
 type TuxFamily struct {
-	client *client.Client
+	client client.Client
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
