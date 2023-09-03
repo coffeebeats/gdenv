@@ -45,6 +45,9 @@ func New() Client {
 	client.SetRetryWaitTime(retryWait)
 	client.SetRetryMaxWaitTime(retryWaitMax)
 
+	// Disable redirects by default.
+	client.SetRedirectPolicy(resty.NoRedirectPolicy())
+
 	// Retry on any error response.
 	client.AddRetryCondition(
 		func(r *resty.Response, err error) bool {
