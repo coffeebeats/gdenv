@@ -3,7 +3,6 @@ package store
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -91,12 +90,7 @@ func Add(store, file string, ex godot.Executable) error {
 		return err
 	}
 
-	if err := os.Rename(file, tool); err != nil {
-		log.Print(err)
-		return err
-	}
-
-	return nil
+	return os.Rename(file, tool)
 }
 
 /* ------------------------------ Function: Has ----------------------------- */

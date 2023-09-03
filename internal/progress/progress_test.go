@@ -62,10 +62,8 @@ func TestProgressPercentage(t *testing.T) {
 			p.add(uint64(tc.current))
 
 			// When: The current progress percentage is collected.
-			got := p.Percentage()
-
 			// Then: It matches the expected value of 'current' / 'total'.
-			if got != tc.want {
+			if got := p.Percentage(); got != tc.want {
 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
@@ -96,10 +94,8 @@ func TestProgressAdd(t *testing.T) {
 			}
 
 			// When: The specified progress amount is added.
-			got := p.add(uint64(tc.add))
-
 			// Then: It returns the expected new value.
-			if got != tc.want {
+			if got := p.add(uint64(tc.add)); got != tc.want {
 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
 

@@ -135,6 +135,9 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 
 /* ------------------------------ Function: get ----------------------------- */
 
+// Issues a 'GET' request to the provided URL, but delegates the response
+// handling to the provided function. The provided handler should *not* close
+// the response, as that's handled by this function.
 func get(c Client, u *url.URL, h func(*resty.Response) error) error {
 	req := c.restyClient.R()
 
