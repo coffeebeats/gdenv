@@ -19,8 +19,8 @@ var _ io.Writer = &Writer{} //nolint:exhaustruct
 
 // Creates a new 'Writer' with the specified 'Progress' reporter.
 //
-// NOTE: It's the caller's responsibility to ensure that the initial 'total'
-// size is correct so that the computed progress value is accurate.
+// NOTE: It's the caller's responsibility to ensure that the initial 'Progress'
+// provided is correctly configured so that the calculated progress is accurate.
 func NewWriter(p *Progress) Writer {
 	return Writer{p}
 }

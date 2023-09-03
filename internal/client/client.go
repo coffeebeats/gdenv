@@ -62,7 +62,7 @@ func New() Client {
 
 // Modifies the client's redirect policies to only allow redirects to the
 // provided domains. If none are provided, then no redirects are permitted.
-func (c *Client) AllowRedirectsTo(d ...string) {
+func (c Client) AllowRedirectsTo(d ...string) {
 	var p resty.RedirectPolicy
 
 	switch len(d) {
@@ -79,7 +79,7 @@ func (c *Client) AllowRedirectsTo(d ...string) {
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
-func (c *Client) Download(u *url.URL, w ...io.Writer) error {
+func (c Client) Download(u *url.URL, w ...io.Writer) error {
 	return get(c, u, func(r *resty.Response) error {
 		// Copy the asset contents into provided writers.
 		if _, err := io.Copy(io.MultiWriter(w...), r.RawBody()); err != nil {
@@ -93,7 +93,7 @@ func (c *Client) Download(u *url.URL, w ...io.Writer) error {
 /* ---------------------------- Impl: DownloadTo ---------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
-func (c *Client) DownloadTo(u *url.URL, out string) error {
+func (c Client) DownloadTo(u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.
-func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
+func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
 	f, err := os.Create(out)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Prog
 		w := progress.NewWriter(p)
 
 		// Copy the asset contents into the writer.
-		if _, err := io.Copy(io.MultiWriter(f, w), r.RawBody()); err != nil {
+		if _, err := io.Copy(io.MultiWriter(f, &w), r.RawBody()); err != nil {
 			return err
 		}
 
@@ -137,7 +137,7 @@ func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Prog
 
 /* ------------------------------ Function: get ----------------------------- */
 
-func get(c *Client, u *url.URL, h func(*resty.Response) error) error {
+func get(c Client, u *url.URL, h func(*resty.Response) error) error {
 	req := c.client.R()
 
 	// Assume control of response parsing.
