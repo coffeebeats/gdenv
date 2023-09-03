@@ -27,10 +27,10 @@ func TestClientDownload(t *testing.T) {
 	defer f.Close()
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
@@ -68,10 +68,10 @@ func TestClientDownloadTo(t *testing.T) {
 	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
@@ -115,10 +115,10 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
@@ -140,11 +140,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	}
 
 	// Then: The progress value should be 100%.
-	percentage, err := p.Percentage()
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
-	if want := 1.0; percentage != want {
+	if got, want := p.Percentage(), 1.0; got != want {
 		t.Fatalf("output: got %#v, want %#v", got, want)
 	}
 }

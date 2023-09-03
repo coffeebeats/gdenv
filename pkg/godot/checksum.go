@@ -16,7 +16,6 @@ const (
 
 var (
 	ErrConflictingChecksum = errors.New("conflicting checksum")
-	ErrFileSystem          = errors.New("file system operation failed")
 	ErrMissingChecksum     = errors.New("missing checksum")
 	ErrMissingPath         = errors.New("missing path")
 	ErrUnrecognizedFormat  = errors.New("unrecognized format")
@@ -34,13 +33,13 @@ func ComputeChecksum(path string) (string, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return "", errors.Join(ErrFileSystem, err)
+		return "", err
 	}
 	defer f.Close()
 
 	h := sha512.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return "", errors.Join(ErrFileSystem, err)
+		return "", err
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
@@ -64,7 +63,7 @@ func ExtractChecksum(path string, ex Executable) (string, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return "", errors.Join(ErrFileSystem, err)
+		return "", err
 	}
 	defer f.Close()
 
@@ -87,7 +86,7 @@ func ExtractChecksum(path string, ex Executable) (string, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return "", errors.Join(ErrFileSystem, err)
+		return "", err
 	}
 
 	// NOTE: This is brittle; find a better way of handling the extensions.

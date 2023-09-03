@@ -3,6 +3,7 @@ package godot
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -20,7 +21,7 @@ func TestComputeChecksum(t *testing.T) {
 	}{
 		// Invalid inputs
 		{f: "", exists: false, err: ErrMissingPath},
-		{f: "executable.zip", exists: false, err: ErrFileSystem},
+		{f: "executable.zip", exists: false, err: fs.ErrNotExist},
 
 		// Valid inputs
 		{
@@ -72,7 +73,7 @@ func TestExtractChecksum(t *testing.T) {
 	}{
 		// Invalid inputs
 		{f: "", exists: false, err: ErrMissingPath},
-		{f: "checksums.txt", exists: false, ex: exV4, err: ErrFileSystem},
+		{f: "checksums.txt", exists: false, ex: exV4, err: fs.ErrNotExist},
 		{f: "checksums.txt", exists: true, contents: "abc 123 filename", ex: exV4, err: ErrUnrecognizedFormat},
 		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum %s", nameV5+".zip"), ex: exV4, err: ErrMissingChecksum},
 		{f: "checksums.txt", exists: true, contents: fmt.Sprintf("checksum1 %s\nchecksum2 %s", nameV4+".zip", nameV4+".zip"), ex: exV4, err: ErrConflictingChecksum},

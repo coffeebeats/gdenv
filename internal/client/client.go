@@ -19,12 +19,8 @@ const (
 )
 
 var (
-	ErrFileSystem      = errors.New("file system operation failed")
-	ErrIO              = errors.New("I/O operation failed")
-	ErrMissingResponse = errors.New("missing response")
-	ErrMissingClient   = errors.New("missing client")
-	ErrMissingSize     = errors.New("missing progress size")
-	ErrNetwork         = errors.New("network request failure")
+	ErrMissingSize = errors.New("missing progress size")
+	ErrNetwork     = errors.New("network request failure")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -33,90 +29,85 @@ var (
 
 // A struct implementing an HTTP client with simple methods for file downloads.
 type Client struct {
-	client *resty.Client
+	restyClient *resty.Client
 }
 
 // Validate at compile-time that 'Client' implements 'FileDownloader'.
 var _ FileDownloader[*url.URL] = &Client{} //nolint:exhaustruct
 
-/* ---------------------------- Function: Default --------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
-// Configures a default 'Client' for mirrors.
-func Default() Client {
-	client := resty.New()
+// Creates a new 'Client' with default settings for mirrors.
+func New() Client {
+	restyClient := resty.New()
 
-	client.SetRetryCount(retryCount)
-	client.SetRetryWaitTime(retryWait)
-	client.SetRetryMaxWaitTime(retryWaitMax)
+	restyClient.SetRetryCount(retryCount)
+	restyClient.SetRetryWaitTime(retryWait)
+	restyClient.SetRetryMaxWaitTime(retryWaitMax)
+
+	// Disable redirects by default.
+	restyClient.SetRedirectPolicy(resty.NoRedirectPolicy())
 
 	// Retry on any error response.
-	client.AddRetryCondition(
+	restyClient.AddRetryCondition(
 		func(r *resty.Response, err error) bool {
 			return err != nil || r.IsError()
 		},
 	)
 
-	return Client{client}
+	return Client{restyClient}
 }
 
-/* ------------------------ Method: AllowRedirectsTo ------------------------ */
+/* -------------------- Function: NewWithRedirectDomains -------------------- */
 
-// Modifies the client's redirect policies to only allow redirects to the
-// provided domains. If none are provided, then no redirects are permitted.
-func (c *Client) AllowRedirectsTo(d ...string) {
+// Creates a new 'Client' with the provided domains allowed for redirects. If
+// none are provided, then no redirects are permitted.
+func NewWithRedirectDomains(domains ...string) Client {
 	var p resty.RedirectPolicy
 
-	switch len(d) {
+	switch len(domains) {
 	case 0:
 		p = resty.NoRedirectPolicy()
 	default:
-		p = resty.DomainCheckRedirectPolicy(d...)
+		p = resty.DomainCheckRedirectPolicy(domains...)
 	}
 
-	c.client.SetRedirectPolicy(p)
+	client := New()
+
+	client.restyClient.SetRedirectPolicy(p)
+
+	return client
 }
 
 /* ----------------------------- Impl: Download ----------------------------- */
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
-func (c *Client) Download(u *url.URL, w ...io.Writer) error {
+func (c Client) Download(u *url.URL, w ...io.Writer) error {
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		// Copy the asset contents into provided writers.
-		if _, err := io.Copy(io.MultiWriter(w...), r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
-		}
+		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
 /* ---------------------------- Impl: DownloadTo ---------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
-func (c *Client) DownloadTo(u *url.URL, out string) error {
+func (c Client) DownloadTo(u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
-		return errors.Join(ErrFileSystem, err)
+		return err
 	}
 
 	defer f.Close()
 
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		// Copy the response contents into the writer.
-		if _, err := io.Copy(f, r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
-		}
+		_, err := io.Copy(f, r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
@@ -124,38 +115,31 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.
-func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
+func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
 	f, err := os.Create(out)
 	if err != nil {
-		return errors.Join(ErrFileSystem, err)
+		return err
 	}
 
 	defer f.Close()
 
 	return get(c, u, func(r *resty.Response) error {
-		if r == nil {
-			return ErrMissingResponse
-		}
-
 		w := progress.NewWriter(p)
 
 		// Copy the asset contents into the writer.
-		if _, err := io.Copy(io.MultiWriter(f, w), r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
-		}
+		_, err := io.Copy(io.MultiWriter(f, &w), r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
 /* ------------------------------ Function: get ----------------------------- */
 
-func get(c *Client, u *url.URL, h func(*resty.Response) error) error {
-	if c.client == nil {
-		return ErrMissingClient
-	}
-
-	req := c.client.R()
+// Issues a 'GET' request to the provided URL, but delegates the response
+// handling to the provided function. The provided handler should *not* close
+// the response, as that's handled by this function.
+func get(c Client, u *url.URL, h func(*resty.Response) error) error {
+	req := c.restyClient.R()
 
 	// Assume control of response parsing.
 	req.SetDoNotParseResponse(true)

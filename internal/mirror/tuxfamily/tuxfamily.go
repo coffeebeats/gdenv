@@ -31,25 +31,24 @@ var (
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
 type TuxFamily struct {
-	client client.Client
+	client *client.Client
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
 var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
 
-/* ------------------------- Function: NewTuxFamily ------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
-func NewTuxFamily() TuxFamily {
-	client := client.Default()
-
-	return TuxFamily{client}
+func New() TuxFamily {
+	c := client.New()
+	return TuxFamily{&c}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from TuxFamily.
-func (m *TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
+func (m TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
@@ -71,7 +70,7 @@ func (m *TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from TuxFamily.
-func (m *TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
+func (m TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 	if !m.Supports(ex.Version) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
 	}
@@ -100,7 +99,7 @@ func (m *TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 
 // Returns whether the mirror supports the specified version. This does *NOT*
 // guarantee that the mirror has the version.
-func (m *TuxFamily) Supports(_ godot.Version) bool {
+func (m TuxFamily) Supports(_ godot.Version) bool {
 	return true
 }
 

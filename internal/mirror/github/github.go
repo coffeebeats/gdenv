@@ -24,7 +24,7 @@ var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1") //nolint:gochec
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
 type GitHub struct {
-	client client.Client
+	client *client.Client
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
@@ -35,19 +35,15 @@ var _ mirror.Mirror = &GitHub{} //nolint:exhaustruct
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
 func New() GitHub {
-	client := client.Default()
-
-	// Allow redirects to the GitHub content domain.
-	client.AllowRedirectsTo(gitHubContentDomain)
-
-	return GitHub{client}
+	c := client.NewWithRedirectDomains(gitHubContentDomain)
+	return GitHub{&c}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from GitHub.
-func (m *GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
+func (m GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
@@ -69,7 +65,7 @@ func (m *GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from GitHub.
-func (m *GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
+func (m GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 	if !m.Supports(ex.Version) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
 	}
@@ -98,7 +94,7 @@ func (m *GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 
 // Returns whether the mirror supports the specified version. This does *NOT*
 // guarantee that the mirror has the version.
-func (m *GitHub) Supports(v godot.Version) bool {
+func (m GitHub) Supports(v godot.Version) bool {
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
 }
 

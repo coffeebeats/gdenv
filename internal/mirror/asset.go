@@ -51,13 +51,13 @@ func NewAsset(name, urlRaw string) (Asset, error) {
 /* ------------------------------ Method: Name ------------------------------ */
 
 // Returns the filename of the asset to download.
-func (a *Asset) Name() string {
+func (a Asset) Name() string {
 	return a.name
 }
 
 /* ------------------------------- Method: URL ------------------------------ */
 
 // Returns the URL of the asset to download.
-func (a *Asset) URL() *url.URL {
+func (a Asset) URL() *url.URL {
 	return a.url
 }

@@ -1,11 +1,6 @@
 package progress
 
-import (
-	"errors"
-	"io"
-)
-
-var ErrMissingProgress = errors.New("missing progress")
+import "io"
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Writer                               */
@@ -24,8 +19,8 @@ var _ io.Writer = &Writer{} //nolint:exhaustruct
 
 // Creates a new 'Writer' with the specified 'Progress' reporter.
 //
-// NOTE: It's the caller's responsibility to ensure that the initial 'total'
-// size is correct so that the computed progress value is accurate.
+// NOTE: It's the caller's responsibility to ensure that the initial 'Progress'
+// provided is correctly configured so that the calculated progress is accurate.
 func NewWriter(p *Progress) Writer {
 	return Writer{p}
 }
@@ -33,17 +28,9 @@ func NewWriter(p *Progress) Writer {
 /* ----------------------------- Impl: io.Writer ---------------------------- */
 
 func (w Writer) Write(data []byte) (int, error) {
-	// NOTE: This cannot be silently corrected (i.e. create 'Progress' here)
-	// because 'Writer' may have been copied prior to this.
-	if w.progress == nil {
-		return 0, ErrMissingProgress
-	}
-
 	n := len(data)
 
-	if _, err := w.progress.add(uint64(n)); err != nil {
-		return 0, err
-	}
+	w.progress.add(uint64(n))
 
 	return n, nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"io/fs"
 	"log"
 
 	"github.com/coffeebeats/gdenv/pkg/godot"
@@ -65,7 +66,7 @@ func NewWhich() *cli.Command {
 func which(storePath, pinPath string, platform godot.Platform) (string, error) {
 	path, err := pin.Resolve(pinPath)
 	if err != nil {
-		if !errors.Is(err, pin.ErrFileNotFound) {
+		if !errors.Is(err, fs.ErrNotExist) {
 			return "", err
 		}
 	}

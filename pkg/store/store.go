@@ -3,7 +3,6 @@ package store
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -15,9 +14,6 @@ const storeDirGodot = "godot"
 const storeFileLayout = "layout.v1" // simplify migrating in the future
 
 var (
-	ErrDirNotFound          = errors.New("directory not found")
-	ErrFileNotFound         = errors.New("file not found")
-	ErrIOFailed             = errors.New("I/O failed")
 	ErrInvalidSpecification = errors.New("invalid specification")
 	ErrMissingStore         = errors.New("missing store")
 	ErrUnexpectedLayout     = errors.New("unexpected layout")
@@ -34,20 +30,20 @@ func Init(path string) error {
 
 	// Create the 'Store' directory, if needed.
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
-		return errors.Join(ErrIOFailed, err)
+		return err
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirGodot} {
 		if err := os.MkdirAll(filepath.Join(path, d), os.ModePerm); err != nil {
-			return errors.Join(ErrIOFailed, err)
+			return err
 		}
 	}
 
 	// Create the required files, if needed.
 	for _, f := range []string{storeFileLayout} {
 		if err := os.WriteFile(filepath.Join(path, f), nil, os.ModePerm); err != nil {
-			return errors.Join(ErrIOFailed, err)
+			return err
 		}
 	}
 
@@ -91,15 +87,10 @@ func Add(store, file string, ex godot.Executable) error {
 
 	// Create the required directories, if needed.
 	if err := os.MkdirAll(filepath.Dir(tool), os.ModePerm); err != nil {
-		return errors.Join(ErrIOFailed, err)
+		return err
 	}
 
-	if err := os.Rename(file, tool); err != nil {
-		log.Print(err)
-		return errors.Join(ErrIOFailed, err)
-	}
-
-	return nil
+	return os.Rename(file, tool)
 }
 
 /* ------------------------------ Function: Has ----------------------------- */
@@ -152,7 +143,7 @@ func Remove(store string, ex godot.Executable) error {
 
 	// Remove the specific executable from the store.
 	if err := os.Remove(tool); err != nil {
-		return errors.Join(ErrIOFailed, err)
+		return err
 	}
 
 	// Check if the parent directory is empty. If it is, remove it.
@@ -160,18 +151,14 @@ func Remove(store string, ex godot.Executable) error {
 
 	files, err := os.ReadDir(toolParent)
 	if err != nil {
-		return errors.Join(ErrIOFailed, err)
+		return err
 	}
 
 	if len(files) > 0 {
 		return nil
 	}
 
-	if err := os.RemoveAll(toolParent); err != nil {
-		return errors.Join(ErrIOFailed, err)
-	}
-
-	return nil
+	return os.RemoveAll(toolParent)
 }
 
 /* --------------------------- Function: ToolPath --------------------------- */
@@ -212,7 +199,7 @@ func Executables(store string) ([]godot.Executable, error) {
 	if err != nil {
 		// NOTE: Some versions *may* have been found in this case, as 'ReadDir'
 		// returns what it can, but it's safer to just fail here entirely.
-		return nil, fmt.Errorf("%w: '%s'", ErrIOFailed, pathCache)
+		return nil, fmt.Errorf("%w: '%s'", err, pathCache)
 	}
 
 	out := make([]godot.Executable, 0)
@@ -227,7 +214,7 @@ func Executables(store string) ([]godot.Executable, error) {
 
 		executables, err := collectExecutables(pathVersion)
 		if err != nil {
-			return out, errors.Join(ErrIOFailed, err)
+			return out, err
 		}
 
 		for _, ex := range executables {
@@ -258,7 +245,7 @@ func collectExecutables(path string) ([]godot.Executable, error) {
 
 	executables, err := os.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf("%w: '%s'", ErrIOFailed, path)
+		return nil, fmt.Errorf("%w: '%s'", err, path)
 	}
 
 	for _, file := range executables {
