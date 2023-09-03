@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 (2023-09-03)
+
+## What's Changed
+* feat: add `main` as a protected branch in vs code by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/49
+* fix(pkg/godot): improve platform handling, especially for `mono` builds by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/51
+* feat(pkg/mirror): improve the `mirror` package by factoring out client logic by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/52
+* feat(pkg/progress): create `Progress` and `progress.Writer` structs for tracking progress by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/53
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.2.1...v0.3.0
+
 ## 0.2.1 (2023-08-28)
 
 ## What's Changed
