@@ -12,12 +12,11 @@ import (
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		size int
+		size uint64
 		want Progress
 		err  error
 	}{
 		// Invalid inputs
-		{size: -1, want: Progress{}, err: ErrInvalidTotal},
 		{size: 0, want: Progress{}, err: ErrInvalidTotal},
 
 		// Valid inputs
@@ -27,7 +26,7 @@ func TestNew(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// When: A new 'Progress' struct is created with the specified size.
-			got, err := New(int64(tc.size))
+			got, err := New(tc.size)
 
 			// Then: It matches the expected value.
 			if !errors.Is(err, tc.err) {
@@ -45,12 +44,11 @@ func TestNew(t *testing.T) {
 
 func TestProgressPercentage(t *testing.T) {
 	tests := []struct {
-		current, size int64
+		current, size uint64
 		want          float64
 		err           error
 	}{
 		// Invalid inputs
-		{size: -1, want: 0, err: ErrInvalidTotal},
 		{size: 0, want: 0, err: ErrInvalidTotal},
 
 		// Valid inputs
@@ -86,7 +84,7 @@ func TestProgressPercentage(t *testing.T) {
 
 func TestProgressAdd(t *testing.T) {
 	tests := []struct {
-		size, add  int64
+		size, add  uint64
 		want       uint64
 		percentage float64
 	}{

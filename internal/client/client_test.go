@@ -1,4 +1,4 @@
-package mirror
+package client
 
 import (
 	"net/url"
@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/jarcoal/httpmock"
 )
 
@@ -21,26 +22,23 @@ func TestClientDownload(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 
-	// Given: An 'Asset' representing the file to download.
-	asset := Asset{name: name, url: u}
-
 	// Given: A temporary file to write the asset to.
-	f, err := os.Create(filepath.Join(t.TempDir(), asset.Name()))
+	f, err := os.Create(filepath.Join(t.TempDir(), name))
 	defer f.Close()
 
 	// Given: A default 'Client' instance.
-	c := Client{defaultRestyClient()}
+	c := Default()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())
 	defer httpmock.DeactivateAndReset()
 
-	want := asset.Name()
-	httpmock.RegisterResponder("GET", asset.URL().String(),
+	want := name
+	httpmock.RegisterResponder("GET", u.String(),
 		httpmock.NewStringResponder(200, want))
 
-	// When: The method under test is called.
-	if err := c.Download(asset, f); err != nil {
+	// When: The file is downloaded.
+	if err := c.Download(u, f); err != nil {
 		t.Fatalf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -66,25 +64,22 @@ func TestClientDownloadTo(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 
-	// Given: An 'Asset' representing the file to download.
-	asset := Asset{name: name, url: u}
-
 	// Given: A temporary file to write the asset to.
-	f := filepath.Join(t.TempDir(), asset.Name())
+	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Client{defaultRestyClient()}
+	c := Default()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())
 	defer httpmock.DeactivateAndReset()
 
-	want := asset.Name()
-	httpmock.RegisterResponder("GET", asset.URL().String(),
+	want := name
+	httpmock.RegisterResponder("GET", u.String(),
 		httpmock.NewStringResponder(200, want))
 
-	// When: The method under test is called.
-	if err := c.DownloadTo(asset, f); err != nil {
+	// When: The file is downloaded.
+	if err := c.DownloadTo(u, f); err != nil {
 		t.Fatalf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -110,28 +105,28 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 
-	// Given: An 'Asset' representing the file to download.
-	asset := Asset{name: name, url: u}
-
 	// Given: A pointer to write progress to.
-	var progress float64
+	p, err := progress.New(uint64(len([]byte(name))))
+	if err != nil {
+		t.Fatalf("test setup: %#v", err)
+	}
 
 	// Given: A temporary file to write the asset to.
-	f := filepath.Join(t.TempDir(), asset.Name())
+	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Client{defaultRestyClient()}
+	c := Default()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())
 	defer httpmock.DeactivateAndReset()
 
-	want := asset.Name()
-	httpmock.RegisterResponder("GET", asset.URL().String(),
+	want := name
+	httpmock.RegisterResponder("GET", u.String(),
 		httpmock.NewStringResponder(200, want).SetContentLength())
 
-	// When: The method under test is called.
-	if err := c.DownloadToWithProgress(asset, f, &progress); err != nil {
+	// When: The file is downloaded.
+	if err := c.DownloadToWithProgress(u, f, &p); err != nil {
 		t.Fatalf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -145,41 +140,11 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	}
 
 	// Then: The progress value should be 100%.
-	if got, want := progress, 1.0; got != want {
-		t.Fatalf("output: got %#v, want %#v", got, want)
-	}
-}
-
-/* -------------------------- Test: ProgressWriter -------------------------- */
-
-func TestProgressWriter(t *testing.T) {
-	// Given: A float containing a progress value.
-	var got float64
-
-	// Given: A 'ProgressWriter' with a size of '4', writing to 'got'.
-	w, err := NewProgressWriter(4, &got)
+	percentage, err := p.Percentage()
 	if err != nil {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+		t.Fatalf("test setup: %#v", err)
 	}
-
-	for i, b := range []byte{1, 1, 1, 1} {
-		// Given: The correct initial progress value.
-		if want := float64(i) / float64(4); got != want {
-			t.Fatalf("output: got %#v, want %#v", got, want)
-		}
-
-		// When: A byte is written.
-		n, err := w.Write([]byte{b})
-		if err != nil {
-			t.Fatalf("err: got %#v, want %#v", err, nil)
-		}
-		if n != 1 {
-			t.Fatalf("output: got %#v, want %#v", n, 1)
-		}
-
-		// Then: The progress pointer updates accordingly.
-		if want := float64(i+1) / float64(4); got != want {
-			t.Fatalf("output: got %#v, want %#v", got, want)
-		}
+	if want := 1.0; percentage != want {
+		t.Fatalf("output: got %#v, want %#v", got, want)
 	}
 }

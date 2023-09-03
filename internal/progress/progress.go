@@ -25,8 +25,8 @@ type Progress struct {
 /* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new 'Progress' struct with the specified 'total' size.
-func New(total int64) (Progress, error) {
-	if total <= 0 {
+func New(total uint64) (Progress, error) {
+	if total == 0 {
 		return Progress{}, fmt.Errorf("%w: %d", ErrInvalidTotal, total)
 	}
 

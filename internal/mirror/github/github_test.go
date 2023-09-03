@@ -1,11 +1,11 @@
-package mirror
+package github
 
 import (
 	"errors"
-	"net/url"
 	"reflect"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/mirror"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -19,9 +19,9 @@ func TestGitHubExecutable(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{ex: godot.Executable{}, err: ErrInvalidSpecification},
-		{ex: godot.MustParseExecutable("Godot_v0.1.0-stable_linux.x86_64"), err: ErrInvalidSpecification},
-		{ex: godot.MustParseExecutable("Godot_v4.1.1-unsupported-label_linux.x86_64"), err: ErrInvalidSpecification},
+		{ex: godot.Executable{}, err: mirror.ErrInvalidSpecification},
+		{ex: godot.MustParseExecutable("Godot_v0.1.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
+		{ex: godot.MustParseExecutable("Godot_v4.1.1-unsupported-label_linux.x86_64"), err: mirror.ErrInvalidSpecification},
 
 		// Valid inputs
 		{
@@ -33,21 +33,13 @@ func TestGitHubExecutable(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.ex.String(), func(t *testing.T) {
-			u, err := url.Parse(tc.url)
-			if err != nil {
-				t.Fatalf("test setup: %#v", err)
-			}
-			if tc.url == "" {
-				u = nil
-			}
-
 			got, err := (&GitHub{}).Executable(tc.ex)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want := Asset{name: tc.name, url: u}
+			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}
@@ -65,35 +57,27 @@ func TestGitHubChecksum(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{v: godot.Version{}, err: ErrInvalidSpecification},
-		{v: godot.MustParseVersion("v0.0.0"), err: ErrInvalidSpecification},
-		{v: godot.MustParseVersion("v4.1.1-unsupported-label"), err: ErrInvalidSpecification},
+		{v: godot.Version{}, err: mirror.ErrInvalidSpecification},
+		{v: godot.MustParseVersion("v0.0.0"), err: mirror.ErrInvalidSpecification},
+		{v: godot.MustParseVersion("v4.1.1-unsupported-label"), err: mirror.ErrInvalidSpecification},
 
 		// Valid inputs
 		{
 			v:    godot.MustParseVersion("4.1.1-stable"),
-			name: filenameChecksums,
-			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/" + filenameChecksums,
+			name: mirror.FilenameChecksums,
+			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/" + mirror.FilenameChecksums,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.v.String(), func(t *testing.T) {
-			u, err := url.Parse(tc.url)
-			if err != nil {
-				t.Fatalf("test setup: %#v", err)
-			}
-			if tc.url == "" {
-				u = nil
-			}
-
 			got, err := (&GitHub{}).Checksum(tc.v)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want := Asset{name: tc.name, url: u}
+			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}
