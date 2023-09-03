@@ -86,11 +86,9 @@ func NewWithRedirectDomains(domains ...string) Client {
 func (c Client) Download(u *url.URL, w ...io.Writer) error {
 	return get(c, u, func(r *resty.Response) error {
 		// Copy the asset contents into provided writers.
-		if _, err := io.Copy(io.MultiWriter(w...), r.RawBody()); err != nil {
-			return err
-		}
+		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
@@ -107,11 +105,9 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 
 	return get(c, u, func(r *resty.Response) error {
 		// Copy the response contents into the writer.
-		if _, err := io.Copy(f, r.RawBody()); err != nil {
-			return err
-		}
+		_, err := io.Copy(f, r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
@@ -131,11 +127,9 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 		w := progress.NewWriter(p)
 
 		// Copy the asset contents into the writer.
-		if _, err := io.Copy(io.MultiWriter(f, &w), r.RawBody()); err != nil {
-			return err
-		}
+		_, err := io.Copy(io.MultiWriter(f, &w), r.RawBody())
 
-		return nil
+		return err
 	})
 }
 
