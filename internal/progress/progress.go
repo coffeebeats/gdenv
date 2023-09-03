@@ -24,12 +24,12 @@ type Progress struct {
 /* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new 'Progress' struct with the specified 'total' size.
-func New(total uint64) (Progress, error) {
+func New(total uint64) (*Progress, error) {
 	if total == 0 {
-		return Progress{}, fmt.Errorf("%w: %d", ErrInvalidTotal, total)
+		return &Progress{}, fmt.Errorf("%w: %d", ErrInvalidTotal, total) //nolint:exhaustruct
 	}
 
-	return Progress{total: float64(total)}, nil //nolint:exhaustruct
+	return &Progress{total: float64(total)}, nil //nolint:exhaustruct
 }
 
 /* --------------------------- Method: Percentage --------------------------- */

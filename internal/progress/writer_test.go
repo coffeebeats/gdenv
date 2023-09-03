@@ -40,7 +40,7 @@ func TestWriter(t *testing.T) {
 				return
 			}
 		}
-	}(&p)
+	}(p)
 
 	for i := range [4]int{} {
 		// Given: The correct initial progress value.

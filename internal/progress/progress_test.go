@@ -32,8 +32,8 @@ func TestNew(t *testing.T) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 
 			}
-			if !reflect.DeepEqual(&got, tc.want) {
-				t.Fatalf("output: got %#v, want %#v", &got, tc.want)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
