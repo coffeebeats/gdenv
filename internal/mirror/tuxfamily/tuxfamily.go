@@ -37,12 +37,10 @@ type TuxFamily struct {
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
 var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
 
-/* ------------------------- Function: NewTuxFamily ------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
-func NewTuxFamily() TuxFamily {
-	client := client.New()
-
-	return TuxFamily{client}
+func New() TuxFamily {
+	return TuxFamily{client.New()}
 }
 
 /* ---------------------------- Method: Checksum ---------------------------- */
