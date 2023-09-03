@@ -33,6 +33,8 @@ func NewWriter(p *Progress) Writer {
 /* ----------------------------- Impl: io.Writer ---------------------------- */
 
 func (w *Writer) Write(data []byte) (int, error) {
+	// NOTE: This cannot be silently corrected (i.e. create 'Progress') because
+	// 'Writer' may have been copied prior to this.
 	if w.progress == nil {
 		return 0, ErrMissingProgress
 	}

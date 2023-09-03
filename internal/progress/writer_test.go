@@ -9,7 +9,11 @@ import (
 
 func TestWriter(t *testing.T) {
 	// Given: A 'Progress' struct to report progress through.
-	p := NewProgress(4)
+	p, err := New(4)
+	if err != nil {
+		t.Fatalf("err: got %#v, want %#v", err, nil)
+
+	}
 
 	// Given: Channels to communicate write signals through.
 	write, wrote, errs := make(chan struct{}), make(chan struct{}), make(chan error)
