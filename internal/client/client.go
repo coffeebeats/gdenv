@@ -35,10 +35,10 @@ type Client struct {
 // Validate at compile-time that 'Client' implements 'FileDownloader'.
 var _ FileDownloader[*url.URL] = &Client{} //nolint:exhaustruct
 
-/* ---------------------------- Function: Default --------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
-// Configures a default 'Client' for mirrors.
-func Default() Client {
+// Creates a new 'Client' with default settings for mirrors.
+func New() Client {
 	client := resty.New()
 
 	client.SetRetryCount(retryCount)

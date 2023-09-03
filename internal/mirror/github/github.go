@@ -35,7 +35,7 @@ var _ mirror.Mirror = &GitHub{} //nolint:exhaustruct
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
 func New() GitHub {
-	client := client.Default()
+	client := client.New()
 
 	// Allow redirects to the GitHub content domain.
 	client.AllowRedirectsTo(gitHubContentDomain)

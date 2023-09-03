@@ -40,7 +40,7 @@ var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
 /* ------------------------- Function: NewTuxFamily ------------------------- */
 
 func NewTuxFamily() TuxFamily {
-	client := client.Default()
+	client := client.New()
 
 	return TuxFamily{client}
 }

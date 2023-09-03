@@ -27,7 +27,7 @@ func TestClientDownload(t *testing.T) {
 	defer f.Close()
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())
@@ -68,7 +68,7 @@ func TestClientDownloadTo(t *testing.T) {
 	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())
@@ -115,7 +115,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	f := filepath.Join(t.TempDir(), name)
 
 	// Given: A default 'Client' instance.
-	c := Default()
+	c := New()
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.client.GetClient())

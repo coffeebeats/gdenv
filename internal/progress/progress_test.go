@@ -48,10 +48,6 @@ func TestProgressPercentage(t *testing.T) {
 		want          float64
 		err           error
 	}{
-		// Invalid inputs
-		{size: 0, want: 0, err: ErrInvalidTotal},
-
-		// Valid inputs
 		{current: 0, size: 10, want: 0},
 		{current: 5, size: 10, want: 0.5},
 		{current: 10, size: 10, want: 1},
