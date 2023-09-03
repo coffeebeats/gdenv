@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	ErrIOFailed       = errors.New("pin: IO failed")
 	ErrFileNotFound   = errors.New("pin: file not found")
 	ErrParseVersion   = errors.New("pin: failed to parse version")
 	ErrUnexpectedFile = errors.New("pin: unexpected file")
@@ -27,11 +26,7 @@ func Read(path string) (godot.Version, error) {
 
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return godot.Version{}, errors.Join(ErrFileNotFound, err)
-		}
-
-		return godot.Version{}, errors.Join(ErrIOFailed, err)
+		return godot.Version{}, err
 	}
 
 	version, err := godot.ParseVersion(string(bytes))
@@ -58,7 +53,7 @@ func Resolve(path string) (string, error) {
 		info, err := os.Stat(pin)
 		if err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
-				return "", errors.Join(ErrIOFailed, err)
+				return "", err
 			}
 
 			path = filepath.Dir(path)
@@ -87,7 +82,7 @@ func Remove(path string) error {
 
 	if err := os.Remove(p); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
-			return errors.Join(ErrIOFailed, err)
+			return err
 		}
 	}
 
@@ -105,13 +100,8 @@ func Write(version godot.Version, path string) error {
 
 	// Make the parent directories if needed.
 	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
-		return errors.Join(ErrIOFailed, err)
+		return err
 	}
 
-	contents := []byte(version.String())
-	if err := os.WriteFile(path, contents, os.ModePerm); err != nil {
-		return errors.Join(ErrIOFailed, err)
-	}
-
-	return nil
+	return os.WriteFile(path, []byte(version.String()), os.ModePerm)
 }

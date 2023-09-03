@@ -19,8 +19,6 @@ const (
 )
 
 var (
-	ErrFileSystem      = errors.New("file system operation failed")
-	ErrIO              = errors.New("I/O operation failed")
 	ErrMissingResponse = errors.New("missing response")
 	ErrMissingClient   = errors.New("missing client")
 	ErrMissingSize     = errors.New("missing progress size")
@@ -88,7 +86,7 @@ func (c *Client) Download(u *url.URL, w ...io.Writer) error {
 
 		// Copy the asset contents into provided writers.
 		if _, err := io.Copy(io.MultiWriter(w...), r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
+			return err
 		}
 
 		return nil
@@ -101,7 +99,7 @@ func (c *Client) Download(u *url.URL, w ...io.Writer) error {
 func (c *Client) DownloadTo(u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
-		return errors.Join(ErrFileSystem, err)
+		return err
 	}
 
 	defer f.Close()
@@ -113,7 +111,7 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 
 		// Copy the response contents into the writer.
 		if _, err := io.Copy(f, r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
+			return err
 		}
 
 		return nil
@@ -127,7 +125,7 @@ func (c *Client) DownloadTo(u *url.URL, out string) error {
 func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
 	f, err := os.Create(out)
 	if err != nil {
-		return errors.Join(ErrFileSystem, err)
+		return err
 	}
 
 	defer f.Close()
@@ -141,7 +139,7 @@ func (c *Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Prog
 
 		// Copy the asset contents into the writer.
 		if _, err := io.Copy(io.MultiWriter(f, w), r.RawBody()); err != nil {
-			return errors.Join(ErrIO, err)
+			return err
 		}
 
 		return nil
