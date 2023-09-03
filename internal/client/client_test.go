@@ -140,11 +140,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	}
 
 	// Then: The progress value should be 100%.
-	percentage, err := p.Percentage()
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
-	if want := 1.0; percentage != want {
+	if got, want := p.Percentage(), 1.0; got != want {
 		t.Fatalf("output: got %#v, want %#v", got, want)
 	}
 }

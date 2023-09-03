@@ -1,11 +1,6 @@
 package progress
 
-import (
-	"errors"
-	"io"
-)
-
-var ErrMissingProgress = errors.New("missing progress")
+import "io"
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Writer                               */
@@ -33,17 +28,9 @@ func NewWriter(p *Progress) Writer {
 /* ----------------------------- Impl: io.Writer ---------------------------- */
 
 func (w Writer) Write(data []byte) (int, error) {
-	// NOTE: This cannot be silently corrected (i.e. create 'Progress' here)
-	// because 'Writer' may have been copied prior to this.
-	if w.progress == nil {
-		return 0, ErrMissingProgress
-	}
-
 	n := len(data)
 
-	if _, err := w.progress.add(uint64(n)); err != nil {
-		return 0, err
-	}
+	w.progress.add(uint64(n))
 
 	return n, nil
 }
