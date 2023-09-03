@@ -30,7 +30,7 @@ func TestClientDownload(t *testing.T) {
 	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
@@ -71,7 +71,7 @@ func TestClientDownloadTo(t *testing.T) {
 	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
@@ -118,7 +118,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 	c := New()
 
 	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.client.GetClient())
+	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name

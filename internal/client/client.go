@@ -29,7 +29,7 @@ var (
 
 // A struct implementing an HTTP client with simple methods for file downloads.
 type Client struct {
-	client *resty.Client
+	restyClient *resty.Client
 }
 
 // Validate at compile-time that 'Client' implements 'FileDownloader'.
@@ -39,40 +39,44 @@ var _ FileDownloader[*url.URL] = &Client{} //nolint:exhaustruct
 
 // Creates a new 'Client' with default settings for mirrors.
 func New() Client {
-	client := resty.New()
+	restyClient := resty.New()
 
-	client.SetRetryCount(retryCount)
-	client.SetRetryWaitTime(retryWait)
-	client.SetRetryMaxWaitTime(retryWaitMax)
+	restyClient.SetRetryCount(retryCount)
+	restyClient.SetRetryWaitTime(retryWait)
+	restyClient.SetRetryMaxWaitTime(retryWaitMax)
 
 	// Disable redirects by default.
-	client.SetRedirectPolicy(resty.NoRedirectPolicy())
+	restyClient.SetRedirectPolicy(resty.NoRedirectPolicy())
 
 	// Retry on any error response.
-	client.AddRetryCondition(
+	restyClient.AddRetryCondition(
 		func(r *resty.Response, err error) bool {
 			return err != nil || r.IsError()
 		},
 	)
 
-	return Client{client}
+	return Client{restyClient}
 }
 
-/* ------------------------ Method: AllowRedirectsTo ------------------------ */
+/* -------------------- Function: NewWithRedirectDomains -------------------- */
 
-// Modifies the client's redirect policies to only allow redirects to the
-// provided domains. If none are provided, then no redirects are permitted.
-func (c Client) AllowRedirectsTo(d ...string) {
+// Creates a new 'Client' with the provided domains allowed for redirects. If
+// none are provided, then no redirects are permitted.
+func NewWithRedirectDomains(domains ...string) Client {
 	var p resty.RedirectPolicy
 
-	switch len(d) {
+	switch len(domains) {
 	case 0:
 		p = resty.NoRedirectPolicy()
 	default:
-		p = resty.DomainCheckRedirectPolicy(d...)
+		p = resty.DomainCheckRedirectPolicy(domains...)
 	}
 
-	c.client.SetRedirectPolicy(p)
+	client := New()
+
+	client.restyClient.SetRedirectPolicy(p)
+
+	return client
 }
 
 /* ----------------------------- Impl: Download ----------------------------- */
@@ -138,7 +142,7 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 /* ------------------------------ Function: get ----------------------------- */
 
 func get(c Client, u *url.URL, h func(*resty.Response) error) error {
-	req := c.client.R()
+	req := c.restyClient.R()
 
 	// Assume control of response parsing.
 	req.SetDoNotParseResponse(true)
