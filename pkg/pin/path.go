@@ -9,8 +9,8 @@ import (
 const pinFilename = ".godot-version"
 
 var (
-	ErrInvalidPath = errors.New("pin: invalid file path")
-	ErrMissingPath = errors.New("pin: missing file path")
+	ErrInvalidPath = errors.New("invalid file path")
+	ErrMissingPath = errors.New("missing file path")
 )
 
 /* ----------------------------- Function: Clean ---------------------------- */

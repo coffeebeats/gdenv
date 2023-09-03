@@ -24,7 +24,7 @@ func TestRead(t *testing.T) {
 	}{
 		{"", true, version, nil},
 		{"a/b/c", true, version, nil},
-		{"", false, godot.Version{}, ErrFileNotFound},
+		{"", false, godot.Version{}, fs.ErrNotExist},
 	}
 
 	for i, tc := range tests {
@@ -72,8 +72,8 @@ func TestResolve(t *testing.T) {
 	}{
 		{"", "", pinFilename, nil},
 		{"", "a/b/c", pinFilename, nil},
-		{"a", "", "", ErrFileNotFound},
-		{"a/b", "c/d", "", ErrFileNotFound},
+		{"a", "", "", fs.ErrNotExist},
+		{"a/b", "c/d", "", fs.ErrNotExist},
 	}
 
 	for i, tc := range tests {

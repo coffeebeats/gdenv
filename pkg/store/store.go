@@ -15,8 +15,6 @@ const storeDirGodot = "godot"
 const storeFileLayout = "layout.v1" // simplify migrating in the future
 
 var (
-	ErrDirNotFound          = errors.New("directory not found")
-	ErrFileNotFound         = errors.New("file not found")
 	ErrInvalidSpecification = errors.New("invalid specification")
 	ErrMissingStore         = errors.New("missing store")
 	ErrUnexpectedLayout     = errors.New("unexpected layout")

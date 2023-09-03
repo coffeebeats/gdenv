@@ -10,9 +10,8 @@ import (
 )
 
 var (
-	ErrFileNotFound   = errors.New("pin: file not found")
-	ErrParseVersion   = errors.New("pin: failed to parse version")
-	ErrUnexpectedFile = errors.New("pin: unexpected file")
+	ErrParseVersion   = errors.New("failed to parse version")
+	ErrUnexpectedFile = errors.New("unexpected file")
 )
 
 /* ----------------------------- Function: Read ----------------------------- */
@@ -68,7 +67,7 @@ func Resolve(path string) (string, error) {
 		}
 	}
 
-	return "", ErrFileNotFound
+	return "", fs.ErrNotExist
 }
 
 /* ---------------------------- Function: Remove ---------------------------- */
