@@ -97,7 +97,6 @@ func TestProgressReset(t *testing.T) {
 		t.Run(fmt.Sprintf("%d-%d", tc.current, tc.total), func(t *testing.T) {
 			// Given: A 'Progress' struct with the specified total.
 			p := Progress{}
-			p.current.Store(tc.current)
 			p.total.Store(tc.total)
 
 			// Given: The specified progress is already made.
