@@ -114,7 +114,7 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 	}
 
 	// Use a no-op response handler, as just the response code is used.
-	err = head(c, urlParsed, func(r *resty.Response) error {
+	err = c.head(urlParsed, func(r *resty.Response) error {
 		// Redirects should be followed by the client, not accepted as a valid
 		// result for 'Exists'. Return an error so the caller knows the client
 		// is incorrectly configured.
@@ -143,7 +143,7 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
 func (c Client) Download(u *url.URL, w ...io.Writer) error {
-	return get(c, u, func(r *resty.Response) error {
+	return c.get(u, func(r *resty.Response) error {
 		// Copy the asset contents into provided writers.
 		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
@@ -162,7 +162,7 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 
 	defer f.Close()
 
-	return get(c, u, func(r *resty.Response) error {
+	return c.get(u, func(r *resty.Response) error {
 		// Copy the response contents into the writer.
 		_, err := io.Copy(f, r.RawBody())
 
@@ -184,7 +184,7 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 
 	defer f.Close()
 
-	return get(c, u, func(r *resty.Response) error {
+	return c.get(u, func(r *resty.Response) error {
 		// Reset any pre-existing progress in the 'Progress' reporter.
 		p.Reset()
 
@@ -200,17 +200,17 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 	})
 }
 
-/* ------------------------------ Function: get ----------------------------- */
+/* ------------------------------- Method: get ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'GET' request.
-func get(c Client, u *url.URL, h func(*resty.Response) error) error {
+func (c Client) get(u *url.URL, h func(*resty.Response) error) error {
 	return execute(c.restyClient.R(), resty.MethodGet, u.String(), h)
 }
 
-/* ----------------------------- Function: head ----------------------------- */
+/* ------------------------------ Method: head ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'HEAD' request.
-func head(c Client, u *url.URL, h func(*resty.Response) error) error {
+func (c Client) head(u *url.URL, h func(*resty.Response) error) error {
 	return execute(c.restyClient.R(), resty.MethodHead, u.String(), h)
 }
 
@@ -220,10 +220,9 @@ func head(c Client, u *url.URL, h func(*resty.Response) error) error {
 // provided function. The handler should *not* close the response, as that's
 // handled by this function.
 func execute(req *resty.Request, m, u string, h func(*resty.Response) error) error {
-	// Assume control of response parsing.
+	// Take over response parsing (requires response body to be manually closed).
 	req.SetDoNotParseResponse(true)
 
-	// Issue the HTTP request.
 	res, err := req.Execute(m, u)
 	if err != nil {
 		return errors.Join(ErrRequestFailed, err)
