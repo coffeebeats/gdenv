@@ -15,7 +15,6 @@ var (
 	ErrUnrecognizedOS       = errors.New("unrecognized OS")
 	ErrUnrecognizedPlatform = errors.New("unrecognized platform")
 	ErrUnsupportedArch      = errors.New("unsupported architecture")
-	ErrUnsupportedOS        = errors.New("unsupported OS")
 
 	// This expression matches all Godot v4.0 macOS pre-release versions which
 	// utilize a 'osx.universal' platform label. These include 'alpha1' -
@@ -152,8 +151,38 @@ func MustParseArch(input string) Arch {
 
 // A platform specification representing a target to run the Godot editor on.
 type Platform struct {
-	Arch Arch
-	OS   OS
+	arch Arch
+	os   OS
+}
+
+/* -------------------------- Function: NewPlatform ------------------------- */
+
+// Creates a new 'Platform' struct from a valid 'OS' and 'Arch'.
+func NewPlatform(os OS, arch Arch) (Platform, error) {
+	var platform Platform
+
+	switch os {
+	case linux, macOS, windows:
+
+	case 0:
+		return platform, ErrMissingOS
+	default:
+		return platform, fmt.Errorf("%w: '%d'", ErrUnrecognizedOS, os)
+	}
+
+	switch arch {
+	case amd64, arm64, i386, universal:
+
+	case 0:
+		return platform, ErrMissingArch
+	default:
+		return platform, fmt.Errorf("%w: '%d'", ErrUnrecognizedArch, arch)
+	}
+
+	platform.arch = arch
+	platform.os = os
+
+	return platform, nil
 }
 
 /* -------------------------------------------------------------------------- */
@@ -228,13 +257,18 @@ func MustParsePlatform(input string) Platform {
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func FormatPlatform(p Platform, v Version) (string, error) {
-	switch p.OS {
+	// Use the 'Platform' validation in 'NewPlatform' prior to formatting.
+	if _, err := NewPlatform(p.os, p.arch); err != nil {
+		return "", err
+	}
+
+	switch p.os {
 	case linux:
-		return formatLinuxPlatform(p.Arch, v)
+		return formatLinuxPlatform(p.arch, v)
 	case macOS:
-		return formatMacOSPlatform(p.Arch, v)
+		return formatMacOSPlatform(p.arch, v)
 	case windows:
-		return formatWindowsPlatform(p.Arch, v)
+		return formatWindowsPlatform(p.arch, v)
 
 	case 0:
 		return "", ErrMissingOS
