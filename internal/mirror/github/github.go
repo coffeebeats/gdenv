@@ -39,7 +39,7 @@ func New() GitHub {
 	return GitHub{&c}
 }
 
-/* ---------------------------- Method: Checksum ---------------------------- */
+/* ----------------------------- Impl: Checksum ----------------------------- */
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from GitHub.
@@ -61,7 +61,7 @@ func (m GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
 	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
 }
 
-/* --------------------------- Method: Executable --------------------------- */
+/* ---------------------------- Impl: Executable ---------------------------- */
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from GitHub.
@@ -90,11 +90,37 @@ func (m GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 	return mirror.NewAsset(filename, urlRaw)
 }
 
-/* ------------------------------- Method: Has ------------------------------ */
+/* -------------------------------- Impl: Has ------------------------------- */
 
-// Returns whether the mirror supports the specified version. This does *NOT*
-// guarantee that the mirror has the version.
+// Issues a request to see if the mirror host has the specific version.
+func (m GitHub) Has(v godot.Version) bool {
+	if !m.Supports(v) {
+		return false
+	}
+
+	// Rather than maintaining a separate source of truth, issue a HEAD request
+	// to test whether the version exists.
+	urlRelease, err := urlGitHubRelease(v)
+	if err != nil {
+		return false
+	}
+
+	exists, err := m.client.Exists(urlRelease)
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
+
+/* ----------------------------- Impl: Supports ----------------------------- */
+
+// Checks whether the version is broadly supported by the mirror. No network
+// request is issued, but this does not guarantee the host has the version.
+// To check whether the host has the version definitively via the network,
+// use the 'Has' method.
 func (m GitHub) Supports(v godot.Version) bool {
+	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
 }
 
@@ -102,6 +128,18 @@ func (m GitHub) Supports(v godot.Version) bool {
 
 // Returns a URL to the version-specific release containing release assets.
 func urlGitHubRelease(v godot.Version) (string, error) {
-	tag := fmt.Sprintf("%s-%s", v.Normal(), godot.LabelStable)
+	// The release will be tagged as the "normal version", but a patch version
+	// of '0' will be dropped.
+	var normal string
+
+	switch v.Patch() {
+	case 0:
+		normal = fmt.Sprintf("%d.%d", v.Major(), v.Minor())
+	default:
+		normal = v.Normal()
+	}
+
+	tag := fmt.Sprintf("%s-%s", normal, godot.LabelStable)
+
 	return url.JoinPath(gitHubAssetsURLBase, tag)
 }

@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	tuxfamilyDownloadsDomain = "downloads.tuxfamily.org"
 	tuxFamilyAssetsURLBase   = "https://downloads.tuxfamily.org/godotengine"
 	tuxFamilyDirnameMono     = "mono"
 	tuxFamilyDirnamePreAlpha = "pre-alpha"
@@ -40,11 +41,11 @@ var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
 /* ------------------------------ Function: New ----------------------------- */
 
 func New() TuxFamily {
-	c := client.New()
+	c := client.NewWithRedirectDomains(tuxfamilyDownloadsDomain)
 	return TuxFamily{&c}
 }
 
-/* ---------------------------- Method: Checksum ---------------------------- */
+/* ----------------------------- Impl: Checksum ----------------------------- */
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from TuxFamily.
@@ -66,7 +67,7 @@ func (m TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
 	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
 }
 
-/* --------------------------- Method: Executable --------------------------- */
+/* ---------------------------- Impl: Executable ---------------------------- */
 
 // Returns an 'Asset' to download a Godot executable for the specified version
 // from TuxFamily.
@@ -95,11 +96,37 @@ func (m TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 	return mirror.NewAsset(filename, urlRaw)
 }
 
-/* ------------------------------- Method: Has ------------------------------ */
+/* -------------------------------- Impl: Has ------------------------------- */
 
-// Returns whether the mirror supports the specified version. This does *NOT*
-// guarantee that the mirror has the version.
+// Issues a request to see if the mirror host has the specific version.
+func (m TuxFamily) Has(v godot.Version) bool {
+	if !m.Supports(v) {
+		return false
+	}
+
+	// Rather than maintaining a separate source of truth, issue a HEAD request
+	// to test whether the version exists.
+	urlVersionDir, err := urlTuxFamilyVersionDir(v)
+	if err != nil {
+		return false
+	}
+
+	exists, err := m.client.Exists(urlVersionDir)
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
+
+/* ----------------------------- Impl: Supports ----------------------------- */
+
+// Checks whether the version is broadly supported by the mirror. No network
+// request is issued, but this does not guarantee the host has the version.
+// To check whether the host has the version definitively via the network,
+// use the 'Has' method.
 func (m TuxFamily) Supports(_ godot.Version) bool {
+	// TuxFamily seems to contain all published releases.
 	return true
 }
 
