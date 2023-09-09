@@ -74,9 +74,12 @@ func TestAdd(t *testing.T) {
 			v := godot.MustParseVersion(tc.v)
 
 			// Define the 'Platform' for the test.
-			p := godot.Platform{
-				OS:   godot.MustParseOS(tc.os),
-				Arch: godot.MustParseArch(tc.arch),
+			p, err := godot.NewPlatform(
+				godot.MustParseOS(tc.os),
+				godot.MustParseArch(tc.arch),
+			)
+			if err != nil {
+				t.Fatalf("test setup: %v", err)
 			}
 
 			// Define the 'Executable' for the test.
@@ -142,9 +145,12 @@ func TestRemove(t *testing.T) {
 			v := godot.MustParseVersion(tc.v)
 
 			// Define the 'Platform' for the test.
-			p := godot.Platform{
-				OS:   godot.MustParseOS(tc.os),
-				Arch: godot.MustParseArch(tc.arch),
+			p, err := godot.NewPlatform(
+				godot.MustParseOS(tc.os),
+				godot.MustParseArch(tc.arch),
+			)
+			if err != nil {
+				t.Fatalf("test setup: %v", err)
 			}
 
 			// Define the 'Executable' for the test.
