@@ -38,7 +38,8 @@ func NewAsset(name, urlRaw string) (Asset, error) {
 		return asset, ErrMissingURL
 	}
 
-	u, err := url.Parse(urlRaw)
+	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
+	u, err := url.ParseRequestURI(urlRaw)
 	if err != nil {
 		return asset, fmt.Errorf("%w: %s", ErrInvalidURL, urlRaw)
 	}
