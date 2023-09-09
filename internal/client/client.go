@@ -2,7 +2,10 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"io"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -19,8 +22,12 @@ const (
 )
 
 var (
-	ErrMissingSize = errors.New("missing progress size")
-	ErrNetwork     = errors.New("network request failure")
+	ErrClientConfiguration = errors.New("client misconfigured")
+	ErrInvalidURL          = errors.New("invalid URL")
+	ErrMissingSize         = errors.New("missing progress size")
+	ErrNetwork             = errors.New("network request failure")
+	ErrResponse            = errors.New("request failed")
+	ErrUnexpectedRedirect  = errors.New("unexpected redirect")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -48,12 +55,25 @@ func New() Client {
 	// Disable redirects by default.
 	restyClient.SetRedirectPolicy(resty.NoRedirectPolicy())
 
-	// Retry on any error response.
+	// Retry on any request execution error or retryable HTTP status code.
 	restyClient.AddRetryCondition(
 		func(r *resty.Response, err error) bool {
-			return err != nil || r.IsError()
+			s := r.StatusCode()
+
+			return err != nil ||
+				s == http.StatusRequestTimeout || // 408
+				s == http.StatusTooManyRequests || // 429
+				s == http.StatusInternalServerError || // 500
+				s == http.StatusBadGateway || // 502
+				s == http.StatusServiceUnavailable || // 503
+				s == http.StatusGatewayTimeout // 504
 		},
 	)
+
+	// Add logging when a retry occurs.
+	restyClient.AddRetryHook(func(r *resty.Response, err error) {
+		log.Println("Retrying due to:", err, fmt.Sprintf("(%s)", r.Status()))
+	})
 
 	return Client{restyClient}
 }
@@ -77,6 +97,45 @@ func NewWithRedirectDomains(domains ...string) Client {
 	client.restyClient.SetRedirectPolicy(p)
 
 	return client
+}
+
+/* ----------------------------- Method: Exists ----------------------------- */
+
+// Issues a 'HEAD' request to test whether or not the URL is reachable.
+func (c Client) Exists(urlRaw string) (bool, error) {
+	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
+	urlParsed, err := url.ParseRequestURI(urlRaw)
+	if err != nil {
+		return false, errors.Join(ErrInvalidURL, err)
+	}
+
+	if urlParsed.Host == "" || urlParsed.Scheme == "" {
+		return false, fmt.Errorf("%w: %s", ErrInvalidURL, urlRaw)
+	}
+
+	// Use a no-op response handler, as just the response code is used.
+	err = head(c, urlParsed, func(r *resty.Response) error {
+		// Redirects should be followed by the client, not accepted as a valid
+		// result for 'Exists'. Return an error so the caller knows the client
+		// is incorrectly configured.
+		if r.StatusCode() >= http.StatusMultipleChoices && r.StatusCode() < http.StatusBadRequest {
+			return errors.Join(ErrClientConfiguration, ErrUnexpectedRedirect)
+		}
+
+		return nil
+	})
+
+	switch {
+	// A response error occurred, indicating there's a problem reaching the URL.
+	case errors.Is(err, ErrResponse):
+		return false, nil
+	// A request execution error occurred.
+	case err != nil:
+		return false, err
+
+	default:
+		return true, nil
+	}
 }
 
 /* ----------------------------- Impl: Download ----------------------------- */
@@ -143,22 +202,38 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 
 /* ------------------------------ Function: get ----------------------------- */
 
-// Issues a 'GET' request to the provided URL, but delegates the response
-// handling to the provided function. The provided handler should *not* close
-// the response, as that's handled by this function.
+// A convenience wrapper around execute which issues a 'GET' request.
 func get(c Client, u *url.URL, h func(*resty.Response) error) error {
-	req := c.restyClient.R()
+	return execute(c.restyClient.R(), resty.MethodGet, u.String(), h)
+}
 
+/* ----------------------------- Function: head ----------------------------- */
+
+// A convenience wrapper around execute which issues a 'HEAD' request.
+func head(c Client, u *url.URL, h func(*resty.Response) error) error {
+	return execute(c.restyClient.R(), resty.MethodHead, u.String(), h)
+}
+
+/* ---------------------------- Function: execute --------------------------- */
+
+// Executes the provided request, but delegates the response handling to the
+// provided function. The handler should *not* close the response, as that's
+// handled by this function.
+func execute(req *resty.Request, m, u string, h func(*resty.Response) error) error {
 	// Assume control of response parsing.
 	req.SetDoNotParseResponse(true)
 
 	// Issue the HTTP request.
-	res, err := req.Get(u.String())
+	res, err := req.Execute(m, u)
 	if err != nil {
 		return errors.Join(ErrNetwork, err)
 	}
 
 	defer res.RawBody().Close()
+
+	if res.IsError() {
+		return fmt.Errorf("%w: error code: %d", ErrResponse, res.StatusCode())
+	}
 
 	return h(res)
 }
