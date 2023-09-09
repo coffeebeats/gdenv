@@ -15,7 +15,6 @@ var (
 	ErrUnrecognizedOS       = errors.New("unrecognized OS")
 	ErrUnrecognizedPlatform = errors.New("unrecognized platform")
 	ErrUnsupportedArch      = errors.New("unsupported architecture")
-	ErrUnsupportedOS        = errors.New("unsupported OS")
 
 	// This expression matches all Godot v4.0 macOS pre-release versions which
 	// utilize a 'osx.universal' platform label. These include 'alpha1' -
@@ -258,6 +257,11 @@ func MustParsePlatform(input string) Platform {
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func FormatPlatform(p Platform, v Version) (string, error) {
+	// Use the 'Platform' validation in 'NewPlatform' prior to formatting.
+	if _, err := NewPlatform(p.os, p.arch); err != nil {
+		return "", err
+	}
+
 	switch p.os {
 	case linux:
 		return formatLinuxPlatform(p.arch, v)

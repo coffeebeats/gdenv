@@ -162,6 +162,8 @@ func TestFormatPlatform(t *testing.T) {
 		{Platform{}, Version{}, "", ErrMissingOS},
 		{Platform{os: linux}, Version{}, "", ErrMissingArch},
 		{Platform{os: linux, arch: amd64}, Version{}, "", ErrUnsupportedVersion},
+		{Platform{os: 100, arch: amd64}, Version{}, "", ErrUnrecognizedOS},
+		{Platform{os: linux, arch: 100}, Version{major: 3}, "", ErrUnrecognizedArch},
 
 		{Platform{os: linux, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
 		{Platform{os: macOS, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
