@@ -22,12 +22,12 @@ const (
 )
 
 var (
-	ErrClientConfiguration = errors.New("client misconfigured")
-	ErrInvalidURL          = errors.New("invalid URL")
-	ErrMissingSize         = errors.New("missing progress size")
-	ErrNetwork             = errors.New("network request failure")
-	ErrResponse            = errors.New("request failed")
-	ErrUnexpectedRedirect  = errors.New("unexpected redirect")
+	ErrClientConfiguration    = errors.New("client misconfigured")
+	ErrHTTPResponseStatusCode = errors.New("received error status code")
+	ErrInvalidURL             = errors.New("invalid URL")
+	ErrMissingSize            = errors.New("missing progress size")
+	ErrRequestFailed          = errors.New("request failed")
+	ErrUnexpectedRedirect     = errors.New("unexpected redirect")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -127,7 +127,7 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 
 	switch {
 	// A response error occurred, indicating there's a problem reaching the URL.
-	case errors.Is(err, ErrResponse):
+	case errors.Is(err, ErrHTTPResponseStatusCode):
 		return false, nil
 	// A request execution error occurred.
 	case err != nil:
@@ -226,13 +226,13 @@ func execute(req *resty.Request, m, u string, h func(*resty.Response) error) err
 	// Issue the HTTP request.
 	res, err := req.Execute(m, u)
 	if err != nil {
-		return errors.Join(ErrNetwork, err)
+		return errors.Join(ErrRequestFailed, err)
 	}
 
 	defer res.RawBody().Close()
 
 	if res.IsError() {
-		return fmt.Errorf("%w: error code: %d", ErrResponse, res.StatusCode())
+		return fmt.Errorf("%w: %w: %d", ErrRequestFailed, ErrHTTPResponseStatusCode, res.StatusCode())
 	}
 
 	return h(res)
