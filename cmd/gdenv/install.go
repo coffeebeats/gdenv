@@ -113,5 +113,5 @@ func detectPlatform() (godot.Platform, error) {
 		return godot.Platform{}, fmt.Errorf("%w: '%s'", err, archRaw)
 	}
 
-	return godot.Platform{Arch: a, OS: o}, nil
+	return godot.NewPlatform(o, a)
 }
