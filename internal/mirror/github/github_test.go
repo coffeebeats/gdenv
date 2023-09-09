@@ -29,6 +29,11 @@ func TestGitHubExecutable(t *testing.T) {
 			name: "Godot_v4.1.1-stable_linux.x86_64.zip",
 			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip",
 		},
+		{
+			ex:   godot.MustParseExecutable("Godot_v4.1-stable_linux.x86_64"),
+			name: "Godot_v4.1-stable_linux.x86_64.zip",
+			url:  "https://github.com/godotengine/godot/releases/download/4.1-stable/Godot_v4.1-stable_linux.x86_64.zip",
+		},
 	}
 
 	for _, tc := range tests {
@@ -66,6 +71,11 @@ func TestGitHubChecksum(t *testing.T) {
 			v:    godot.MustParseVersion("4.1.1-stable"),
 			name: mirror.FilenameChecksums,
 			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/" + mirror.FilenameChecksums,
+		},
+		{
+			v:    godot.MustParseVersion("4.1.0-stable"),
+			name: mirror.FilenameChecksums,
+			url:  "https://github.com/godotengine/godot/releases/download/4.1-stable/" + mirror.FilenameChecksums,
 		},
 	}
 
