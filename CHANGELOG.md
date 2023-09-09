@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.1 (2023-09-09)
+
+## What's Changed
+* refactor: numerous minor refactors to be more idiomatic/improve readability by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/55
+* feat(internal/progress): update `Progress` API to enable post-initialization configuration by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/57
+* chore(deps): bump golang.org/x/tools from 0.12.0 to 0.13.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/58
+* feat(internal/client,pkg/mirror): add a `Client.Exists` method; add a `Mirror.Has` method by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/59
+* fix(pkg/godot): make `Platform` usage safer by restricting visibility for fields by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/60
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.3.0...v0.3.1
+
 ## 0.3.0 (2023-09-03)
 
 ## What's Changed

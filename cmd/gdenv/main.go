@@ -16,7 +16,7 @@ func main() {
 
 	app := &cli.App{
 		Name:    "gdenv",
-		Version: "v0.3.0", // x-release-please-version
+		Version: "v0.3.1", // x-release-please-version
 
 		Suggest:                true,
 		UseShortOptionHandling: true,
