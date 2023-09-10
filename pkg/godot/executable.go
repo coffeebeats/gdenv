@@ -58,7 +58,7 @@ func (e Executable) Name() (string, error) {
 
 	name.WriteString(platformIdentifier)
 
-	if e.Platform.os == Windows {
+	if e.Platform.OS == Windows {
 		name.WriteString(".exe")
 	}
 

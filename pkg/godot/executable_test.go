@@ -26,90 +26,90 @@ func TestExecutableName(t *testing.T) {
 	}{
 		// Invalid inputs
 		{Platform{}, version.Version{}, "", ErrMissingOS},
-		{Platform{os: Linux}, version.Version{}, "", ErrMissingArch},
-		{Platform{os: Linux, arch: Amd64}, version.Version{}, "", version.ErrUnsupported},
+		{Platform{OS: Linux}, version.Version{}, "", ErrMissingArch},
+		{Platform{OS: Linux, Arch: Amd64}, version.Version{}, "", version.ErrUnsupported},
 
-		{Platform{os: Linux, arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
-		{Platform{os: MacOS, arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
-		{Platform{os: Windows, arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
+		{Platform{OS: Linux, Arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
+		{Platform{OS: MacOS, Arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
+		{Platform{OS: Windows, Arch: Amd64}, version.MustParse("2"), "", version.ErrUnsupported},
 
 		// Valid inputs - Linux
 
 		// v3.6-beta1
-		{Platform{os: Linux, arch: I386}, v3, "Godot_v3.6-beta1_x11.32", nil},
-		{Platform{os: Linux, arch: Amd64}, v3, "Godot_v3.6-beta1_x11.64", nil},
-		{Platform{os: Linux, arch: Arm64}, v3, "", ErrUnsupportedArch},
-		{Platform{os: Linux, arch: Universal}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v3, "Godot_v3.6-beta1_x11.32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v3, "Godot_v3.6-beta1_x11.64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
 		// v4.0
-		{Platform{os: Linux, arch: I386}, v4, "Godot_v4.0-stable_linux.x86_32", nil},
-		{Platform{os: Linux, arch: Amd64}, v4, "Godot_v4.0-stable_linux.x86_64", nil},
-		{Platform{os: Linux, arch: Arm64}, v4, "", ErrUnsupportedArch},
-		{Platform{os: Linux, arch: Universal}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4, "Godot_v4.0-stable_linux.x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4, "Godot_v4.0-stable_linux.x86_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4, "", ErrUnsupportedArch},
 
 		// v4.0-stable_mono
-		{Platform{os: Linux, arch: I386}, v4Mono, "Godot_v4.0-stable_mono_linux_x86_32", nil},
-		{Platform{os: Linux, arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_linux_x86_64", nil},
-		{Platform{os: Linux, arch: Arm64}, v4Mono, "", ErrUnsupportedArch},
-		{Platform{os: Linux, arch: Universal}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4Mono, "Godot_v4.0-stable_mono_linux_x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_linux_x86_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4Mono, "", ErrUnsupportedArch},
 
 		// v5.0-rc4
-		{Platform{os: Linux, arch: I386}, v5, "Godot_v5.0-rc4_linux.x86_32", nil},
-		{Platform{os: Linux, arch: Amd64}, v5, "Godot_v5.0-rc4_linux.x86_64", nil},
-		{Platform{os: Linux, arch: Arm64}, v5, "", ErrUnsupportedArch},
-		{Platform{os: Linux, arch: Universal}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v5, "Godot_v5.0-rc4_linux.x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v5, "Godot_v5.0-rc4_linux.x86_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v5, "", ErrUnsupportedArch},
 
 		// Valid inputs - MacOS
 
 		// v3.6-beta1
-		{Platform{os: MacOS, arch: Amd64}, v3, "Godot_v3.6-beta1_osx.universal", nil},
-		{Platform{os: MacOS, arch: Arm64}, v3, "Godot_v3.6-beta1_osx.universal", nil},
-		{Platform{os: MacOS, arch: I386}, v3, "", ErrUnsupportedArch},
-		{Platform{os: MacOS, arch: Universal}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v3, "Godot_v3.6-beta1_osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v3, "Godot_v3.6-beta1_osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
 		// v4.0
-		{Platform{os: MacOS, arch: Amd64}, v4, "Godot_v4.0-stable_macos.universal", nil},
-		{Platform{os: MacOS, arch: Arm64}, v4, "Godot_v4.0-stable_macos.universal", nil},
-		{Platform{os: MacOS, arch: I386}, v4, "", ErrUnsupportedArch},
-		{Platform{os: MacOS, arch: Universal}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4, "Godot_v4.0-stable_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4, "Godot_v4.0-stable_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4, "", ErrUnsupportedArch},
 
 		// v4.0-stable_mono
-		{Platform{os: MacOS, arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_macos.universal", nil},
-		{Platform{os: MacOS, arch: Arm64}, v4Mono, "Godot_v4.0-stable_mono_macos.universal", nil},
-		{Platform{os: MacOS, arch: I386}, v4Mono, "", ErrUnsupportedArch},
-		{Platform{os: MacOS, arch: Universal}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4Mono, "Godot_v4.0-stable_mono_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4Mono, "", ErrUnsupportedArch},
 
 		// v5.0-rc4
-		{Platform{os: MacOS, arch: Amd64}, v5, "Godot_v5.0-rc4_macos.universal", nil},
-		{Platform{os: MacOS, arch: Arm64}, v5, "Godot_v5.0-rc4_macos.universal", nil},
-		{Platform{os: MacOS, arch: I386}, v5, "", ErrUnsupportedArch},
-		{Platform{os: MacOS, arch: Universal}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v5, "Godot_v5.0-rc4_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v5, "Godot_v5.0-rc4_macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v5, "", ErrUnsupportedArch},
 
 		// Valid inputs - Windows
 
 		// v3.6-beta1
-		{Platform{os: Windows, arch: I386}, v3, "Godot_v3.6-beta1_win32.exe", nil},
-		{Platform{os: Windows, arch: Amd64}, v3, "Godot_v3.6-beta1_win64.exe", nil},
-		{Platform{os: Windows, arch: Arm64}, v3, "", ErrUnsupportedArch},
-		{Platform{os: Windows, arch: Universal}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v3, "Godot_v3.6-beta1_win32.exe", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v3, "Godot_v3.6-beta1_win64.exe", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
 		// v4.0
-		{Platform{os: Windows, arch: I386}, v4, "Godot_v4.0-stable_win32.exe", nil},
-		{Platform{os: Windows, arch: Amd64}, v4, "Godot_v4.0-stable_win64.exe", nil},
-		{Platform{os: Windows, arch: Arm64}, v4, "", ErrUnsupportedArch},
-		{Platform{os: Windows, arch: Universal}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v4, "Godot_v4.0-stable_win32.exe", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v4, "Godot_v4.0-stable_win64.exe", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v4, "", ErrUnsupportedArch},
 
 		// v4.0-stable_mono
-		{Platform{os: Windows, arch: I386}, v4Mono, "Godot_v4.0-stable_mono_win32.exe", nil},
-		{Platform{os: Windows, arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_win64.exe", nil},
-		{Platform{os: Windows, arch: Arm64}, v4Mono, "", ErrUnsupportedArch},
-		{Platform{os: Windows, arch: Universal}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v4Mono, "Godot_v4.0-stable_mono_win32.exe", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v4Mono, "Godot_v4.0-stable_mono_win64.exe", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v4Mono, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v4Mono, "", ErrUnsupportedArch},
 
 		// v5.0-rc4
-		{Platform{os: Windows, arch: I386}, v5, "Godot_v5.0-rc4_win32.exe", nil},
-		{Platform{os: Windows, arch: Amd64}, v5, "Godot_v5.0-rc4_win64.exe", nil},
-		{Platform{os: Windows, arch: Arm64}, v5, "", ErrUnsupportedArch},
-		{Platform{os: Windows, arch: Universal}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v5, "Godot_v5.0-rc4_win32.exe", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v5, "Godot_v5.0-rc4_win64.exe", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v5, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v5, "", ErrUnsupportedArch},
 	}
 
 	for _, tc := range tests {

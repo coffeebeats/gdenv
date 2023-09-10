@@ -153,8 +153,8 @@ func MustParseArch(input string) Arch {
 
 // A platform specification representing a target to run the Godot editor on.
 type Platform struct {
-	arch Arch
-	os   OS
+	Arch Arch
+	OS   OS
 }
 
 /* -------------------------- Function: NewPlatform ------------------------- */
@@ -181,8 +181,8 @@ func NewPlatform(os OS, arch Arch) (Platform, error) {
 		return platform, fmt.Errorf("%w: '%d'", ErrUnrecognizedArch, arch)
 	}
 
-	platform.arch = arch
-	platform.os = os
+	platform.Arch = arch
+	platform.OS = os
 
 	return platform, nil
 }
@@ -261,17 +261,17 @@ func MustParsePlatform(input string) Platform {
 func FormatPlatform(p Platform, v version.Version) (string, error) {
 	// Use the 'Platform' validation in 'NewPlatform' prior to formatting; a
 	// default 'Platform' is not valid, which is why this check is required.
-	if _, err := NewPlatform(p.os, p.arch); err != nil {
+	if _, err := NewPlatform(p.OS, p.Arch); err != nil {
 		return "", err
 	}
 
-	switch p.os {
+	switch p.OS {
 	case Linux:
-		return formatLinuxPlatform(p.arch, v)
+		return formatLinuxPlatform(p.Arch, v)
 	case MacOS:
-		return formatMacOSPlatform(p.arch, v)
+		return formatMacOSPlatform(p.Arch, v)
 	case Windows:
-		return formatWindowsPlatform(p.arch, v)
+		return formatWindowsPlatform(p.Arch, v)
 
 	case 0:
 		return "", ErrMissingOS
