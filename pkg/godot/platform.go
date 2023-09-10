@@ -40,9 +40,9 @@ var (
 type OS int
 
 const (
-	linux OS = iota + 1
-	macOS
-	windows
+	Linux OS = iota + 1
+	MacOS
+	Windows
 )
 
 /* ---------------------------- Function: ParseOS --------------------------- */
@@ -61,13 +61,13 @@ func ParseOS(input string) (OS, error) {
 		return 0, ErrMissingOS
 
 	case "darwin", "macos", "osx":
-		return macOS, nil
+		return MacOS, nil
 
 	case "dragonfly", "freebsd", "linux", "netbsd", "openbsd":
-		return linux, nil
+		return Linux, nil
 
 	case "win", "windows":
-		return windows, nil
+		return Windows, nil
 
 	default:
 		return 0, fmt.Errorf("%w: '%s'", ErrUnrecognizedOS, input)
@@ -96,10 +96,10 @@ func MustParseOS(input string) OS {
 type Arch int
 
 const (
-	amd64 Arch = iota + 1
-	arm64
-	i386
-	universal
+	Amd64 Arch = iota + 1
+	Arm64
+	I386
+	Universal
 )
 
 /* --------------------------- Function: ParseArch -------------------------- */
@@ -118,16 +118,16 @@ func ParseArch(input string) (Arch, error) {
 		return 0, ErrMissingArch
 
 	case "386", "i386", "x86", "x86_32":
-		return i386, nil
+		return I386, nil
 
 	case "amd64", "x86_64", "x86-64":
-		return amd64, nil
+		return Amd64, nil
 
 	case "arm64", "arm64be":
-		return arm64, nil
+		return Arm64, nil
 
 	case "fat", "universal":
-		return universal, nil
+		return Universal, nil
 
 	default:
 		return 0, fmt.Errorf("%w: '%s'", ErrUnrecognizedArch, input)
@@ -164,7 +164,7 @@ func NewPlatform(os OS, arch Arch) (Platform, error) {
 	var platform Platform
 
 	switch os {
-	case linux, macOS, windows:
+	case Linux, MacOS, Windows:
 
 	case 0:
 		return platform, ErrMissingOS
@@ -173,7 +173,7 @@ func NewPlatform(os OS, arch Arch) (Platform, error) {
 	}
 
 	switch arch {
-	case amd64, arm64, i386, universal:
+	case Amd64, Arm64, I386, Universal:
 
 	case 0:
 		return platform, ErrMissingArch
@@ -202,30 +202,30 @@ func ParsePlatform(input string) (Platform, error) { //nolint:cyclop
 	switch strings.ToLower(strings.TrimSpace(input)) {
 	// Linux
 	case "x11.32", "linux.x86_32":
-		return Platform{i386, linux}, nil
+		return Platform{I386, Linux}, nil
 	case "x11.64", "linux.x86_64":
-		return Platform{amd64, linux}, nil
+		return Platform{Amd64, Linux}, nil
 
 	// Linux (mono builds)
 	case "linux_x86_32":
-		return Platform{i386, linux}, nil
+		return Platform{I386, Linux}, nil
 	case "linux_x86_64":
-		return Platform{amd64, linux}, nil
+		return Platform{Amd64, Linux}, nil
 
 	// MacOS - Note that the supported architectures between 'osx.fat' and
 	// 'osx.universal' are *NOT* the same. It's important to maintain the
 	// 'Version' alongside this result so that the architectures can be
 	// correctly determined.
 	case "osx.64":
-		return Platform{amd64, macOS}, nil
+		return Platform{Amd64, MacOS}, nil
 	case "macos.universal", "osx.fat", "osx.universal":
-		return Platform{universal, macOS}, nil
+		return Platform{Universal, MacOS}, nil
 
 	// Windows
 	case "win32":
-		return Platform{i386, windows}, nil
+		return Platform{I386, Windows}, nil
 	case "win64":
-		return Platform{amd64, windows}, nil
+		return Platform{Amd64, Windows}, nil
 
 	default:
 		return Platform{}, fmt.Errorf("%w: '%s'", ErrUnrecognizedPlatform, input)
@@ -259,17 +259,18 @@ func MustParsePlatform(input string) Platform {
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func FormatPlatform(p Platform, v version.Version) (string, error) {
-	// Use the 'Platform' validation in 'NewPlatform' prior to formatting.
+	// Use the 'Platform' validation in 'NewPlatform' prior to formatting; a
+	// default 'Platform' is not valid, which is why this check is required.
 	if _, err := NewPlatform(p.os, p.arch); err != nil {
 		return "", err
 	}
 
 	switch p.os {
-	case linux:
+	case Linux:
 		return formatLinuxPlatform(p.arch, v)
-	case macOS:
+	case MacOS:
 		return formatMacOSPlatform(p.arch, v)
-	case windows:
+	case Windows:
 		return formatWindowsPlatform(p.arch, v)
 
 	case 0:
@@ -299,9 +300,9 @@ func formatLinuxPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
 		// are not supported.
 		switch a {
-		case i386:
+		case I386:
 			p = "x11.32"
-		case amd64:
+		case Amd64:
 			p = "x11.64"
 
 		default:
@@ -310,9 +311,9 @@ func formatLinuxPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	// v4.0-dev.20210727 - Godot v4.0-alpha14
 	case v.CompareNormal(version.Godot4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
 		switch a {
-		case i386:
+		case I386:
 			p = "linux.32"
-		case amd64:
+		case Amd64:
 			p = "linux.64"
 
 		default:
@@ -321,9 +322,9 @@ func formatLinuxPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	// v4.0-alpha15+
 	default:
 		switch a {
-		case i386:
+		case I386:
 			p = "linux.x86_32"
-		case amd64:
+		case Amd64:
 			p = "linux.x86_64"
 
 		default:
@@ -358,7 +359,7 @@ func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	// v3.0 - v3.0.6
 	case v.Major() == 3 && v.Minor() < 1:
 		switch a {
-		case i386, amd64:
+		case I386, Amd64:
 			return "osx.fat", nil
 
 		default:
@@ -369,7 +370,7 @@ func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	// versions do not exceed 6, lexicographic  sorting works.
 	case v.Major() == 3 && v.Minor() <= 2 && (v.Patch() < 4 || v.Patch() == 4 && v.Label() <= "beta2"):
 		switch a {
-		case amd64:
+		case Amd64:
 			return "osx.64", nil
 
 		default:
@@ -379,7 +380,7 @@ func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	case v.CompareNormal(version.Godot4()) < 0 ||
 		(v.CompareNormal(version.Godot4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
 		switch a {
-		case amd64, arm64:
+		case Amd64, Arm64:
 			return "osx.universal", nil
 
 		default:
@@ -388,7 +389,7 @@ func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 	// v4.0-alpha13+
 	default:
 		switch a {
-		case amd64, arm64:
+		case Amd64, Arm64:
 			return "macos.universal", nil
 
 		default:
@@ -413,9 +414,9 @@ func formatWindowsPlatform(a Arch, v version.Version) (string, error) {
 	// v3+
 	default:
 		switch a {
-		case i386:
+		case I386:
 			return "win32", nil
-		case amd64:
+		case Amd64:
 			return "win64", nil
 
 		default:
