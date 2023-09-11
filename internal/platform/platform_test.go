@@ -17,8 +17,8 @@ func TestParsePlatform(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{s: "", err: godot.ErrMissingPlatform},
-		{s: "abc", err: godot.ErrUnrecognizedPlatform},
+		{s: "", err: ErrMissingPlatform},
+		{s: "abc", err: ErrUnrecognizedPlatform},
 
 		// Valid inputs (Go-defined)
 		// Linux
@@ -62,6 +62,12 @@ func TestParsePlatform(t *testing.T) {
 /* -------------------------- Test: FormatPlatform -------------------------- */
 
 func TestFormatPlatform(t *testing.T) {
+	var (
+		v2 = godot.NewVersion(2)
+		v3 = godot.NewVersion(3)
+		v4 = godot.NewVersion(4)
+	)
+
 	tests := []struct {
 		p    Platform
 		v    godot.Version
@@ -69,139 +75,139 @@ func TestFormatPlatform(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{Platform{}, godot.Version{}, "", godot.ErrMissingOS},
-		{Platform{OS: Linux}, godot.Version{}, "", godot.ErrMissingArch},
+		{Platform{}, godot.Version{}, "", ErrMissingOS},
+		{Platform{OS: Linux}, godot.Version{}, "", ErrMissingArch},
 		{Platform{OS: Linux, Arch: Amd64}, godot.Version{}, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: 100, Arch: Amd64}, godot.Version{}, "", godot.ErrUnrecognizedOS},
-		{Platform{OS: Linux, Arch: 100}, godot.Version{major: 3}, "", godot.ErrUnrecognizedArch},
+		{Platform{OS: 100, Arch: Amd64}, godot.Version{}, "", ErrUnrecognizedOS},
+		{Platform{OS: Linux, Arch: 100}, v3, "", ErrUnrecognizedArch},
 
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 2}, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{major: 2}, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: Windows, Arch: Amd64}, godot.Version{major: 2}, "", godot.ErrUnsupportedVersion},
+		{Platform{OS: Linux, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
+		{Platform{OS: MacOS, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
+		{Platform{OS: Windows, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
 
 		// Valid inputs - linux
 
 		// v3.*
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 3}, "x11.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 3}, "x11.64", nil},
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 3, label: LabelMono}, "x11_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 3, label: LabelMono}, "x11_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, godot.Version{major: 3}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, godot.Version{major: 3}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v3, "x11.32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v3, "x11.64", nil},
+		{Platform{OS: Linux, Arch: I386}, v3.WithLabel(godot.LabelMono), "x11_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v3.WithLabel(godot.LabelMono), "x11_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
 		// v4.0-dev.* - v4.0-alpha14
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 4, label: "dev.20220118"}, "linux.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 4, label: "dev.20220118"}, "linux.64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, godot.Version{major: 4, label: "dev.20220118"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, godot.Version{major: 4, label: "dev.20220118"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("dev.20220118"), "linux.32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("dev.20220118"), "linux.64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("dev.20220118"), "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("dev.20220118"), "", ErrUnsupportedArch},
 
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 4, label: "alpha14"}, "linux.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 4, label: "alpha14"}, "linux.64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, godot.Version{major: 4, label: "alpha14"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, godot.Version{major: 4, label: "alpha14"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("alpha14"), "linux.32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("alpha14"), "linux.64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("alpha14"), "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("alpha14"), "", ErrUnsupportedArch},
 
 		// v4.0-alpha15+
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 4, label: "alpha15"}, "linux.x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 4, label: "alpha15"}, "linux.x86_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, godot.Version{major: 4, label: "alpha15"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, godot.Version{major: 4, label: "alpha15"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("alpha15"), "linux.x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("alpha15"), "linux.x86_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("alpha15"), "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("alpha15"), "", ErrUnsupportedArch},
 
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 4}, "linux.x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 4}, "linux.x86_64", nil},
-		{Platform{OS: Linux, Arch: I386}, godot.Version{major: 4, label: LabelMono}, "linux_x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{major: 4, label: LabelMono}, "linux_x86_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, godot.Version{major: 4}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, godot.Version{major: 4}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: I386}, v4, "linux.x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4, "linux.x86_64", nil},
+		{Platform{OS: Linux, Arch: I386}, v4.WithLabel(godot.LabelMono), "linux_x86_32", nil},
+		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel(godot.LabelMono), "linux_x86_64", nil},
+		{Platform{OS: Linux, Arch: Arm64}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Linux, Arch: Universal}, v4, "", ErrUnsupportedArch},
 
 		// Valid inputs - MacOS
 
 		// v3.0 - v3.0.6
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{major: 3}, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{major: 3}, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{major: 3}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{major: 3}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: I386}, v3, "osx.fat", nil},
+		{Platform{OS: MacOS, Arch: Amd64}, v3, "osx.fat", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{major: 3, patch: 6}, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{major: 3, patch: 6}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{major: 3, patch: 6}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 0, 6), "osx.fat", nil},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 0, 6), "osx.fat", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 0, 6), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 0, 6), "", ErrUnsupportedArch},
 
 		// v3.1 - v3.2.4-beta2
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{major: 3, minor: 1}, "osx.64", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{major: 3, minor: 1}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{major: 3, minor: 1}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{major: 3, minor: 1}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 1), "osx.64", nil},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{3, 2, 4, "beta2"}, "osx.64", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{3, 2, 4, "beta2"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{3, 2, 4, "beta2"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{3, 2, 4, "beta2"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "osx.64", nil},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
 
 		// v3.2.4-beta3 - v4.0-alpha12
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{3, 2, 4, "beta3"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{3, 2, 4, "beta3"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{3, 2, 4, "beta3"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{3, 2, 4, "rc1"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{3, 2, 4, "rc1"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{3, 2, 4, "rc1"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{3, 2, 4, "stable"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{3, 2, 4, "stable"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{3, 2, 4, "stable"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 2, 4), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 2, 4), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 2, 4), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 2, 4), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "dev.20210727"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "dev.20210727"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "dev.20210727"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("dev.20210727"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("dev.20210727"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("dev.20210727"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("dev.20210727"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "alpha1"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "alpha1"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "alpha1"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha1"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha1"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha1"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha1"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "alpha12"}, "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "alpha12"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "alpha12"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha12"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha12"), "osx.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha12"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha12"), "", ErrUnsupportedArch},
 
 		// v4.0-alpha13+
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "alpha13"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "alpha13"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "alpha13"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha13"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha13"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha13"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha13"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "beta1"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "beta1"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "beta1"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("beta1"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("beta1"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("beta1"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("beta1"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "rc1"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "rc1"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "rc1"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("rc1"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("rc1"), "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("rc1"), "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("rc1"), "", ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.Version{4, 0, 0, "stable"}, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.Version{4, 0, 0, "stable"}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.Version{4, 0, 0, "stable"}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Amd64}, v4, "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: Arm64}, v4, "macos.universal", nil},
+		{Platform{OS: MacOS, Arch: I386}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: MacOS, Arch: Universal}, v4, "", ErrUnsupportedArch},
 
 		// Valid inputs - Windows
 
 		// v3.*
-		{Platform{OS: Windows, Arch: I386}, Version{major: 3}, "win32", nil},
-		{Platform{OS: Windows, Arch: Amd64}, Version{major: 3}, "win64", nil},
-		{Platform{OS: Windows, Arch: Arm64}, Version{major: 3}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Windows, Arch: Universal}, Version{major: 3}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v3, "win32", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v3, "win64", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v3, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v3, "", ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{OS: Windows, Arch: I386}, Version{major: 4}, "win32", nil},
-		{Platform{OS: Windows, Arch: Amd64}, Version{major: 4}, "win64", nil},
-		{Platform{OS: Windows, Arch: Arm64}, Version{major: 4}, "", godot.ErrUnsupportedArch},
-		{Platform{OS: Windows, Arch: Universal}, Version{major: 4}, "", godot.ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: I386}, v4, "win32", nil},
+		{Platform{OS: Windows, Arch: Amd64}, v4, "win64", nil},
+		{Platform{OS: Windows, Arch: Arm64}, v4, "", ErrUnsupportedArch},
+		{Platform{OS: Windows, Arch: Universal}, v4, "", ErrUnsupportedArch},
 	}
 
 	for _, tc := range tests {
