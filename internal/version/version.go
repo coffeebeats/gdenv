@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PrefixVersion              = "v"
+	Prefix                     = "v"
 	SeparatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
 	SeparatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
 
@@ -108,7 +108,7 @@ func (v Version) Normal() string {
 // another 'Version' struct. The result will be '0' if 'v' == 'w', '-1' if
 // 'v' < 'w', or '+1' if 'v' > 'w'.
 func (v Version) CompareNormal(w Version) int {
-	return semver.Compare(PrefixVersion+v.Normal(), PrefixVersion+w.Normal())
+	return semver.Compare(Prefix+v.Normal(), Prefix+w.Normal())
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */

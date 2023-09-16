@@ -37,12 +37,12 @@ func Parse(input string) (Version, error) {
 	// 'gdenv' and Semantic Versioning do not require a 'v' prefix (as of
 	// version 2.0.0 - see semver.org/#semantic-versioning-200), but Golang's
 	// 'semver' does.
-	input = PrefixVersion + strings.TrimPrefix(input, PrefixVersion)
+	input = Prefix + strings.TrimPrefix(input, Prefix)
 
 	// Trim the label off, but store it for later.
 	input, label, found := strings.Cut(input, SeparatorPreReleaseVersion)
 	if (found && label == "") || !semver.IsValid(input) {
-		err := fmt.Errorf("%w: '%s'", ErrInvalid, strings.TrimPrefix(input, PrefixVersion))
+		err := fmt.Errorf("%w: '%s'", ErrInvalid, strings.TrimPrefix(input, Prefix))
 		return version, err
 	}
 
@@ -103,7 +103,7 @@ func parseNormalVersion(input string) ([3]int, error) {
 	}
 
 	// Remove the 'v' prefix to simplify version parsing below.
-	input = strings.TrimPrefix(input, PrefixVersion)
+	input = strings.TrimPrefix(input, Prefix)
 
 	parts := strings.Split(input, ".")
 	// NOTE: This should never occur for a 'semver'-validated string.
