@@ -150,29 +150,29 @@ func TestParseExecutable(t *testing.T) {
 
 		// Valid inputs
 		// Linux
-		{s: "Godot_v1.0-stable_x11.32", want: Executable{linux32(), v1}, err: nil},
-		{s: "Godot_v2.0-beta10_x11.64", want: Executable{linux64(), v2}, err: nil},
-		{s: "Godot_v3.0.4-alpha1_x11.32", want: Executable{linux32(), v3}, err: nil},
-		{s: "Godot_v4.0.11-dev.20230101_x11.64", want: Executable{linux64(), v4}, err: nil},
-		{s: "Godot_v4.0-stable_mono_linux_x86_64", want: Executable{linux64(), v4Mono}, err: nil},
+		{s: "Godot_v1.0-stable_x11.32", want: Executable{linux32(), v1}},
+		{s: "Godot_v2.0-beta10_x11.64", want: Executable{linux64(), v2}},
+		{s: "Godot_v3.0.4-alpha1_x11.32", want: Executable{linux32(), v3}},
+		{s: "Godot_v4.0.11-dev.20230101_x11.64", want: Executable{linux64(), v4}},
+		{s: "Godot_v4.0-stable_mono_linux_x86_64", want: Executable{linux64(), v4Mono}},
 
 		// Darwin
-		{s: "Godot_v1.0-stable_osx.fat", want: Executable{macOSUniversal(), v1}, err: nil},
-		{s: "Godot_v2.0-beta10_osx.64", want: Executable{macOSX86_64(), v2}, err: nil},
-		{s: "Godot_v3.0.4-alpha1_osx.universal", want: Executable{macOSUniversal(), v3}, err: nil},
-		{s: "Godot_v4.0.11-dev.20230101_macos.universal", want: Executable{macOSUniversal(), v4}, err: nil},
-		{s: "Godot_v4.0-stable_mono_macos.universal", want: Executable{macOSUniversal(), v4Mono}, err: nil},
+		{s: "Godot_v1.0-stable_osx.fat", want: Executable{macOSUniversal(), v1}},
+		{s: "Godot_v2.0-beta10_osx.64", want: Executable{macOSX86_64(), v2}},
+		{s: "Godot_v3.0.4-alpha1_osx.universal", want: Executable{macOSUniversal(), v3}},
+		{s: "Godot_v4.0.11-dev.20230101_macos.universal", want: Executable{macOSUniversal(), v4}},
+		{s: "Godot_v4.0-stable_mono_macos.universal", want: Executable{macOSUniversal(), v4Mono}},
 
 		// Windows
-		{s: "Godot_v1.0-stable_win32", want: Executable{windows32(), v1}, err: nil},
-		{s: "Godot_v2.0-beta10_win64", want: Executable{windows64(), v2}, err: nil},
-		{s: "Godot_v3.0.4-alpha1_win32", want: Executable{windows32(), v3}, err: nil},
-		{s: "Godot_v4.0.11-dev.20230101_win64", want: Executable{windows64(), v4}, err: nil},
-		{s: "Godot_v4.0-stable_mono_win64", want: Executable{windows64(), v4Mono}, err: nil},
+		{s: "Godot_v1.0-stable_win32", want: Executable{windows32(), v1}},
+		{s: "Godot_v2.0-beta10_win64", want: Executable{windows64(), v2}},
+		{s: "Godot_v3.0.4-alpha1_win32", want: Executable{windows32(), v3}},
+		{s: "Godot_v4.0.11-dev.20230101_win64", want: Executable{windows64(), v4}},
+		{s: "Godot_v4.0-stable_mono_win64", want: Executable{windows64(), v4Mono}},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.s, func(t *testing.T) {
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.s), func(t *testing.T) {
 			got, err := ParseExecutable(tc.s)
 
 			if !errors.Is(err, tc.err) {
@@ -205,7 +205,7 @@ func macOSX86_64() platform.Platform {
 
 // Returns a 'Platform' struct for a "fat" binary on 'MacOS'.
 func macOSUniversal() platform.Platform {
-	return platform.Platform{Arch: platform.Amd64, OS: platform.MacOS}
+	return platform.Platform{Arch: platform.Universal, OS: platform.MacOS}
 }
 
 // Returns a 'Platform' struct for 32-bit 'Windows'.
