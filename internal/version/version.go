@@ -24,12 +24,12 @@ const (
 /* -------------------------------------------------------------------------- */
 
 // Returns a 'Version' struct for Godot v3.
-func V3() Version {
+func Godot3() Version {
 	return Version{major: 3} //nolint:exhaustruct,gomnd
 }
 
 // Returns a 'Version' struct for Godot v4.
-func V4() Version {
+func Godot4() Version {
 	return Version{major: 4} //nolint:exhaustruct,gomnd
 }
 

@@ -163,7 +163,7 @@ func urlTuxFamilyVersionDir(v version.Version) (string, error) {
 		p = append(p, tuxFamilyDirnameMono)
 	// For v4.0, the 'dev.*' labels are placed under label subdirectories,
 	// themselves under the 'pre-alpha' directory.
-	case v.CompareNormal(version.V4()) == 0 && reV4PreAlphaLabel.MatchString(v.Label()):
+	case v.CompareNormal(version.Godot4()) == 0 && reV4PreAlphaLabel.MatchString(v.Label()):
 		p = append(p, tuxFamilyDirnamePreAlpha, strings.TrimPrefix(v.String(), version.Prefix))
 	case !isStable:
 		p = append(p, v.Label())

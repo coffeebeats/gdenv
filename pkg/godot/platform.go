@@ -308,7 +308,7 @@ func formatLinuxPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v4.0-dev.20210727 - Godot v4.0-alpha14
-	case v.CompareNormal(version.V4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
+	case v.CompareNormal(version.Godot4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
 		switch a {
 		case i386:
 			p = "linux.32"
@@ -376,8 +376,8 @@ func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:c
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v3.2.4-beta3 - v4.0-alpha12
-	case v.CompareNormal(version.V4()) < 0 ||
-		(v.CompareNormal(version.V4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
+	case v.CompareNormal(version.Godot4()) < 0 ||
+		(v.CompareNormal(version.Godot4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
 		switch a {
 		case amd64, arm64:
 			return "osx.universal", nil
