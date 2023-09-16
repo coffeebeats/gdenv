@@ -7,6 +7,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/mirror"
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -15,7 +16,7 @@ const (
 	gitHubAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
 )
 
-var versionGitHubAssetSupport = godot.MustParseVersion("v3.1.1") //nolint:gochecknoglobals
+var versionGitHubAssetSupport = version.MustParse("v3.1.1") //nolint:gochecknoglobals
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
@@ -43,7 +44,7 @@ func New() GitHub {
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from GitHub.
-func (m GitHub) Checksum(v godot.Version) (mirror.Asset, error) {
+func (m GitHub) Checksum(v version.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
@@ -93,7 +94,7 @@ func (m GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
 /* -------------------------------- Impl: Has ------------------------------- */
 
 // Issues a request to see if the mirror host has the specific version.
-func (m GitHub) Has(v godot.Version) bool {
+func (m GitHub) Has(v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -119,7 +120,7 @@ func (m GitHub) Has(v godot.Version) bool {
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
 // use the 'Has' method.
-func (m GitHub) Supports(v godot.Version) bool {
+func (m GitHub) Supports(v version.Version) bool {
 	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
 }
@@ -127,7 +128,7 @@ func (m GitHub) Supports(v godot.Version) bool {
 /* ----------------------- Function: urlGitHubRelease ----------------------- */
 
 // Returns a URL to the version-specific release containing release assets.
-func urlGitHubRelease(v godot.Version) (string, error) {
+func urlGitHubRelease(v version.Version) (string, error) {
 	// The release will be tagged as the "normal version", but a patch version
 	// of '0' will be dropped.
 	var normal string
@@ -139,7 +140,7 @@ func urlGitHubRelease(v godot.Version) (string, error) {
 		normal = v.Normal()
 	}
 
-	tag := fmt.Sprintf("%s-%s", normal, godot.LabelStable)
+	tag := fmt.Sprintf("%s-%s", normal, version.LabelStable)
 
 	return url.JoinPath(gitHubAssetsURLBase, tag)
 }

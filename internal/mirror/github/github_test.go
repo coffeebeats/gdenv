@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/mirror"
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -56,24 +57,24 @@ func TestGitHubExecutable(t *testing.T) {
 
 func TestGitHubChecksum(t *testing.T) {
 	tests := []struct {
-		v    godot.Version
+		v    version.Version
 		name string
 		url  string
 		err  error
 	}{
 		// Invalid inputs
-		{v: godot.Version{}, err: mirror.ErrInvalidSpecification},
-		{v: godot.MustParseVersion("v0.0.0"), err: mirror.ErrInvalidSpecification},
-		{v: godot.MustParseVersion("v4.1.1-unsupported-label"), err: mirror.ErrInvalidSpecification},
+		{v: version.Version{}, err: mirror.ErrInvalidSpecification},
+		{v: version.MustParse("v0.0.0"), err: mirror.ErrInvalidSpecification},
+		{v: version.MustParse("v4.1.1-unsupported-label"), err: mirror.ErrInvalidSpecification},
 
 		// Valid inputs
 		{
-			v:    godot.MustParseVersion("4.1.1-stable"),
+			v:    version.MustParse("4.1.1-stable"),
 			name: mirror.FilenameChecksums,
 			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/" + mirror.FilenameChecksums,
 		},
 		{
-			v:    godot.MustParseVersion("4.1.0-stable"),
+			v:    version.MustParse("4.1.0-stable"),
 			name: mirror.FilenameChecksums,
 			url:  "https://github.com/godotengine/godot/releases/download/4.1-stable/" + mirror.FilenameChecksums,
 		},
