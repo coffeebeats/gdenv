@@ -8,9 +8,9 @@ import (
 	"unicode"
 )
 
-/* --------------------------- Test: ParseVersion --------------------------- */
+/* ------------------------------- Test: Parse ------------------------------ */
 
-func TestParseVersion(t *testing.T) {
+func TestParse(t *testing.T) {
 	type test struct {
 		s    string
 		want Version
@@ -23,12 +23,12 @@ func TestParseVersion(t *testing.T) {
 
 		for i, t := range tc {
 			// Invalid
-			out[i*3] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalidVersion}
+			out[i*3] = test{fmt.Sprintf("x%s", t.s), Version{}, ErrInvalid}
 
 			// Valid (depending on input)
 			err := t.err
 			if t.s == "" || !unicode.IsDigit(rune(t.s[0])) {
-				err = ErrInvalidVersion
+				err = ErrInvalid
 			}
 
 			out[i*3+1] = test{fmt.Sprintf("v%s", t.s), t.want, err}
@@ -36,7 +36,7 @@ func TestParseVersion(t *testing.T) {
 			// Valid (depending on input)
 			err = t.err
 			if t.s == "" || !unicode.IsDigit(rune(t.s[0])) {
-				err = ErrInvalidVersion
+				err = ErrInvalid
 			}
 
 			out[i*3+2] = test{fmt.Sprintf("\t \nV%s", t.s), t.want, err}
@@ -51,14 +51,14 @@ func TestParseVersion(t *testing.T) {
 
 		for i, t := range tc {
 			// Invalid
-			out[i*3] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalidVersion}
+			out[i*3] = test{fmt.Sprintf("%s-", t.s), Version{}, ErrInvalid}
 
 			// Valid (depending on input)
 			s := "suffix"
 			want, err := Version{t.want.major, t.want.minor, t.want.patch, s}, t.err
 			if t.err != nil {
 				want.label = ""
-				err = ErrInvalidVersion
+				err = ErrInvalid
 			}
 
 			out[i*3+1] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
@@ -69,7 +69,7 @@ func TestParseVersion(t *testing.T) {
 			want, err = Version{t.want.major, t.want.minor, t.want.patch, sNormalized}, t.err
 			if t.err != nil {
 				want.label = ""
-				err = ErrInvalidVersion
+				err = ErrInvalid
 			}
 
 			out[i*3+2] = test{fmt.Sprintf("%s-%s", t.s, s), want, err}
@@ -82,23 +82,23 @@ func TestParseVersion(t *testing.T) {
 	// include prefixed, suffixed, and prefix-and-suffixed versions.
 	tests := []test{
 		// Invalid inputs
-		{s: "", want: Version{}, err: ErrMissingVersion},
+		{s: "", want: Version{}, err: ErrMissing},
 
-		{s: "a", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.a", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.0.a", want: Version{}, err: ErrInvalidVersion},
+		{s: "a", want: Version{}, err: ErrInvalid},
+		{s: "0.a", want: Version{}, err: ErrInvalid},
+		{s: "0.0.a", want: Version{}, err: ErrInvalid},
 
-		{s: "0.", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.0.", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.0.0.", want: Version{}, err: ErrInvalidVersion},
+		{s: "0.", want: Version{}, err: ErrInvalid},
+		{s: "0.0.", want: Version{}, err: ErrInvalid},
+		{s: "0.0.0.", want: Version{}, err: ErrInvalid},
 
-		{s: "-0", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.-0", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.0.-0", want: Version{}, err: ErrInvalidVersion},
+		{s: "-0", want: Version{}, err: ErrInvalid},
+		{s: "0.-0", want: Version{}, err: ErrInvalid},
+		{s: "0.0.-0", want: Version{}, err: ErrInvalid},
 
-		{s: "00", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.00", want: Version{}, err: ErrInvalidVersion},
-		{s: "0.0.00", want: Version{}, err: ErrInvalidVersion},
+		{s: "00", want: Version{}, err: ErrInvalid},
+		{s: "0.00", want: Version{}, err: ErrInvalid},
+		{s: "0.0.00", want: Version{}, err: ErrInvalid},
 
 		// Valid inputs
 		{s: "1", want: Version{major: 1}, err: nil},
@@ -124,7 +124,7 @@ func TestParseVersion(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.s, func(t *testing.T) {
-			got, err := ParseVersion(tc.s)
+			got, err := Parse(tc.s)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)

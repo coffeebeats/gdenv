@@ -9,16 +9,26 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+var (
+	ErrInvalid       = errors.New("invalid version")
+	ErrInvalidNumber = errors.New("invalid version number")
+	ErrMissing       = errors.New("missing version")
+	ErrUnrecognized  = errors.New("unrecognized version")
+	ErrUnsupported   = errors.New("unsupported version")
+
+	errNonNormalVersion = errors.New("implementation error: found non-normal version")
+)
+
 /* -------------------------------------------------------------------------- */
-/*                           Function: ParseVersion                           */
+/*                               Function: Parse                              */
 /* -------------------------------------------------------------------------- */
 
 // Parses a 'Version' struct from a semantic version string.
-func ParseVersion(input string) (Version, error) {
+func Parse(input string) (Version, error) {
 	var version Version
 
 	if input == "" {
-		return version, ErrMissingVersion
+		return version, ErrMissing
 	}
 
 	// Normalize input by trimming excess space and using lowercase.
@@ -32,11 +42,11 @@ func ParseVersion(input string) (Version, error) {
 	// Trim the label off, but store it for later.
 	input, label, found := strings.Cut(input, SeparatorPreReleaseVersion)
 	if (found && label == "") || !semver.IsValid(input) {
-		err := fmt.Errorf("%w: '%s'", ErrInvalidVersion, strings.TrimPrefix(input, PrefixVersion))
+		err := fmt.Errorf("%w: '%s'", ErrInvalid, strings.TrimPrefix(input, PrefixVersion))
 		return version, err
 	}
 
-	if label == labelDefault {
+	if label == LabelDefault {
 		label = ""
 	}
 
@@ -50,12 +60,12 @@ func ParseVersion(input string) (Version, error) {
 	// directly following the "normal version number".
 	normalVersion, _, found := strings.Cut(input, SeparatorBuildMetadata)
 	if found {
-		return version, fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, input)
+		return version, fmt.Errorf("%w: '%s'", ErrUnsupported, input)
 	}
 
 	parts, err := parseNormalVersion(normalVersion)
 	if err != nil {
-		return version, errors.Join(ErrInvalidVersion, err)
+		return version, errors.Join(ErrInvalid, err)
 	}
 
 	version.major, version.minor, version.patch = parts[0], parts[1], parts[2]
@@ -63,12 +73,12 @@ func ParseVersion(input string) (Version, error) {
 	return version, nil
 }
 
-/* ----------------------- Function: MustParseVersion ----------------------- */
+/* --------------------------- Function: MustParse -------------------------- */
 
 // Parses a 'Version' struct from a semantic version string or panics if it
 // would fail.
-func MustParseVersion(input string) Version {
-	v, err := ParseVersion(input)
+func MustParse(input string) Version {
+	v, err := Parse(input)
 	if err != nil {
 		panic(err)
 	}
@@ -98,13 +108,13 @@ func parseNormalVersion(input string) ([3]int, error) {
 	parts := strings.Split(input, ".")
 	// NOTE: This should never occur for a 'semver'-validated string.
 	if len(parts) < 1 || len(parts) > 3 {
-		return out, fmt.Errorf("%w: '%s'", ErrUnrecognizedVersion, input)
+		return out, fmt.Errorf("%w: '%s'", ErrUnrecognized, input)
 	}
 
 	for i, version := range parts { //nolint:varnamelen
 		n, err := strconv.ParseUint(version, 10, 0)
 		if err != nil {
-			return out, fmt.Errorf("%w: '%s'", ErrInvalidVersionNumber, version)
+			return out, fmt.Errorf("%w: '%s'", ErrInvalidNumber, version)
 		}
 
 		out[i] = int(n)
