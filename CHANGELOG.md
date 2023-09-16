@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.2 (2023-09-16)
+
+## What's Changed
+* refactor(pkg/godot,internal/version): move the `Version` implementation to separate package by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/63
+* chore(deps): bump actions/checkout from 3 to 4 by @dependabot in https://github.com/coffeebeats/gdenv/pull/61
+* chore(deps): bump tj-actions/changed-files from 38 to 39 by @dependabot in https://github.com/coffeebeats/gdenv/pull/62
+* refactor(pkg/godot,internal/platform): separate `Platform` into internal package `platform` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/65
+* chore(internal/godot): move `platform` and `version` packages under `internal/godot` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/66
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.3.1...v0.3.2
+
 ## 0.3.1 (2023-09-09)
 
 ## What's Changed
