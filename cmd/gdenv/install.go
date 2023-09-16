@@ -115,5 +115,5 @@ func detectPlatform() (platform.Platform, error) {
 		return platform.Platform{}, fmt.Errorf("%w: '%s'", err, archRaw)
 	}
 
-	return platform.New(o, a)
+	return platform.Platform{Arch: a, OS: o}, nil
 }
