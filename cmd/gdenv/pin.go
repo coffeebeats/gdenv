@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coffeebeats/gdenv/internal/version"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"

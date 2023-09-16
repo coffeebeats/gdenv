@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/coffeebeats/gdenv/internal/version"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
 var (

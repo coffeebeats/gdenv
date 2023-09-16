@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/coffeebeats/gdenv/internal/version"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
 var (
