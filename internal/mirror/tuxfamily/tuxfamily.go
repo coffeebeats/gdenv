@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/client"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/mirror"
-	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 

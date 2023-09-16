@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/version"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
 /* ------------------------------- Test: Read ------------------------------- */

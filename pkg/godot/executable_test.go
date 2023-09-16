@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/platform"
-	"github.com/coffeebeats/gdenv/internal/version"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
 /* -------------------------- Test: Executable.Name ------------------------- */
