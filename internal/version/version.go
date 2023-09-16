@@ -14,10 +14,10 @@ const (
 	SeparatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
 	SeparatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
 
-	LabelMono    = LabelStable + "_" + mono
+	LabelDefault = LabelStable
+	LabelMono    = LabelStable + "_" + Mono
 	LabelStable  = "stable"
-	labelDefault = LabelStable
-	mono         = "mono"
+	Mono         = "mono"
 )
 
 var (
@@ -84,7 +84,7 @@ func (v Version) Patch() int {
 // Returns the version label or a default if not defined.
 func (v Version) Label() string {
 	if v.label == "" {
-		return labelDefault
+		return LabelDefault
 	}
 
 	return v.label

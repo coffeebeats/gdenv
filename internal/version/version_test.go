@@ -60,17 +60,17 @@ func TestVersionString(t *testing.T) {
 		want string
 	}{
 		// Default value
-		{Version{}, "v0.0-" + labelDefault},
+		{Version{}, "v0.0-" + LabelDefault},
 
 		// Default label
-		{Version{major: 1}, "v1.0-" + labelDefault},
-		{Version{major: 1, minor: 1}, "v1.1-" + labelDefault},
-		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1-" + labelDefault},
+		{Version{major: 1}, "v1.0-" + LabelDefault},
+		{Version{major: 1, minor: 1}, "v1.1-" + LabelDefault},
+		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1-" + LabelDefault},
 
-		{Version{minor: 1}, "v0.1-" + labelDefault},
-		{Version{minor: 1, patch: 1}, "v0.1.1-" + labelDefault},
+		{Version{minor: 1}, "v0.1-" + LabelDefault},
+		{Version{minor: 1, patch: 1}, "v0.1.1-" + LabelDefault},
 
-		{Version{patch: 1}, "v0.0.1-" + labelDefault},
+		{Version{patch: 1}, "v0.0.1-" + LabelDefault},
 
 		// Specific label
 		{Version{label: testLabel}, "v0.0-" + testLabel},
