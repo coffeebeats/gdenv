@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/coffeebeats/gdenv/internal/platform"
 	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -48,13 +49,13 @@ func NewInstall() *cli.Command {
 			}
 
 			// Define the host 'Platform'.
-			platform, err := detectPlatform()
+			p, err := detectPlatform()
 			if err != nil {
 				return fail(err)
 			}
 
 			// Define the target 'Executable'.
-			ex := godot.Executable{Platform: platform, Version: v}
+			ex := godot.Executable{Platform: p, Version: v}
 
 			if store.Has(storePath, ex) && !c.Bool("force") {
 				return nil
@@ -80,10 +81,10 @@ func install(_ string, _ godot.Executable) error {
 
 // Resolves the target platform by first checking environment variables and then
 // falling back to the host platform.
-func detectPlatform() (godot.Platform, error) {
+func detectPlatform() (platform.Platform, error) {
 	// First, check the full platform override.
 	if platformRaw := os.Getenv(EnvGDEnvPlatform); platformRaw != "" {
-		p, err := godot.ParsePlatform(platformRaw)
+		p, err := platform.Parse(platformRaw)
 		if err != nil {
 			return p, fmt.Errorf("%w: '%s'", err, platformRaw)
 		}
@@ -99,9 +100,9 @@ func detectPlatform() (godot.Platform, error) {
 		osRaw = runtime.GOOS
 	}
 
-	o, err := godot.ParseOS(osRaw)
+	o, err := platform.ParseOS(osRaw)
 	if err != nil {
-		return godot.Platform{}, fmt.Errorf("%w: '%s'", err, osRaw)
+		return platform.Platform{}, fmt.Errorf("%w: '%s'", err, osRaw)
 	}
 
 	archRaw := os.Getenv(EnvGDEnvArch)
@@ -109,10 +110,10 @@ func detectPlatform() (godot.Platform, error) {
 		archRaw = runtime.GOARCH
 	}
 
-	a, err := godot.ParseArch(archRaw)
+	a, err := platform.ParseArch(archRaw)
 	if err != nil {
-		return godot.Platform{}, fmt.Errorf("%w: '%s'", err, archRaw)
+		return platform.Platform{}, fmt.Errorf("%w: '%s'", err, archRaw)
 	}
 
-	return godot.NewPlatform(o, a)
+	return platform.Platform{Arch: a, OS: o}, nil
 }

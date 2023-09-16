@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/platform"
 	"github.com/coffeebeats/gdenv/internal/version"
 )
 
@@ -29,7 +30,7 @@ var (
 // A specification of a Godot executable (i.e. has a specific platform and
 // version).
 type Executable struct {
-	Platform Platform
+	Platform platform.Platform
 	Version  version.Version
 }
 
@@ -51,14 +52,14 @@ func (e Executable) Name() (string, error) {
 	name.WriteString(e.Version.String())
 	name.WriteString(nameSeparator)
 
-	platformIdentifier, err := FormatPlatform(e.Platform, e.Version)
+	platformIdentifier, err := platform.Format(e.Platform, e.Version)
 	if err != nil {
 		return "", err
 	}
 
 	name.WriteString(platformIdentifier)
 
-	if e.Platform.os == windows {
+	if e.Platform.OS == platform.Windows {
 		name.WriteString(".exe")
 	}
 
@@ -113,12 +114,12 @@ func ParseExecutable(input string) (Executable, error) {
 		return executable, err
 	}
 
-	platform, err := ParsePlatform(parts[indexPlatform])
+	p, err := platform.Parse(parts[indexPlatform])
 	if err != nil {
 		return executable, err
 	}
 
-	executable.Platform = platform
+	executable.Platform = p
 	executable.Version = v
 
 	return executable, nil
