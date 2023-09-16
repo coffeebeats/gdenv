@@ -8,9 +8,9 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
-/* --------------------------- Test: ParsePlatform -------------------------- */
+/* ------------------------------- Test: Parse ------------------------------ */
 
-func TestParsePlatform(t *testing.T) {
+func TestParse(t *testing.T) {
 	tests := []struct {
 		s    string
 		want Platform
@@ -47,7 +47,7 @@ func TestParsePlatform(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.s, func(t *testing.T) {
-			got, err := ParsePlatform(tc.s)
+			got, err := Parse(tc.s)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
@@ -59,9 +59,9 @@ func TestParsePlatform(t *testing.T) {
 	}
 }
 
-/* -------------------------- Test: FormatPlatform -------------------------- */
+/* ------------------------------ Test: Format ------------------------------ */
 
-func TestFormatPlatform(t *testing.T) {
+func TestFormat(t *testing.T) {
 	var (
 		v2 = godot.NewVersion(2)
 		v3 = godot.NewVersion(3)
@@ -212,7 +212,7 @@ func TestFormatPlatform(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(fmt.Sprintf("%v %s", tc.p, tc.v), func(t *testing.T) {
-			got, err := FormatPlatform(tc.p, tc.v)
+			got, err := Format(tc.p, tc.v)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)

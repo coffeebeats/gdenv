@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/platform"
 	"github.com/coffeebeats/gdenv/internal/version"
 )
 
@@ -29,7 +30,7 @@ var (
 // A specification of a Godot executable (i.e. has a specific platform and
 // version).
 type Executable struct {
-	Platform Platform
+	Platform platform.Platform
 	Version  version.Version
 }
 

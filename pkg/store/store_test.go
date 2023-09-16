@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/platform"
 	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
@@ -75,9 +76,9 @@ func TestAdd(t *testing.T) {
 			v := version.MustParse(tc.v)
 
 			// Define the 'Platform' for the test.
-			p, err := godot.NewPlatform(
-				godot.MustParseOS(tc.os),
-				godot.MustParseArch(tc.arch),
+			p, err := platform.New(
+				platform.MustParseOS(tc.os),
+				platform.MustParseArch(tc.arch),
 			)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
@@ -146,9 +147,9 @@ func TestRemove(t *testing.T) {
 			v := version.MustParse(tc.v)
 
 			// Define the 'Platform' for the test.
-			p, err := godot.NewPlatform(
-				godot.MustParseOS(tc.os),
-				godot.MustParseArch(tc.arch),
+			p, err := platform.New(
+				platform.MustParseOS(tc.os),
+				platform.MustParseArch(tc.arch),
 			)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)

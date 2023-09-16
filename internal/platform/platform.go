@@ -36,10 +36,10 @@ type Platform struct {
 	OS   OS
 }
 
-/* -------------------------- Function: NewPlatform ------------------------- */
+/* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new 'Platform' struct from a valid 'OS' and 'Arch'.
-func NewPlatform(os OS, arch Arch) (Platform, error) {
+func New(os OS, arch Arch) (Platform, error) {
 	var platform Platform
 
 	switch os {
@@ -67,13 +67,13 @@ func NewPlatform(os OS, arch Arch) (Platform, error) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                           Function: ParsePlatform                          */
+/*                               Function: Parse                              */
 /* -------------------------------------------------------------------------- */
 
 // Parses a 'Platform' struct from a platform identifier. There are potentially
 // multiple valid identifiers for any given platform due to schema differences
 // across Godot versions.
-func ParsePlatform(input string) (Platform, error) { //nolint:cyclop
+func Parse(input string) (Platform, error) { //nolint:cyclop
 	if input == "" {
 		return Platform{}, ErrMissingPlatform
 	}
@@ -111,12 +111,12 @@ func ParsePlatform(input string) (Platform, error) { //nolint:cyclop
 	}
 }
 
-/* ----------------------- Function: MustParsePlatform ---------------------- */
+/* --------------------------- Function: MustParse -------------------------- */
 
 // Parses an input string as a 'Platform' specification but panics if it would
 // fail.
-func MustParsePlatform(input string) Platform {
-	platform, err := ParsePlatform(input)
+func MustParse(input string) Platform {
+	platform, err := Parse(input)
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +125,7 @@ func MustParsePlatform(input string) Platform {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                          Function: FormatPlatform                          */
+/*                              Function: Format                              */
 /* -------------------------------------------------------------------------- */
 
 // Formats a 'Platform' specification into a platform string found in Godot
@@ -137,20 +137,20 @@ func MustParsePlatform(input string) Platform {
 // NOTE: This is a best effort implementation. Please open an issue on GitHub
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
-func FormatPlatform(p Platform, v godot.Version) (string, error) {
-	// Use the 'Platform' validation in 'NewPlatform' prior to formatting; a
-	// default 'Platform' is not valid, which is why this check is required.
-	if _, err := NewPlatform(p.OS, p.Arch); err != nil {
+func Format(p Platform, v godot.Version) (string, error) {
+	// Use the 'Platform' validation in 'New' prior to formatting; a default
+	// 'Platform' is not valid, which is why this check is required.
+	if _, err := New(p.OS, p.Arch); err != nil {
 		return "", err
 	}
 
 	switch p.OS {
 	case Linux:
-		return formatLinuxPlatform(p.Arch, v)
+		return formatLinux(p.Arch, v)
 	case MacOS:
-		return formatMacOSPlatform(p.Arch, v)
+		return formatMacOS(p.Arch, v)
 	case Windows:
-		return formatWindowsPlatform(p.Arch, v)
+		return formatWindows(p.Arch, v)
 
 	case 0:
 		return "", ErrMissingOS
@@ -159,11 +159,11 @@ func FormatPlatform(p Platform, v godot.Version) (string, error) {
 	}
 }
 
-/* ---------------------- Function: formatLinuxPlatform --------------------- */
+/* -------------------------- Function: formatLinux ------------------------- */
 
 // Given an architecture, returns the Linux platform identifier used by Godot
 // executable names.
-func formatLinuxPlatform(a Arch, v godot.Version) (string, error) { //nolint:cyclop
+func formatLinux(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -219,14 +219,14 @@ func formatLinuxPlatform(a Arch, v godot.Version) (string, error) { //nolint:cyc
 	return p, nil
 }
 
-/* ---------------------- Function: formatMacOSPlatform --------------------- */
+/* -------------------------- Function: formatMacOS ------------------------- */
 
 // Given an architecture, returns the macOS platform identifier used by Godot
 // executable names.
 //
 // NOTE: This is rather convoluted; consider a better way of organizing this
 // logic.
-func formatMacOSPlatform(a Arch, v godot.Version) (string, error) { //nolint:cyclop
+func formatMacOS(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -277,11 +277,11 @@ func formatMacOSPlatform(a Arch, v godot.Version) (string, error) { //nolint:cyc
 	}
 }
 
-/* --------------------- Function: formatWindowsPlatform -------------------- */
+/* ------------------------- Function: formatWindows ------------------------ */
 
 // Given an architecture, returns the Windows platform identifier used by Godot
 // executable names.
-func formatWindowsPlatform(a Arch, v godot.Version) (string, error) {
+func formatWindows(a Arch, v godot.Version) (string, error) {
 	if a == 0 {
 		return "", ErrMissingArch
 	}
