@@ -36,36 +36,6 @@ type Platform struct {
 	OS   OS
 }
 
-/* ------------------------------ Function: New ----------------------------- */
-
-// Creates a new 'Platform' struct from a valid 'OS' and 'Arch'.
-func New(os OS, arch Arch) (Platform, error) {
-	var platform Platform
-
-	switch os {
-	case Linux, MacOS, Windows:
-
-	case 0:
-		return platform, ErrMissingOS
-	default:
-		return platform, fmt.Errorf("%w: '%d'", ErrUnrecognizedOS, os)
-	}
-
-	switch arch {
-	case Amd64, Arm64, I386, Universal:
-
-	case 0:
-		return platform, ErrMissingArch
-	default:
-		return platform, fmt.Errorf("%w: '%d'", ErrUnrecognizedArch, arch)
-	}
-
-	platform.Arch = arch
-	platform.OS = os
-
-	return platform, nil
-}
-
 /* -------------------------------------------------------------------------- */
 /*                               Function: Parse                              */
 /* -------------------------------------------------------------------------- */
@@ -138,12 +108,6 @@ func MustParse(input string) Platform {
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
 func Format(p Platform, v version.Version) (string, error) {
-	// Use the 'Platform' validation in 'New' prior to formatting; a default
-	// 'Platform' is not valid, which is why this check is required.
-	if _, err := New(p.OS, p.Arch); err != nil {
-		return "", err
-	}
-
 	switch p.OS {
 	case Linux:
 		return formatLinux(p.Arch, v)
@@ -185,7 +149,7 @@ func formatLinux(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			p = "x11.64"
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	// v4.0-dev.20210727 - Godot v4.0-alpha14
 	case v.CompareNormal(version.Godot4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
@@ -196,7 +160,7 @@ func formatLinux(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			p = "linux.64"
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	// v4.0-alpha15+
 	default:
@@ -207,7 +171,7 @@ func formatLinux(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			p = "linux.x86_64"
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	}
 
@@ -242,7 +206,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			return "osx.fat", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	// v3.1 - v3.2.4-beta2
 	// NOTE: Because v3.2.4 labels are only "beta" and "rc" *and* "beta"
@@ -253,7 +217,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			return "osx.64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	// v3.2.4-beta3 - v4.0-alpha12
 	case v.CompareNormal(version.Godot4()) < 0 ||
@@ -263,7 +227,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			return "osx.universal", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	// v4.0-alpha13+
 	default:
@@ -272,7 +236,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 			return "macos.universal", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	}
 }
@@ -299,7 +263,7 @@ func formatWindows(a Arch, v version.Version) (string, error) {
 			return "win64", nil
 
 		default:
-			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
+			return "", fmt.Errorf("%w: %v", ErrUnrecognizedArch, a)
 		}
 	}
 }

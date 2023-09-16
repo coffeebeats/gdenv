@@ -9,7 +9,6 @@ import (
 var (
 	ErrMissingArch      = errors.New("missing architecture")
 	ErrUnrecognizedArch = errors.New("unrecognized architecture")
-	ErrUnsupportedArch  = errors.New("unsupported architecture")
 )
 
 /* -------------------------------------------------------------------------- */
