@@ -91,7 +91,7 @@ func Remove(path string) error {
 /* ----------------------------- Function: Write ---------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
-func Write(version version.Version, path string) error {
+func Write(v version.Version, path string) error {
 	path, err := Clean(path)
 	if err != nil {
 		return err
@@ -102,5 +102,5 @@ func Write(version version.Version, path string) error {
 		return err
 	}
 
-	return os.WriteFile(path, []byte(version.String()), os.ModePerm)
+	return os.WriteFile(path, []byte(v.String()), os.ModePerm)
 }
