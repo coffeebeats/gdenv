@@ -4,13 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 const namePrefix = "Godot"
 const nameSeparator = "_"
 
-// Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>'.
-const nameSchemeParts = 3
+const (
+	indexVersion    = 1
+	indexPlatform   = nameSchemeParts - 1
+	nameSchemeParts = 3 // Executables named in the format 'Godot_<VERSION>_<PLATFORM>'.
+)
 
 var (
 	ErrInvalidName = errors.New("invalid name")
@@ -25,7 +30,7 @@ var (
 // version).
 type Executable struct {
 	Platform Platform
-	Version  Version
+	Version  version.Version
 }
 
 /* ------------------------------ Method: Name ------------------------------ */
@@ -98,23 +103,23 @@ func ParseExecutable(input string) (Executable, error) {
 	// the platform due to the "mono" version label containing the
 	// 'nameSeparator' rune. Fix that here by removing the 'mono' prefix from
 	// the platform and attaching it as a suffix to the version.
-	if version, platform := 1, nameSchemeParts-1; strings.HasPrefix(parts[platform], mono) {
-		parts[version] = parts[version] + nameSeparator + mono
-		parts[platform] = strings.TrimPrefix(parts[platform], mono+nameSeparator)
+	if strings.HasPrefix(parts[indexPlatform], version.Mono) {
+		parts[indexVersion] = parts[indexVersion] + nameSeparator + version.Mono
+		parts[indexPlatform] = strings.TrimPrefix(parts[indexPlatform], version.Mono+nameSeparator)
 	}
 
-	version, err := ParseVersion(parts[1])
+	v, err := version.Parse(parts[indexVersion])
 	if err != nil {
 		return executable, err
 	}
 
-	platform, err := ParsePlatform(parts[2])
+	platform, err := ParsePlatform(parts[indexPlatform])
 	if err != nil {
 		return executable, err
 	}
 
 	executable.Platform = platform
-	executable.Version = version
+	executable.Version = v
 
 	return executable, nil
 }
