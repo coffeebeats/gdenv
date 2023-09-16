@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/platform"
 )
 
 const namePrefix = "Godot"

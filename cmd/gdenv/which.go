@@ -5,7 +5,7 @@ import (
 	"io/fs"
 	"log"
 
-	"github.com/coffeebeats/gdenv/internal/platform"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
