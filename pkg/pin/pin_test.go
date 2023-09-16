@@ -8,23 +8,23 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 /* ------------------------------- Test: Read ------------------------------- */
 
 func TestRead(t *testing.T) {
-	version := godot.MustParseVersion("1.0.0-stable")
+	v := version.MustParse("1.0.0-stable")
 
 	tests := []struct {
 		path     string
 		existing bool
-		want     godot.Version
+		want     version.Version
 		err      error
 	}{
-		{"", true, version, nil},
-		{"a/b/c", true, version, nil},
-		{"", false, godot.Version{}, fs.ErrNotExist},
+		{"", true, v, nil},
+		{"a/b/c", true, v, nil},
+		{"", false, version.Version{}, fs.ErrNotExist},
 	}
 
 	for i, tc := range tests {
@@ -43,7 +43,7 @@ func TestRead(t *testing.T) {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.WriteFile(pin, []byte(version.String()), os.ModePerm); err != nil {
+				if err := os.WriteFile(pin, []byte(v.String()), os.ModePerm); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 			}
@@ -178,7 +178,7 @@ func TestWrite(t *testing.T) {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			tmp := t.TempDir()
 
-			v, err := godot.ParseVersion(tc.version)
+			v, err := version.Parse(tc.version)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}

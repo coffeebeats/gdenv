@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 var (
@@ -17,23 +17,23 @@ var (
 /* ----------------------------- Function: Read ----------------------------- */
 
 // Parses a 'Version' from the specified pin file.
-func Read(path string) (godot.Version, error) {
+func Read(path string) (version.Version, error) {
 	path, err := Clean(path)
 	if err != nil {
-		return godot.Version{}, err
+		return version.Version{}, err
 	}
 
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		return godot.Version{}, err
+		return version.Version{}, err
 	}
 
-	version, err := godot.ParseVersion(string(bytes))
+	v, err := version.Parse(string(bytes))
 	if err != nil {
-		return godot.Version{}, errors.Join(ErrParseVersion, err)
+		return version.Version{}, errors.Join(ErrParseVersion, err)
 	}
 
-	return version, nil
+	return v, nil
 }
 
 /* ---------------------------- Function: Resolve --------------------------- */
@@ -91,7 +91,7 @@ func Remove(path string) error {
 /* ----------------------------- Function: Write ---------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
-func Write(version godot.Version, path string) error {
+func Write(version version.Version, path string) error {
 	path, err := Clean(path)
 	if err != nil {
 		return err
