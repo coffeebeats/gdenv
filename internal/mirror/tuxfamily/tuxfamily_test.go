@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/mirror"
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -60,24 +61,24 @@ func TestTuxFamilyExecutable(t *testing.T) {
 
 func TestTuxFamilyChecksum(t *testing.T) {
 	tests := []struct {
-		v    godot.Version
+		v    version.Version
 		name string
 		url  string
 		err  error
 	}{
 		// Valid inputs
 		{
-			v:    godot.MustParseVersion("4.1.1-stable"),
+			v:    version.MustParse("4.1.1-stable"),
 			name: mirror.FilenameChecksums,
 			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/" + mirror.FilenameChecksums,
 		},
 		{
-			v:    godot.MustParseVersion("4.1-stable"),
+			v:    version.MustParse("4.1-stable"),
 			name: mirror.FilenameChecksums,
 			url:  "https://downloads.tuxfamily.org/godotengine/4.1/" + mirror.FilenameChecksums,
 		},
 		{
-			v:    godot.MustParseVersion("4.0-dev.20220118"),
+			v:    version.MustParse("4.0-dev.20220118"),
 			name: mirror.FilenameChecksums,
 			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/" + mirror.FilenameChecksums,
 		},

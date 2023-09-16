@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -71,7 +72,7 @@ func TestAdd(t *testing.T) {
 			}
 
 			// Define the 'Version' for the test.
-			v := godot.MustParseVersion(tc.v)
+			v := version.MustParse(tc.v)
 
 			// Define the 'Platform' for the test.
 			p, err := godot.NewPlatform(
@@ -142,7 +143,7 @@ func TestRemove(t *testing.T) {
 			}
 
 			// Define the 'Version' for the test.
-			v := godot.MustParseVersion(tc.v)
+			v := version.MustParse(tc.v)
 
 			// Define the 'Platform' for the test.
 			p, err := godot.NewPlatform(

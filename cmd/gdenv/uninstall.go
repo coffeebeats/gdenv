@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -39,13 +40,13 @@ func NewUninstall() *cli.Command {
 			// Uninstall a specific version.
 			if !c.Bool("all") {
 				// Validate arguments
-				version, err := godot.ParseVersion(c.Args().First())
+				v, err := version.Parse(c.Args().First())
 				if err != nil && !c.Bool("all") {
 					return failWithUsage(c, err)
 				}
 
 				// Define the target 'Executable'.
-				ex := godot.Executable{Platform: platform, Version: version}
+				ex := godot.Executable{Platform: platform, Version: v}
 
 				if err := uninstall(storePath, ex); err != nil {
 					return fail(err)

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 var (
@@ -256,7 +258,7 @@ func MustParsePlatform(input string) Platform {
 // NOTE: This is a best effort implementation. Please open an issue on GitHub
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
-func FormatPlatform(p Platform, v Version) (string, error) {
+func FormatPlatform(p Platform, v version.Version) (string, error) {
 	// Use the 'Platform' validation in 'NewPlatform' prior to formatting.
 	if _, err := NewPlatform(p.os, p.arch); err != nil {
 		return "", err
@@ -281,7 +283,7 @@ func FormatPlatform(p Platform, v Version) (string, error) {
 
 // Given an architecture, returns the Linux platform identifier used by Godot
 // executable names.
-func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
+func formatLinuxPlatform(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -290,10 +292,10 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 
 	switch {
 	// v1-v2 not supported
-	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
+	case v.Major() < 3: //nolint:gomnd
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3
-	case v.major < 4: //nolint:gomnd
+	case v.Major() < 4: //nolint:gomnd
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
 		// are not supported.
 		switch a {
@@ -306,7 +308,7 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v4.0-dev.20210727 - Godot v4.0-alpha14
-	case v.CompareNormal(V4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.label):
+	case v.CompareNormal(version.Godot4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
 		switch a {
 		case i386:
 			p = "linux.32"
@@ -344,17 +346,17 @@ func formatLinuxPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 //
 // NOTE: This is rather convoluted; consider a better way of organizing this
 // logic.
-func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
+func formatMacOSPlatform(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
 
 	switch {
 	// v1 - v2 not supported
-	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
+	case v.Major() < 3: //nolint:gomnd
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3.0 - v3.0.6
-	case v.major == 3 && v.minor < 1:
+	case v.Major() == 3 && v.Minor() < 1:
 		switch a {
 		case i386, amd64:
 			return "osx.fat", nil
@@ -365,7 +367,7 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 	// v3.1 - v3.2.4-beta2
 	// NOTE: Because v3.2.4 labels are only "beta" and "rc" *and* "beta"
 	// versions do not exceed 6, lexicographic  sorting works.
-	case v.major == 3 && v.minor <= 2 && (v.patch < 4 || v.patch == 4 && v.label <= "beta2"):
+	case v.Major() == 3 && v.Minor() <= 2 && (v.Patch() < 4 || v.Patch() == 4 && v.Label() <= "beta2"):
 		switch a {
 		case amd64:
 			return "osx.64", nil
@@ -374,8 +376,8 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v3.2.4-beta3 - v4.0-alpha12
-	case v.CompareNormal(V4()) < 0 ||
-		(v.CompareNormal(V4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.label)):
+	case v.CompareNormal(version.Godot4()) < 0 ||
+		(v.CompareNormal(version.Godot4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
 		switch a {
 		case amd64, arm64:
 			return "osx.universal", nil
@@ -399,15 +401,15 @@ func formatMacOSPlatform(a Arch, v Version) (string, error) { //nolint:cyclop
 
 // Given an architecture, returns the Windows platform identifier used by Godot
 // executable names.
-func formatWindowsPlatform(a Arch, v Version) (string, error) {
+func formatWindowsPlatform(a Arch, v version.Version) (string, error) {
 	if a == 0 {
 		return "", ErrMissingArch
 	}
 
 	switch {
 	// v1-v2 not supported
-	case v.major < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", ErrUnsupportedVersion, v)
+	case v.Major() < 3: //nolint:gomnd
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3+
 	default:
 		switch a {

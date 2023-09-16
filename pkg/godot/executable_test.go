@@ -4,32 +4,34 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 /* -------------------------- Test: Executable.Name ------------------------- */
 
 func TestExecutableName(t *testing.T) {
 	var (
-		v3     = Version{3, 6, 0, "beta1"}
-		v4     = Version{major: 4}
-		v4Mono = Version{major: 4, label: "stable_mono"}
-		v5     = Version{5, 0, 0, "rc4"}
+		v3     = version.MustParse("3.6-beta1")
+		v4     = version.MustParse("4")
+		v4Mono = version.MustParse("4.0-stable_mono")
+		v5     = version.MustParse("5.0-rc4")
 	)
 
 	tests := []struct {
 		p    Platform
-		v    Version
+		v    version.Version
 		want string
 		err  error
 	}{
 		// Invalid inputs
-		{Platform{}, Version{}, "", ErrMissingOS},
-		{Platform{os: linux}, Version{}, "", ErrMissingArch},
-		{Platform{os: linux, arch: amd64}, Version{}, "", ErrUnsupportedVersion},
+		{Platform{}, version.Version{}, "", ErrMissingOS},
+		{Platform{os: linux}, version.Version{}, "", ErrMissingArch},
+		{Platform{os: linux, arch: amd64}, version.Version{}, "", version.ErrUnsupported},
 
-		{Platform{os: linux, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: macOS, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
-		{Platform{os: windows, arch: amd64}, Version{major: 2}, "", ErrUnsupportedVersion},
+		{Platform{os: linux, arch: amd64}, version.MustParse("2"), "", version.ErrUnsupported},
+		{Platform{os: macOS, arch: amd64}, version.MustParse("2"), "", version.ErrUnsupported},
+		{Platform{os: windows, arch: amd64}, version.MustParse("2"), "", version.ErrUnsupported},
 
 		// Valid inputs - Linux
 
@@ -128,11 +130,11 @@ func TestExecutableName(t *testing.T) {
 
 func TestParseExecutable(t *testing.T) {
 	var (
-		v1     = Version{major: 1}
-		v2     = Version{major: 2, label: "beta10"}
-		v3     = Version{3, 0, 4, "alpha1"}
-		v4     = Version{4, 0, 11, "dev.20230101"}
-		v4Mono = Version{4, 0, 0, "stable_mono"}
+		v1     = version.MustParse("1")
+		v2     = version.MustParse("2.0-beta10")
+		v3     = version.MustParse("3.0.4-alpha1")
+		v4     = version.MustParse("4.0.11-dev.20230101")
+		v4Mono = version.MustParse("4.0-stable_mono")
 	)
 
 	tests := []struct {
@@ -144,7 +146,7 @@ func TestParseExecutable(t *testing.T) {
 		{s: "", want: Executable{}, err: ErrMissingName},
 		{s: "Godot-v1.0-stable-x11.32", want: Executable{}, err: ErrInvalidName},
 		{s: "Godot-v1.0_stable-x11.32", want: Executable{}, err: ErrInvalidName},
-		{s: "Godot_invalid_x11.32", want: Executable{}, err: ErrInvalidVersion},
+		{s: "Godot_invalid_x11.32", want: Executable{}, err: version.ErrInvalid},
 		{s: "Godot_v1.0-stable_invalid", want: Executable{}, err: ErrUnrecognizedPlatform},
 
 		// Valid inputs

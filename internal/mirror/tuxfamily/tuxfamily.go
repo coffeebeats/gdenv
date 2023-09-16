@@ -9,6 +9,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/mirror"
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -49,7 +50,7 @@ func New() TuxFamily {
 
 // Returns an 'Asset' to download the checksums file for the specified version
 // from TuxFamily.
-func (m TuxFamily) Checksum(v godot.Version) (mirror.Asset, error) {
+func (m TuxFamily) Checksum(v version.Version) (mirror.Asset, error) {
 	if !m.Supports(v) {
 		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
@@ -99,7 +100,7 @@ func (m TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
 /* -------------------------------- Impl: Has ------------------------------- */
 
 // Issues a request to see if the mirror host has the specific version.
-func (m TuxFamily) Has(v godot.Version) bool {
+func (m TuxFamily) Has(v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -125,7 +126,7 @@ func (m TuxFamily) Has(v godot.Version) bool {
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
 // use the 'Has' method.
-func (m TuxFamily) Supports(_ godot.Version) bool {
+func (m TuxFamily) Supports(_ version.Version) bool {
 	// TuxFamily seems to contain all published releases.
 	return true
 }
@@ -138,7 +139,7 @@ func (m TuxFamily) Supports(_ godot.Version) bool {
 // route is built up in parts by replicating the directory structure. It's
 // possible some edge cases are mishandled; please open an issue if one's found:
 // https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md
-func urlTuxFamilyVersionDir(v godot.Version) (string, error) {
+func urlTuxFamilyVersionDir(v version.Version) (string, error) {
 	p := make([]string, 0)
 
 	// The first directory will be the "normal version", but a patch version of
@@ -162,8 +163,8 @@ func urlTuxFamilyVersionDir(v godot.Version) (string, error) {
 		p = append(p, tuxFamilyDirnameMono)
 	// For v4.0, the 'dev.*' labels are placed under label subdirectories,
 	// themselves under the 'pre-alpha' directory.
-	case v.CompareNormal(godot.V4()) == 0 && reV4PreAlphaLabel.MatchString(v.Label()):
-		p = append(p, tuxFamilyDirnamePreAlpha, strings.TrimPrefix(v.String(), godot.PrefixVersion))
+	case v.CompareNormal(version.Godot4()) == 0 && reV4PreAlphaLabel.MatchString(v.Label()):
+		p = append(p, tuxFamilyDirnamePreAlpha, strings.TrimPrefix(v.String(), version.Prefix))
 	case !isStable:
 		p = append(p, v.Label())
 	}

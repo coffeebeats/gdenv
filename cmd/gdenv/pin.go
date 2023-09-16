@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -58,7 +59,7 @@ func NewPin() *cli.Command { //nolint:funlen
 			}
 
 			// Validate arguments
-			version, err := godot.ParseVersion(c.Args().First())
+			v, err := version.Parse(c.Args().First())
 			if err != nil {
 				return failWithUsage(c, err)
 			}
@@ -77,14 +78,14 @@ func NewPin() *cli.Command { //nolint:funlen
 				}
 
 				// Define the target 'Executable'.
-				ex := godot.Executable{Platform: platform, Version: version}
+				ex := godot.Executable{Platform: platform, Version: v}
 
 				if err := install(storePath, ex); err != nil {
 					return fail(err)
 				}
 			}
 
-			if err := pin.Write(version, path); err != nil {
+			if err := pin.Write(v, path); err != nil {
 				return fail(err)
 			}
 

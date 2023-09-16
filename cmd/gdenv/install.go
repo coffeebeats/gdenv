@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -35,7 +36,7 @@ func NewInstall() *cli.Command {
 
 		Action: func(c *cli.Context) error {
 			// Validate arguments
-			version, err := godot.ParseVersion(c.Args().First())
+			v, err := version.Parse(c.Args().First())
 			if err != nil {
 				return failWithUsage(c, err)
 			}
@@ -53,7 +54,7 @@ func NewInstall() *cli.Command {
 			}
 
 			// Define the target 'Executable'.
-			ex := godot.Executable{Platform: platform, Version: version}
+			ex := godot.Executable{Platform: platform, Version: v}
 
 			if store.Has(storePath, ex) && !c.Bool("force") {
 				return nil
