@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
-/* ------------------------------- Test: Parse ------------------------------ */
+/* --------------------------- Test: ParsePlatform -------------------------- */
 
-func TestParse(t *testing.T) {
+func TestParsePlatform(t *testing.T) {
 	tests := []struct {
 		s    string
 		want Platform
@@ -59,160 +59,159 @@ func TestParse(t *testing.T) {
 	}
 }
 
-/* ------------------------------ Test: Format ------------------------------ */
+/* -------------------------- Test: FormatPlatform -------------------------- */
 
-func TestFormat(t *testing.T) {
-	var (
-		v2 = godot.NewVersion(2)
-		v3 = godot.NewVersion(3)
-		v4 = godot.NewVersion(4)
-	)
-
+func TestFormatPlatform(t *testing.T) {
 	tests := []struct {
-		p    Platform
-		v    godot.Version
-		want string
-		err  error
+		platform Platform
+		version  string
+		want     string
+		err      error
 	}{
 		// Invalid inputs
-		{Platform{}, godot.Version{}, "", ErrMissingOS},
-		{Platform{OS: Linux}, godot.Version{}, "", ErrMissingArch},
-		{Platform{OS: Linux, Arch: Amd64}, godot.Version{}, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: 100, Arch: Amd64}, godot.Version{}, "", ErrUnrecognizedOS},
-		{Platform{OS: Linux, Arch: 100}, v3, "", ErrUnrecognizedArch},
+		{platform: Platform{}, err: ErrMissingOS},
+		{platform: Platform{OS: Linux}, err: ErrMissingArch},
+		{platform: Platform{OS: Linux, Arch: Amd64}, err: version.ErrUnsupported},
+		{platform: Platform{OS: 100, Arch: Amd64}, err: ErrUnrecognizedOS},
+		{platform: Platform{OS: Linux, Arch: 100}, version: "3.0", err: ErrUnrecognizedArch},
 
-		{Platform{OS: Linux, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: MacOS, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
-		{Platform{OS: Windows, Arch: Amd64}, v2, "", godot.ErrUnsupportedVersion},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "2.0", err: version.ErrUnsupported},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "2.0", err: version.ErrUnsupported},
+		{platform: Platform{OS: Windows, Arch: Amd64}, version: "2.0", err: version.ErrUnsupported},
 
 		// Valid inputs - linux
 
 		// v3.*
-		{Platform{OS: Linux, Arch: I386}, v3, "x11.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v3, "x11.64", nil},
-		{Platform{OS: Linux, Arch: I386}, v3.WithLabel(godot.LabelMono), "x11_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v3.WithLabel(godot.LabelMono), "x11_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, v3, "", ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, v3, "", ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "3.0", want: "x11.32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "3.0", want: "x11.64"},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "3.0-stable_mono", want: "x11_32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "3.0-stable_mono", want: "x11_64"},
+		{platform: Platform{OS: Linux, Arch: Arm64}, version: "3.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: Universal}, version: "3.0", err: ErrUnsupportedArch},
 
 		// v4.0-dev.* - v4.0-alpha14
-		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("dev.20220118"), "linux.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("dev.20220118"), "linux.64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("dev.20220118"), "", ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("dev.20220118"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "4.0-dev.20220118", want: "linux.32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "4.0-dev.20220118", want: "linux.64"},
+		{platform: Platform{OS: Linux, Arch: Arm64}, version: "4.0-dev.20220118", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: Universal}, version: "4.0-dev.20220118", err: ErrUnsupportedArch},
 
-		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("alpha14"), "linux.32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("alpha14"), "linux.64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("alpha14"), "", ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("alpha14"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "4.0-alpha14", want: "linux.32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "4.0-alpha14", want: "linux.64"},
+		{platform: Platform{OS: Linux, Arch: Arm64}, version: "4.0-alpha14", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: Universal}, version: "4.0-alpha14", err: ErrUnsupportedArch},
 
 		// v4.0-alpha15+
-		{Platform{OS: Linux, Arch: I386}, v4.WithLabel("alpha15"), "linux.x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel("alpha15"), "linux.x86_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, v4.WithLabel("alpha15"), "", ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, v4.WithLabel("alpha15"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "4.0-alpha15", want: "linux.x86_32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "4.0-alpha15", want: "linux.x86_64"},
+		{platform: Platform{OS: Linux, Arch: Arm64}, version: "4.0-alpha15", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: Universal}, version: "4.0-alpha15", err: ErrUnsupportedArch},
 
-		{Platform{OS: Linux, Arch: I386}, v4, "linux.x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v4, "linux.x86_64", nil},
-		{Platform{OS: Linux, Arch: I386}, v4.WithLabel(godot.LabelMono), "linux_x86_32", nil},
-		{Platform{OS: Linux, Arch: Amd64}, v4.WithLabel(godot.LabelMono), "linux_x86_64", nil},
-		{Platform{OS: Linux, Arch: Arm64}, v4, "", ErrUnsupportedArch},
-		{Platform{OS: Linux, Arch: Universal}, v4, "", ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "4.0", want: "linux.x86_32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "4.0", want: "linux.x86_64"},
+		{platform: Platform{OS: Linux, Arch: I386}, version: "4.0-stable_mono", want: "linux_x86_32"},
+		{platform: Platform{OS: Linux, Arch: Amd64}, version: "4.0-stable_mono", want: "linux_x86_64"},
+		{platform: Platform{OS: Linux, Arch: Arm64}, version: "4.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Linux, Arch: Universal}, version: "4.0", err: ErrUnsupportedArch},
 
 		// Valid inputs - MacOS
 
 		// v3.0 - v3.0.6
-		{Platform{OS: MacOS, Arch: I386}, v3, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Amd64}, v3, "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v3, "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v3, "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.0", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.0", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 0, 6), "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 0, 6), "osx.fat", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 0, 6), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 0, 6), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.0.6", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.0.6", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.0.6", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0.6", err: ErrUnsupportedArch},
 
 		// v3.1 - v3.2.4-beta2
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 1), "osx.64", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 1), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.1", want: "osx.64"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.1", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "osx.64", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "beta2"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-beta2", want: "osx.64"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-beta2", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-beta2", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-beta2", err: ErrUnsupportedArch},
 
 		// v3.2.4-beta3 - v4.0-alpha12
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "beta3"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-beta3", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-beta3", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-beta3", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-beta3", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersionWithLabel(3, 2, 4, "rc1"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-rc1", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-rc1", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-rc1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-rc1", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, godot.NewVersion(3, 2, 4), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, godot.NewVersion(3, 2, 4), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, godot.NewVersion(3, 2, 4), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, godot.NewVersion(3, 2, 4), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-stable", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-stable", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-stable", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-stable", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("dev.20210727"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("dev.20210727"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("dev.20210727"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("dev.20210727"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-dev.20210727", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-dev.20210727", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-dev.20210727", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-dev.20210727", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha1"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha1"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha1"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha1"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha1", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha1", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha1", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha12"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha12"), "osx.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha12"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha12"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha12", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha12", want: "osx.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha12", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha12", err: ErrUnsupportedArch},
 
 		// v4.0-alpha13+
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("alpha13"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("alpha13"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("alpha13"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("alpha13"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha13", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha13", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha13", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha13", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("beta1"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("beta1"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("beta1"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("beta1"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-beta1", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-beta1", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-beta1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-beta1", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4.WithLabel("rc1"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4.WithLabel("rc1"), "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4.WithLabel("rc1"), "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4.WithLabel("rc1"), "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-rc1", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-rc1", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-rc1", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-rc1", err: ErrUnsupportedArch},
 
-		{Platform{OS: MacOS, Arch: Amd64}, v4, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: Arm64}, v4, "macos.universal", nil},
-		{Platform{OS: MacOS, Arch: I386}, v4, "", ErrUnsupportedArch},
-		{Platform{OS: MacOS, Arch: Universal}, v4, "", ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0", err: ErrUnsupportedArch},
 
 		// Valid inputs - Windows
 
 		// v3.*
-		{Platform{OS: Windows, Arch: I386}, v3, "win32", nil},
-		{Platform{OS: Windows, Arch: Amd64}, v3, "win64", nil},
-		{Platform{OS: Windows, Arch: Arm64}, v3, "", ErrUnsupportedArch},
-		{Platform{OS: Windows, Arch: Universal}, v3, "", ErrUnsupportedArch},
+		{platform: Platform{OS: Windows, Arch: I386}, version: "3.0", want: "win32"},
+		{platform: Platform{OS: Windows, Arch: Amd64}, version: "3.0", want: "win64"},
+		{platform: Platform{OS: Windows, Arch: Arm64}, version: "3.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Windows, Arch: Universal}, version: "3.0", err: ErrUnsupportedArch},
 
 		// v4.0+
-		{Platform{OS: Windows, Arch: I386}, v4, "win32", nil},
-		{Platform{OS: Windows, Arch: Amd64}, v4, "win64", nil},
-		{Platform{OS: Windows, Arch: Arm64}, v4, "", ErrUnsupportedArch},
-		{Platform{OS: Windows, Arch: Universal}, v4, "", ErrUnsupportedArch},
+		{platform: Platform{OS: Windows, Arch: I386}, version: "4.0", want: "win32"},
+		{platform: Platform{OS: Windows, Arch: Amd64}, version: "4.0", want: "win64"},
+		{platform: Platform{OS: Windows, Arch: Arm64}, version: "4.0", err: ErrUnsupportedArch},
+		{platform: Platform{OS: Windows, Arch: Universal}, version: "4.0", err: ErrUnsupportedArch},
 	}
 
-	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%v %s", tc.p, tc.v), func(t *testing.T) {
-			got, err := Format(tc.p, tc.v)
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-%v-%s", i, tc.platform, tc.version), func(t *testing.T) {
+			var v version.Version
+			if tc.version != "" {
+				v = version.MustParse(tc.version)
+			}
+
+			got, err := Format(tc.platform, v)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)

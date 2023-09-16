@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/coffeebeats/gdenv/pkg/godot"
+	"github.com/coffeebeats/gdenv/internal/version"
 )
 
 var (
@@ -137,7 +137,7 @@ func MustParse(input string) Platform {
 // NOTE: This is a best effort implementation. Please open an issue on GitHub
 // if some platform identifiers are missing or incorrect:
 // github.com/coffeebeats/gdenv/issues/new?labels=bug&template=%F0%9F%90%9B-bug-report.md.
-func Format(p Platform, v godot.Version) (string, error) {
+func Format(p Platform, v version.Version) (string, error) {
 	// Use the 'Platform' validation in 'New' prior to formatting; a default
 	// 'Platform' is not valid, which is why this check is required.
 	if _, err := New(p.OS, p.Arch); err != nil {
@@ -163,7 +163,7 @@ func Format(p Platform, v godot.Version) (string, error) {
 
 // Given an architecture, returns the Linux platform identifier used by Godot
 // executable names.
-func formatLinux(a Arch, v godot.Version) (string, error) { //nolint:cyclop
+func formatLinux(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -173,7 +173,7 @@ func formatLinux(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 	switch {
 	// v1-v2 not supported
 	case v.Major() < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", godot.ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3
 	case v.Major() < 4: //nolint:gomnd
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
@@ -188,7 +188,7 @@ func formatLinux(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v4.0-dev.20210727 - Godot v4.0-alpha14
-	case v.CompareNormal(godot.V4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
+	case v.CompareNormal(version.Godot4()) == 0 && reV4LinuxLabelsWithoutX86.MatchString(v.Label()):
 		switch a {
 		case I386:
 			p = "linux.32"
@@ -226,7 +226,7 @@ func formatLinux(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 //
 // NOTE: This is rather convoluted; consider a better way of organizing this
 // logic.
-func formatMacOS(a Arch, v godot.Version) (string, error) { //nolint:cyclop
+func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -234,7 +234,7 @@ func formatMacOS(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 	switch {
 	// v1 - v2 not supported
 	case v.Major() < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", godot.ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3.0 - v3.0.6
 	case v.Major() == 3 && v.Minor() < 1:
 		switch a {
@@ -256,8 +256,8 @@ func formatMacOS(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 			return "", fmt.Errorf("%w: %v", ErrUnsupportedArch, a)
 		}
 	// v3.2.4-beta3 - v4.0-alpha12
-	case v.CompareNormal(godot.V4()) < 0 ||
-		(v.CompareNormal(godot.V4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
+	case v.CompareNormal(version.Godot4()) < 0 ||
+		(v.CompareNormal(version.Godot4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
 		switch a {
 		case Amd64, Arm64:
 			return "osx.universal", nil
@@ -281,7 +281,7 @@ func formatMacOS(a Arch, v godot.Version) (string, error) { //nolint:cyclop
 
 // Given an architecture, returns the Windows platform identifier used by Godot
 // executable names.
-func formatWindows(a Arch, v godot.Version) (string, error) {
+func formatWindows(a Arch, v version.Version) (string, error) {
 	if a == 0 {
 		return "", ErrMissingArch
 	}
@@ -289,7 +289,7 @@ func formatWindows(a Arch, v godot.Version) (string, error) {
 	switch {
 	// v1-v2 not supported
 	case v.Major() < 3: //nolint:gomnd
-		return "", fmt.Errorf("%w: '%s'", godot.ErrUnsupportedVersion, v)
+		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3+
 	default:
 		switch a {
