@@ -21,11 +21,11 @@ const (
 )
 
 var (
-	ErrInvalidVersion       = errors.New("invalid version")
-	ErrInvalidVersionNumber = errors.New("invalid version number")
-	ErrMissingVersion       = errors.New("missing version")
-	ErrUnrecognizedVersion  = errors.New("unrecognized version")
-	ErrUnsupportedVersion   = errors.New("unsupported version")
+	ErrInvalid       = errors.New("invalid version")
+	ErrInvalidNumber = errors.New("invalid version number")
+	ErrMissing       = errors.New("missing version")
+	ErrUnrecognized  = errors.New("unrecognized version")
+	ErrUnsupported   = errors.New("unsupported version")
 
 	errNonNormalVersion = errors.New("implementation error: found non-normal version")
 )
@@ -56,6 +56,40 @@ type Version struct {
 	// though Godot affixes "stable" to its stable releases. Note that an empty
 	// 'Label' will be interpreted as a stable version.
 	label string
+}
+
+/* ------------------------------ Function: New ----------------------------- */
+
+// Creates a new 'Version' struct with a default label from valid integers. This
+// should not be used for user-facing inputs, as it does no validation. Instead,
+// parse user inputs using 'ParseVersion'.
+func New(parts ...uint) Version {
+	var version Version
+
+	switch len(parts) {
+	case 3: //nolint:gomnd
+		version.patch = int(parts[2])
+		fallthrough
+	case 2: //nolint:gomnd
+		version.minor = int(parts[1])
+		fallthrough
+	case 1:
+		version.major = int(parts[0])
+
+	default:
+		panic(ErrInvalid)
+	}
+
+	return version
+}
+
+/* ------------------------- Function: NewWithLabel ------------------------- */
+
+// Creates a new 'Version' struct from valid integers and a label. This should
+// not be used for user-facing inputs, as it does no validation. Instead, parse
+// user inputs using 'ParseVersion'.
+func NewWithLabel(major, minor, patch uint, label string) Version {
+	return Version{int(major), int(minor), int(patch), label}
 }
 
 /* ------------------------------ Method: Major ----------------------------- */
@@ -120,6 +154,14 @@ func (v Version) Normal() string {
 // 'v' < 'w', or '+1' if 'v' > 'w'.
 func (v Version) CompareNormal(w Version) int {
 	return semver.Compare(PrefixVersion+v.Normal(), PrefixVersion+w.Normal())
+}
+
+/* ---------------------------- Method: WithLabel --------------------------- */
+
+// Returns a new 'Version' struct with the specified label override.
+func (v Version) WithLabel(label string) Version {
+	v.label = label
+	return v
 }
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
