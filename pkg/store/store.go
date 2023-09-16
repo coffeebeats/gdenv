@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/coffeebeats/gdenv/internal/version"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
@@ -205,7 +206,7 @@ func Executables(store string) ([]godot.Executable, error) {
 	out := make([]godot.Executable, 0)
 
 	for _, dirVersion := range versions {
-		version, err := godot.ParseVersion(dirVersion.Name())
+		version, err := version.Parse(dirVersion.Name())
 		if err != nil {
 			return nil, errors.Join(ErrInvalidSpecification, err)
 		}
