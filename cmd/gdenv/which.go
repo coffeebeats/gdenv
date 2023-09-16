@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 
+	"github.com/coffeebeats/gdenv/internal/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -63,7 +64,7 @@ func NewWhich() *cli.Command {
 	}
 }
 
-func which(storePath, pinPath string, platform godot.Platform) (string, error) {
+func which(storePath, pinPath string, p platform.Platform) (string, error) {
 	path, err := pin.Resolve(pinPath)
 	if err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
@@ -82,7 +83,7 @@ func which(storePath, pinPath string, platform godot.Platform) (string, error) {
 	}
 
 	// Define the target 'Executable'.
-	ex := godot.Executable{Platform: platform, Version: version}
+	ex := godot.Executable{Platform: p, Version: version}
 	if !store.Has(storePath, ex) {
 		return "", ErrGodotNotFound
 	}
