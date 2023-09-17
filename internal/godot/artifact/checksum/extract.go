@@ -1,4 +1,4 @@
-package checksums
+package checksum
 
 import (
 	"bufio"
@@ -16,8 +16,8 @@ const (
 )
 
 var (
+	ErrChecksumNotFound    = errors.New("checksum not found")
 	ErrConflictingChecksum = errors.New("conflicting checksum")
-	ErrMissingChecksum     = errors.New("missing checksum")
 	ErrUnrecognizedFormat  = errors.New("unrecognized format")
 )
 
@@ -25,8 +25,10 @@ var (
 /*                              Function: Extract                             */
 /* -------------------------------------------------------------------------- */
 
-func Extract(d artifact.Local[Checksums], archive archive.Archive) (string, error) {
-	f, err := os.Open(d.Path)
+// Given a locally-available checksums file, find and return the checksum for
+// the specified archive.
+func Extract[T artifact.Artifact, U archive.Archive[T]](c artifact.Local[Checksums[T, U]], a U) (string, error) {
+	f, err := os.Open(c.Path)
 	if err != nil {
 		return "", err
 	}
@@ -55,9 +57,9 @@ func Extract(d artifact.Local[Checksums], archive archive.Archive) (string, erro
 		return "", err
 	}
 
-	checksum, has := checksums[archive.Name()]
+	checksum, has := checksums[a.Name()]
 	if !has {
-		return "", ErrMissingChecksum
+		return "", ErrChecksumNotFound
 	}
 
 	return checksum, nil

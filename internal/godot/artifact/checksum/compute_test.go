@@ -1,4 +1,4 @@
-package checksums
+package checksum
 
 import (
 	"errors"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
 )
 
 /* ---------------------------- Test: TestCompute --------------------------- */
@@ -35,7 +36,7 @@ func TestCompute(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var f artifact.Local[archive.Archive]
+			var f artifact.Local[archive.Zip[artifacttest.Artifact]]
 
 			// NOTE: Property 'Artifact' doesn't need to be accessed.
 			f.Path = filepath.Join(t.TempDir(), "archive.zip")
