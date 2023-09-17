@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 /* ------------------------------- Test: Init ------------------------------- */
@@ -82,7 +82,10 @@ func TestAdd(t *testing.T) {
 			}
 
 			// Define the 'Executable' for the test.
-			ex := godot.Executable{Platform: p, Version: v}
+			ex, err := executable.New(v, p)
+			if err != nil {
+				t.Fatalf("test setup: %v", err)
+			}
 
 			// Create the tool to be moved.
 			if err := os.WriteFile(tool, []byte(""), os.ModePerm); err != nil {
@@ -95,12 +98,7 @@ func TestAdd(t *testing.T) {
 			}
 
 			// Verify the tool exists.
-			name, err := ex.Name()
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
-			}
-
-			toolWant := filepath.Join(store, storeDirGodot, v.String(), name)
+			toolWant := filepath.Join(store, storeDirGodot, v.String(), ex.Name())
 			info, err := os.Stat(toolWant)
 			if err != nil {
 				t.Fatalf("output: %s", err)
@@ -150,15 +148,13 @@ func TestRemove(t *testing.T) {
 			}
 
 			// Define the 'Executable' for the test.
-			ex := godot.Executable{Platform: p, Version: v}
-
-			// Create the tool to be moved.
-			name, err := ex.Name()
+			ex, err := executable.New(v, p)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), name)
+			// Create the tool to be moved.
+			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), ex.Name())
 			if err := os.MkdirAll(filepath.Dir(toolWant), os.ModePerm); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
