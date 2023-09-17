@@ -1,67 +1,71 @@
 package executable
 
-// import (
-// 	"errors"
-// 	"testing"
-// )
+import (
+	"errors"
+	"fmt"
+	"testing"
 
-// /* -------------------------- Test: ParseExecutable ------------------------- */
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
+)
 
-// func TestParseExecutable(t *testing.T) {
-// 	var (
-// 		v1     = Version{major: 1}
-// 		v2     = Version{major: 2, label: "beta10"}
-// 		v3     = Version{3, 0, 4, "alpha1"}
-// 		v4     = Version{4, 0, 11, "dev.20230101"}
-// 		v4Mono = Version{4, 0, 0, "stable_mono"}
-// 	)
+/* -------------------------- Test: ParseExecutable ------------------------- */
 
-// 	tests := []struct {
-// 		s    string
-// 		want Executable
-// 		err  error
-// 	}{
-// 		// Invalid inputs
-// 		{s: "", want: Executable{}, err: ErrMissingName},
-// 		{s: "Godot-v1.0-stable-x11.32", want: Executable{}, err: ErrInvalidName},
-// 		{s: "Godot-v1.0_stable-x11.32", want: Executable{}, err: ErrInvalidName},
-// 		{s: "Godot_invalid_x11.32", want: Executable{}, err: ErrInvalidVersion},
-// 		{s: "Godot_v1.0-stable_invalid", want: Executable{}, err: ErrUnrecognizedPlatform},
+func TestParseExecutable(t *testing.T) {
+	var (
+		v1     = version.MustParse("1")
+		v2     = version.MustParse("2.0-beta10")
+		v3     = version.MustParse("3.0.4-alpha1")
+		v4     = version.MustParse("4.0.11-dev.20230101")
+		v4Mono = version.MustParse("4.0-stable_mono")
+	)
 
-// 		// Valid inputs
-// 		// Linux
-// 		{s: "Godot_v1.0-stable_x11.32", want: Executable{Platform{i386, linux}, v1}, err: nil},
-// 		{s: "Godot_v2.0-beta10_x11.64", want: Executable{Platform{amd64, linux}, v2}, err: nil},
-// 		{s: "Godot_v3.0.4-alpha1_x11.32", want: Executable{Platform{i386, linux}, v3}, err: nil},
-// 		{s: "Godot_v4.0.11-dev.20230101_x11.64", want: Executable{Platform{amd64, linux}, v4}, err: nil},
-// 		{s: "Godot_v4.0-stable_mono_linux_x86_64", want: Executable{Platform{amd64, linux}, v4Mono}, err: nil},
+	tests := []struct {
+		s    string
+		want Executable
+		err  error
+	}{
+		// Invalid inputs
+		{s: "", want: Executable{}, err: ErrMissingName},
+		{s: "Godot-v1.0-stable-x11.32", want: Executable{}, err: ErrInvalidName},
+		{s: "Godot-v1.0_stable-x11.32", want: Executable{}, err: ErrInvalidName},
+		{s: "Godot_invalid_x11.32", want: Executable{}, err: version.ErrInvalid},
+		{s: "Godot_v1.0-stable_invalid", want: Executable{}, err: platform.ErrUnrecognizedPlatform},
 
-// 		// Darwin
-// 		{s: "Godot_v1.0-stable_osx.fat", want: Executable{Platform{universal, macOS}, v1}, err: nil},
-// 		{s: "Godot_v2.0-beta10_osx.64", want: Executable{Platform{amd64, macOS}, v2}, err: nil},
-// 		{s: "Godot_v3.0.4-alpha1_osx.universal", want: Executable{Platform{universal, macOS}, v3}, err: nil},
-// 		{s: "Godot_v4.0.11-dev.20230101_macos.universal", want: Executable{Platform{universal, macOS}, v4}, err: nil},
-// 		{s: "Godot_v4.0-stable_mono_macos.universal", want: Executable{Platform{universal, macOS}, v4Mono}, err: nil},
+		// Valid inputs
+		// Linux
+		{s: "Godot_v1.0-stable_x11.32", want: Executable{v1, linux32()}},
+		{s: "Godot_v2.0-beta10_x11.64", want: Executable{v2, linux64()}},
+		{s: "Godot_v3.0.4-alpha1_x11.32", want: Executable{v3, linux32()}},
+		{s: "Godot_v4.0.11-dev.20230101_x11.64", want: Executable{v4, linux64()}},
+		{s: "Godot_v4.0-stable_mono_linux_x86_64", want: Executable{v4Mono, linux64()}},
 
-// 		// Windows
-// 		{s: "Godot_v1.0-stable_win32", want: Executable{Platform{i386, windows}, v1}, err: nil},
-// 		{s: "Godot_v2.0-beta10_win64", want: Executable{Platform{amd64, windows}, v2}, err: nil},
-// 		{s: "Godot_v3.0.4-alpha1_win32", want: Executable{Platform{i386, windows}, v3}, err: nil},
-// 		{s: "Godot_v4.0.11-dev.20230101_win64", want: Executable{Platform{amd64, windows}, v4}, err: nil},
-// 		{s: "Godot_v4.0-stable_mono_win64", want: Executable{Platform{amd64, windows}, v4Mono}, err: nil},
-// 	}
+		// Darwin
+		{s: "Godot_v1.0-stable_osx.fat", want: Executable{v1, macOSUniversal()}},
+		{s: "Godot_v2.0-beta10_osx.64", want: Executable{v2, macOSX86_64()}},
+		{s: "Godot_v3.0.4-alpha1_osx.universal", want: Executable{v3, macOSUniversal()}},
+		{s: "Godot_v4.0.11-dev.20230101_macos.universal", want: Executable{v4, macOSUniversal()}},
+		{s: "Godot_v4.0-stable_mono_macos.universal", want: Executable{v4Mono, macOSUniversal()}},
 
-// 	for _, tc := range tests {
-// 		t.Run(tc.s, func(t *testing.T) {
-// 			got, err := ParseExecutable(tc.s)
+		// Windows
+		{s: "Godot_v1.0-stable_win32", want: Executable{v1, windows32()}},
+		{s: "Godot_v2.0-beta10_win64", want: Executable{v2, windows64()}},
+		{s: "Godot_v3.0.4-alpha1_win32", want: Executable{v3, windows32()}},
+		{s: "Godot_v4.0.11-dev.20230101_win64", want: Executable{v4, windows64()}},
+		{s: "Godot_v4.0-stable_mono_win64", want: Executable{v4Mono, windows64()}},
+	}
 
-// 			if !errors.Is(err, tc.err) {
-// 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
-// 			}
-// 			if got != tc.want {
-// 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
-// 			}
-// 		})
-// 	}
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.s), func(t *testing.T) {
+			got, err := Parse(tc.s)
 
-// }
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+			}
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+
+}

@@ -1,137 +1,137 @@
 package executable
 
-// import (
-// 	"errors"
-// 	"fmt"
-// 	"testing"
+import (
+	"fmt"
+	"testing"
 
-// 	"github.com/coffeebeats/gdenv/pkg/godot"
-// )
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
+)
 
-// /* -------------------------- Test: Executable.Name ------------------------- */
+/* -------------------------- Test: Executable.Name ------------------------- */
 
-// func TestExecutableName(t *testing.T) {
-// 	var (
-// 		v3     = godot.NewVersionWithLabel(3, 6, 0, "beta1")
-// 		v4     = godot.NewVersion(4, 0, 0)
-// 		v4Mono = godot.NewVersionWithLabel(4, 0, 0, "stable_mono")
-// 		v5     = godot.NewVersionWithLabel(4, 0, 0, "rc4")
-// 	)
+func TestExecutableName(t *testing.T) {
+	tests := []struct {
+		platform platform.Platform
+		version  string
+		want     string
+		err      error
+	}{
+		// Invalid inputs
+		{platform: platform.Platform{}, want: ""},
+		{platform: platform.Platform{OS: platform.Linux}, want: ""},
+		{platform: linux64(), want: ""},
 
-// 	var (
-// 		linuxAmd64     = godot.MustParsePlatform("linux.x86_64")
-// 		linuxArm64     = godot.MustParsePlatform("linux.x86_64")
-// 		linuxI386      = godot.MustParsePlatform("linux.x86_64")
-// 		linuxUniversal = godot.MustParsePlatform("linux.x86_64")
+		{platform: platform.Platform{OS: platform.Linux, Arch: platform.Universal}, version: "4.0", want: ""},
 
-// 		macOSAmd64     = godot.MustParsePlatform("osx.64")
-// 		macOSArm64     = godot.MustParsePlatform("osx.arm64")
-// 		macOSI386      = godot.MustParsePlatform("linux.x86_64")
-// 		macOSUniversal = godot.MustParsePlatform("linux.x86_64")
+		{platform: linux64(), version: "2.0", want: ""},
+		{platform: macOSX86_64(), version: "2.0", want: ""},
+		{platform: windows64(), version: "2.0", want: ""},
 
-// 		windowsAmd64     = godot.MustParsePlatform("linux.x86_64")
-// 		windowsArm64     = godot.MustParsePlatform("linux.x86_64")
-// 		windowsI386      = godot.MustParsePlatform("linux.x86_64")
-// 		windowsUniversal = godot.MustParsePlatform("linux.x86_64")
-// 	)
+		// Valid inputs - Linux
 
-// 	tests := []struct {
-// 		platform godot.Platform
-// 		version  godot.Version
-// 		want     string
-// 	}{
-// 		// Invalid inputs
-// 		{godot.Platform{}, godot.Version{}, ""},
+		// v3.6-beta1
+		{platform: linux32(), version: "3.6-beta1", want: "Godot_v3.6-beta1_x11.32"},
+		{platform: linux64(), version: "3.6-beta1", want: "Godot_v3.6-beta1_x11.64"},
 
-// 		// Valid inputs - Linux
+		// v4.0
+		{platform: linux32(), version: "4.0", want: "Godot_v4.0-stable_linux.x86_32"},
+		{platform: linux64(), version: "4.0", want: "Godot_v4.0-stable_linux.x86_64"},
 
-// 		// v3.6-beta1
-// 		{platform: linuxI386, version: v3, want: "Godot_v3.6-beta1_x11.32"},
-// 		{platform: linuxAmd64, version: v3, want: "Godot_v3.6-beta1_x11.64"},
-// 		{platform: linuxArm64, version: v3, want: ""},
-// 		{platform: linuxUniversal, version: v3, want: ""},
+		// v4.0-stable_mono
+		{platform: linux32(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_linux_x86_32"},
+		{platform: linux64(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_linux_x86_64"},
 
-// 		// v4.0
-// 		{platform: linuxI386, version: v4, want: "Godot_v4.0-stable_linux.x86_32"},
-// 		{platform: linuxAmd64, version: v4, want: "Godot_v4.0-stable_linux.x86_64"},
-// 		{platform: linuxArm64, version: v4, want: ""},
-// 		{platform: linuxUniversal, version: v4, want: ""},
+		// v5.0-rc4
+		{platform: linux32(), version: "5.0-rc4", want: "Godot_v5.0-rc4_linux.x86_32"},
+		{platform: linux64(), version: "5.0-rc4", want: "Godot_v5.0-rc4_linux.x86_64"},
 
-// 		// v4.0-stable_mono
-// 		{platform: linuxI386, version: v4Mono, want: "Godot_v4.0-stable_mono_linux_x86_32"},
-// 		{platform: linuxAmd64, version: v4Mono, want: "Godot_v4.0-stable_mono_linux_x86_64"},
-// 		{platform: linuxArm64, version: v4Mono, want: ""},
-// 		{platform: linuxUniversal, version: v4Mono, want: ""},
+		// Valid inputs - MacOS
 
-// 		// v5.0-rc4
-// 		{platform: linuxI386, version: v5, want: "Godot_v5.0-rc4_linux.x86_32"},
-// 		{platform: linuxAmd64, version: v5, want: "Godot_v5.0-rc4_linux.x86_64"},
-// 		{platform: linuxArm64, version: v5, want: ""},
-// 		{platform: linuxUniversal, version: v5, want: ""},
+		// v3.6-beta1
+		{platform: macOSX86_64(), version: "3.6-beta1", want: "Godot_v3.6-beta1_osx.universal"},
+		{platform: macOSArm64(), version: "3.6-beta1", want: "Godot_v3.6-beta1_osx.universal"},
 
-// 		// Valid inputs - MacOS
+		// v4.0
+		{platform: macOSX86_64(), version: "4.0", want: "Godot_v4.0-stable_macos.universal"},
+		{platform: macOSArm64(), version: "4.0", want: "Godot_v4.0-stable_macos.universal"},
 
-// 		// v3.6-beta1
-// 		{platform: macOSAmd64, version: v3, want: "Godot_v3.6-beta1_osx.universal"},
-// 		{platform: macOSArm64, version: v3, want: "Godot_v3.6-beta1_osx.universal"},
-// 		{platform: godot.Platform{os: macOS, arch: i386}, version: v3, want: ""},
-// 		{platform: macOSUniversal, version: v3, want: ""},
+		// v4.0-stable_mono
+		{platform: macOSX86_64(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_macos.universal"},
+		{platform: macOSArm64(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_macos.universal"},
 
-// 		// v4.0
-// 		{platform: macOSAmd64, version: v4, want: "Godot_v4.0-stable_macos.universal"},
-// 		{platform: macOSArm64, version: v4, want: "Godot_v4.0-stable_macos.universal"},
-// 		{platform: godot.Platform{os: macOS, arch: i386}, version: v4, want: ""},
-// 		{platform: macOSUniversal, version: v4, want: ""},
+		// v5.0-rc4
+		{platform: macOSX86_64(), version: "5.0-rc4", want: "Godot_v5.0-rc4_macos.universal"},
+		{platform: macOSArm64(), version: "5.0-rc4", want: "Godot_v5.0-rc4_macos.universal"},
 
-// 		// v4.0-stable_mono
-// 		{platform: macOSAmd64, version: v4Mono, want: "Godot_v4.0-stable_mono_macos.universal"},
-// 		{platform: macOSArm64, version: v4Mono, want: "Godot_v4.0-stable_mono_macos.universal"},
-// 		{platform: godot.Platform{os: macOS, arch: i386}, version: v4Mono, want: ""},
-// 		{platform: macOSUniversal, version: v4Mono, want: ""},
+		// Valid inputs - Windows
 
-// 		// v5.0-rc4
-// 		{platform: macOSAmd64, version: v5, want: "Godot_v5.0-rc4_macos.universal"},
-// 		{platform: macOSArm64, version: v5, want: "Godot_v5.0-rc4_macos.universal"},
-// 		{platform: godot.Platform{os: macOS, arch: i386}, version: v5, want: ""},
-// 		{platform: macOSUniversal, version: v5, want: ""},
+		// v3.6-beta1
+		{platform: windows32(), version: "3.6-beta1", want: "Godot_v3.6-beta1_win32.exe"},
+		{platform: windows64(), version: "3.6-beta1", want: "Godot_v3.6-beta1_win64.exe"},
 
-// 		// Valid inputs - Windows
+		// v4.0
+		{platform: windows32(), version: "4.0", want: "Godot_v4.0-stable_win32.exe"},
+		{platform: windows64(), version: "4.0", want: "Godot_v4.0-stable_win64.exe"},
 
-// 		// v3.6-beta1
-// 		{platform: godot.Platform{os: windows, arch: i386}, version: v3, want: "Godot_v3.6-beta1_win32.exe"},
-// 		{platform: godot.Platform{os: windows, arch: amd64}, version: v3, want: "Godot_v3.6-beta1_win64.exe"},
-// 		{platform: godot.Platform{os: windows, arch: arm64}, version: v3, want: ""},
-// 		{platform: godot.Platform{os: windows, arch: universal}, version: v3, want: ""},
+		// v4.0-stable_mono
+		{platform: windows32(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_win32.exe"},
+		{platform: windows64(), version: "4.0-stable_mono", want: "Godot_v4.0-stable_mono_win64.exe"},
 
-// 		// v4.0
-// 		{platform: godot.Platform{os: windows, arch: i386}, version: v4, want: "Godot_v4.0-stable_win32.exe"},
-// 		{platform: godot.Platform{os: windows, arch: amd64}, version: v4, want: "Godot_v4.0-stable_win64.exe"},
-// 		{platform: godot.Platform{os: windows, arch: arm64}, version: v4, want: ""},
-// 		{platform: godot.Platform{os: windows, arch: universal}, version: v4, want: ""},
+		// v5.0-rc4
+		{platform: windows32(), version: "5.0-rc4", want: "Godot_v5.0-rc4_win32.exe"},
+		{platform: windows64(), version: "5.0-rc4", want: "Godot_v5.0-rc4_win64.exe"},
+	}
 
-// 		// v4.0-stable_mono
-// 		{platform: godot.Platform{os: windows, arch: i386}, version: v4Mono, want: "Godot_v4.0-stable_mono_win32.exe"},
-// 		{platform: godot.Platform{os: windows, arch: amd64}, version: v4Mono, want: "Godot_v4.0-stable_mono_win64.exe"},
-// 		{platform: godot.Platform{os: windows, arch: arm64}, version: v4Mono, want: ""},
-// 		{platform: godot.Platform{os: windows, arch: universal}, version: v4Mono, want: ""},
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-%v-%s", i, tc.platform, tc.version), func(t *testing.T) {
+			var v version.Version
+			if tc.version != "" {
+				v = version.MustParse(tc.version)
+			}
 
-// 		// v5.0-rc4
-// 		{platform: godot.Platform{os: windows, arch: i386}, version: v5, want: "Godot_v5.0-rc4_win32.exe"},
-// 		{platform: godot.Platform{os: windows, arch: amd64}, version: v5, want: "Godot_v5.0-rc4_win64.exe"},
-// 		{platform: godot.Platform{os: windows, arch: arm64}, version: v5, want: ""},
-// 		{platform: godot.Platform{os: windows, arch: universal}, version: v5, want: ""},
-// 	}
+			got := Executable{v, tc.platform}.Name()
 
-// 	for _, tc := range tests {
-// 		t.Run(fmt.Sprintf("%v-%s", tc.p, tc.v), func(t *testing.T) {
-// 			got, err := Executable{tc.p, tc.v}.Name()
+			if got != tc.want {
+				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
 
-// 			if !errors.Is(err, tc.err) {
-// 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
-// 			}
-// 			if got != tc.want {
-// 				t.Fatalf("output: got %#v, want %#v", got, tc.want)
-// 			}
-// 		})
-// 	}
-// }
+/* ---------------------- Functions: Platform Constants --------------------- */
+
+// Returns a 'Platform' struct for 32-bit 'Linux'.
+func linux32() platform.Platform {
+	return platform.Platform{Arch: platform.I386, OS: platform.Linux}
+}
+
+// Returns a 'Platform' struct for 64-bit 'Linux'.
+func linux64() platform.Platform {
+	return platform.Platform{Arch: platform.Amd64, OS: platform.Linux}
+}
+
+// Returns a 'Platform' struct for 64-bit ('x86') 'MacOS'.
+func macOSX86_64() platform.Platform {
+	return platform.Platform{Arch: platform.Amd64, OS: platform.MacOS}
+}
+
+// Returns a 'Platform' struct for 64-bit ('ARM') 'MacOS'.
+func macOSArm64() platform.Platform {
+	return platform.Platform{Arch: platform.Arm64, OS: platform.MacOS}
+}
+
+// Returns a 'Platform' struct for a "fat" binary on 'MacOS'.
+func macOSUniversal() platform.Platform {
+	return platform.Platform{Arch: platform.Universal, OS: platform.MacOS}
+}
+
+// Returns a 'Platform' struct for 32-bit 'Windows'.
+func windows32() platform.Platform {
+	return platform.Platform{Arch: platform.I386, OS: platform.Windows}
+}
+
+// Returns a 'Platform' struct for 64-bit 'Windows'.
+func windows64() platform.Platform {
+	return platform.Platform{Arch: platform.Amd64, OS: platform.Windows}
+}
