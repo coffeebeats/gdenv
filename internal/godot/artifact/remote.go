@@ -15,36 +15,35 @@ var (
 /*                               Struct: Remote                               */
 /* -------------------------------------------------------------------------- */
 
-// A wrapper around an 'Artifact' which is hosted on the internet and available
-// for download.
-type Remote[A Artifact] struct {
-	Artifact A
-	URL      *url.URL
+// A wrapper around an 'Artifact' which is hosted on the internet.
+type Remote[T Artifact] struct {
+	Artifact T
+	URL      string
 }
 
-/* --------------------------- Function: NewRemote -------------------------- */
+/* ---------------------------- Method: ParseURL ---------------------------- */
 
-// Returns a new 'Remote' artifact after validating inputs.
-func NewRemote[A Artifact](artifact A, urlRaw string) (Remote[A], error) {
-	var remote Remote[A]
-
-	if urlRaw == "" {
-		return remote, ErrMissingURL
+// Returns a parsed URL or fails if it's invalid.
+func (r Remote[T]) ParseURL() (*url.URL, error) {
+	if r.URL == "" {
+		return nil, ErrMissingURL
 	}
 
 	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
-	urlParsed, err := url.ParseRequestURI(urlRaw)
+	urlParsed, err := url.ParseRequestURI(r.URL)
 	if err != nil {
-		return remote, fmt.Errorf("%w: %s", ErrInvalidURL, urlRaw)
+		return nil, errors.Join(ErrInvalidURL, err)
 	}
 
-	remote.Artifact, remote.URL = artifact, urlParsed
+	if urlParsed.Host == "" || urlParsed.Scheme == "" {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidURL, r.URL)
+	}
 
-	return remote, nil
+	return urlParsed, nil
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
-func (r Remote[A]) Name() string {
+func (r Remote[T]) Name() string {
 	return r.Artifact.Name()
 }

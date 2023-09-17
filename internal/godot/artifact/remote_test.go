@@ -6,33 +6,36 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
 )
 
-/* ----------------------------- Test: NewRemote ---------------------------- */
+/* -------------------------- Test: RemoteParseURL -------------------------- */
 
-func TestNewRemote(t *testing.T) {
+func TestRemoteParseURL(t *testing.T) {
 	tests := []struct {
-		name, url string
-		want      Remote[testArtifact]
-		err       error
+		url  string
+		want *url.URL
+		err  error
 	}{
 		// Invalid inputs
-		{name: "file.zip", url: "", want: Remote[testArtifact]{}, err: ErrMissingURL},
-		{name: "file.zip", url: "://invalid-", want: Remote[testArtifact]{}, err: ErrInvalidURL},
+		{url: "", want: nil, err: ErrMissingURL},
+		{url: "://invalid-", want: nil, err: ErrInvalidURL},
 
 		// Valid inputs
 		{
-			name: "file.zip",
 			url:  "https://example.com",
-			want: Remote[testArtifact]{Artifact: newTestArtifact("file.zip"), URL: mustParseURL(t, "https://example.com")},
+			want: mustParseURL(t, "https://example.com"),
 			err:  nil,
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%s-%s", tc.name, tc.url), func(t *testing.T) {
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-url='%s'", i, tc.url), func(t *testing.T) {
+			r := Remote[artifacttest.Artifact]{Artifact: artifacttest.Artifact{}, URL: tc.url}
+
 			// When: A new asset is created with the specified values.
-			got, err := NewRemote(newTestArtifact(tc.name), tc.url)
+			got, err := r.ParseURL()
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {
@@ -45,20 +48,6 @@ func TestNewRemote(t *testing.T) {
 			}
 		})
 	}
-}
-
-/* -------------------------- Struct: testArtifact -------------------------- */
-
-type testArtifact struct {
-	name string
-}
-
-func newTestArtifact(name string) testArtifact {
-	return testArtifact{name: name}
-}
-
-func (testArtifact) Name() string {
-	return ""
 }
 
 /* ------------------------- Function:  mustParseURL ------------------------ */
