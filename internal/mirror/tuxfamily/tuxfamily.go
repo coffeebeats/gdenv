@@ -8,9 +8,12 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/client"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/mirror"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 const (
@@ -46,61 +49,112 @@ func New() TuxFamily {
 	return TuxFamily{&c}
 }
 
-/* ----------------------------- Impl: Checksum ----------------------------- */
+/* ------------------------------ Impl: Mirror ------------------------------ */
 
-// Returns an 'Asset' to download the checksums file for the specified version
-// from TuxFamily.
-func (m TuxFamily) Checksum(v version.Version) (mirror.Asset, error) {
+func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
+	var a artifact.Remote[executable.Archive]
+
+	if !m.Supports(ex.Version()) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version())
+	}
+
+	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version())
+	if err != nil {
+		return a, err
+	}
+
+	executableArchive := ex.ToArchive()
+
+	urlRaw, err := url.JoinPath(urlVersionDir, executableArchive.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = executableArchive, urlRaw
+
+	return a, nil
+}
+
+func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error) {
+	var a artifact.Remote[checksum.Executable]
+
 	if !m.Supports(v) {
-		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+	}
+
+	checksumsExecutable, err := checksum.NewExecutable(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidSpecification, err)
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
 	if err != nil {
-		return mirror.Asset{}, err
+		return a, err
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, mirror.FilenameChecksums)
+	urlRaw, err := url.JoinPath(urlVersionDir, checksumsExecutable.Name())
 	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
+	a.Artifact, a.URL = checksumsExecutable, urlRaw
+
+	return a, nil
 }
 
-/* ---------------------------- Impl: Executable ---------------------------- */
+func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
+	var a artifact.Remote[source.Archive]
 
-// Returns an 'Asset' to download a Godot executable for the specified version
-// from TuxFamily.
-func (m TuxFamily) Executable(ex godot.Executable) (mirror.Asset, error) {
-	if !m.Supports(ex.Version) {
-		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
 	}
 
-	name, err := ex.Name()
+	urlVersionDir, err := urlTuxFamilyVersionDir(v)
 	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidSpecification, err)
+		return a, err
 	}
 
-	filename := name + ".zip"
+	sourceArchive := source.New(v).ToArchive()
 
-	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version)
+	urlRaw, err := url.JoinPath(urlVersionDir, sourceArchive.Name())
 	if err != nil {
-		return mirror.Asset{}, err
+		return a, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, filename)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
+	a.Artifact, a.URL = sourceArchive, urlRaw
 
-	return mirror.NewAsset(filename, urlRaw)
+	return a, nil
 }
 
-/* -------------------------------- Impl: Has ------------------------------- */
+func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error) {
+	var a artifact.Remote[checksum.Source]
+
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+	}
+
+	checksumsSource, err := checksum.NewSource(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+	}
+
+	urlVersionDir, err := urlTuxFamilyVersionDir(v)
+	if err != nil {
+		return a, err
+	}
+
+	urlRaw, err := url.JoinPath(urlVersionDir, checksumsSource.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = checksumsSource, urlRaw
+
+	return a, nil
+}
 
 // Issues a request to see if the mirror host has the specific version.
-func (m TuxFamily) Has(v version.Version) bool {
+func (m TuxFamily) CheckIfSupports(v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -119,8 +173,6 @@ func (m TuxFamily) Has(v version.Version) bool {
 
 	return exists
 }
-
-/* ----------------------------- Impl: Supports ----------------------------- */
 
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.

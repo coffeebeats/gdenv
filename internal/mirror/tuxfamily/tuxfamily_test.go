@@ -5,37 +5,39 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/mirror"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
-/* ----------------------- Test: TuxFamily.Executable ----------------------- */
+/* ----------------------- TuxFamily.ExecutableArchive ---------------------- */
 
-func TestTuxFamilyExecutable(t *testing.T) {
+func TestTuxFamilyExecutableArchive(t *testing.T) {
 	tests := []struct {
-		ex   godot.Executable
+		ex   executable.Executable
 		name string
 		url  string
 		err  error
 	}{
 		// Invalid inputs
-		{ex: godot.Executable{}, err: mirror.ErrInvalidSpecification},
-		{ex: godot.MustParseExecutable("Godot_v0.0.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
+		{ex: executable.Executable{}, err: mirror.ErrInvalidSpecification},
+		{ex: executable.MustParse("Godot_v0.0.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
 
 		// Valid inputs
 		{
-			ex:   godot.MustParseExecutable("Godot_v4.1.1-stable_mono_linux_x86_64"),
+			ex:   executable.MustParse("Godot_v4.1.1-stable_mono_linux_x86_64"),
 			name: "Godot_v4.1.1-stable_mono_linux_x86_64.zip",
 			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/mono/Godot_v4.1.1-stable_mono_linux_x86_64.zip",
 		},
 		{
-			ex:   godot.MustParseExecutable("Godot_v4.1-stable_linux.x86_64"),
+			ex:   executable.MustParse("Godot_v4.1-stable_linux.x86_64"),
 			name: "Godot_v4.1-stable_linux.x86_64.zip",
 			url:  "https://downloads.tuxfamily.org/godotengine/4.1/Godot_v4.1-stable_linux.x86_64.zip",
 		},
 		{
-			ex:   godot.MustParseExecutable("Godot_v4.0-dev.20220118_win64.exe"),
+			ex:   executable.MustParse("Godot_v4.0-dev.20220118_win64.exe"),
 			name: "Godot_v4.0-dev.20220118_win64.exe.zip",
 			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/Godot_v4.0-dev.20220118_win64.exe.zip",
 		},
@@ -43,13 +45,13 @@ func TestTuxFamilyExecutable(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.ex.String(), func(t *testing.T) {
-			got, err := (&TuxFamily{}).Executable(tc.ex)
+			got, err := (&TuxFamily{}).ExecutableArchive(tc.ex)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
+			want := artifact.Remote[executable.Archive]{Artifact: tc.ex.ToArchive(), URL: tc.url}
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}
@@ -57,42 +59,43 @@ func TestTuxFamilyExecutable(t *testing.T) {
 	}
 }
 
-/* ------------------------ Test: TuxFamily.Checksum ------------------------ */
+/* --------------- Test: TuxFamily.ExecutableArchiveChecksums --------------- */
 
-func TestTuxFamilyChecksum(t *testing.T) {
+func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 	tests := []struct {
-		v    version.Version
-		name string
-		url  string
-		err  error
+		v   version.Version
+		url string
+		err error
 	}{
 		// Valid inputs
 		{
-			v:    version.MustParse("4.1.1-stable"),
-			name: mirror.FilenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/" + mirror.FilenameChecksums,
+			v:   version.MustParse("4.1.1-stable"),
+			url: "https://downloads.tuxfamily.org/godotengine/4.1.1/SHA512-SUMS.txt",
 		},
 		{
-			v:    version.MustParse("4.1-stable"),
-			name: mirror.FilenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1/" + mirror.FilenameChecksums,
+			v:   version.MustParse("4.1-stable"),
+			url: "https://downloads.tuxfamily.org/godotengine/4.1/SHA512-SUMS.txt",
 		},
 		{
-			v:    version.MustParse("4.0-dev.20220118"),
-			name: mirror.FilenameChecksums,
-			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/" + mirror.FilenameChecksums,
+			v:   version.MustParse("4.0-dev.20220118"),
+			url: "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/SHA512-SUMS.txt",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.v.String(), func(t *testing.T) {
-			got, err := (&TuxFamily{}).Checksum(tc.v)
+			got, err := (&TuxFamily{}).ExecutableArchiveChecksums(tc.v)
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
 			}
 
-			want, _ := mirror.NewAsset(tc.name, tc.url) // NOTE: Ignore 'err'; some expected.
+			ex, err := checksum.NewExecutable(tc.v)
+			if err != nil {
+				t.Fatalf("test setup: %v", err)
+			}
+
+			want := artifact.Remote[checksum.Executable]{Artifact: ex, URL: tc.url}
 			if !reflect.DeepEqual(got, want) {
 				t.Fatalf("output: got %#v, want %#v", got, want)
 			}

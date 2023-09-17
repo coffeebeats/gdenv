@@ -4,32 +4,47 @@ import (
 	"io"
 
 	"github.com/coffeebeats/gdenv/internal/client"
-	"github.com/coffeebeats/gdenv/internal/mirror"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/progress"
 )
 
 // Validate at compile-time that 'TuxFamily' implements 'FileDownloader'.
-var _ client.FileDownloader[mirror.Asset] = &TuxFamily{} //nolint:exhaustruct
+var _ client.FileDownloader[artifact.Remote[artifact.Artifact]] = &TuxFamily{} //nolint:exhaustruct
 
 /* ----------------------------- Impl: Download ----------------------------- */
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
-func (m TuxFamily) Download(a mirror.Asset, w ...io.Writer) error {
-	return m.client.Download(a.URL(), w...)
+func (m TuxFamily) Download(a artifact.Remote[artifact.Artifact], w ...io.Writer) error {
+	urlParsed, err := a.ParseURL()
+	if err != nil {
+		return err
+	}
+
+	return m.client.Download(urlParsed, w...)
 }
 
 /* ---------------------------- Impl: DownloadTo ---------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
-func (m TuxFamily) DownloadTo(a mirror.Asset, out string) error {
-	return m.client.DownloadTo(a.URL(), out)
+func (m TuxFamily) DownloadTo(a artifact.Remote[artifact.Artifact], out string) error {
+	urlParsed, err := a.ParseURL()
+	if err != nil {
+		return err
+	}
+
+	return m.client.DownloadTo(urlParsed, out)
 }
 
 /* ---------------------- Impl: DownloadToWithProgress ---------------------- */
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.
-func (m TuxFamily) DownloadToWithProgress(a mirror.Asset, out string, p *progress.Progress) error {
-	return m.client.DownloadToWithProgress(a.URL(), out, p)
+func (m TuxFamily) DownloadToWithProgress(a artifact.Remote[artifact.Artifact], out string, p *progress.Progress) error {
+	urlParsed, err := a.ParseURL()
+	if err != nil {
+		return err
+	}
+
+	return m.client.DownloadToWithProgress(urlParsed, out, p)
 }
