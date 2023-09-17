@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
@@ -32,6 +33,13 @@ var _ artifact.Artifact = Executable{} //nolint:exhaustruct
 
 func New(v version.Version, p platform.Platform) (Executable, error) {
 	return Executable{version: v, platform: p}, nil
+}
+
+/* --------------------------- Function: ToArchive -------------------------- */
+
+// A convenience method which returns a Godot executable archive 'Artifact'.
+func (ex Executable) ToArchive() archive.Zip[Executable] {
+	return archive.Zip[Executable]{Inner: ex}
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
