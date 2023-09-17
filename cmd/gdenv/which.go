@@ -5,8 +5,8 @@ import (
 	"io/fs"
 	"log"
 
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -77,13 +77,17 @@ func which(storePath, pinPath string, p platform.Platform) (string, error) {
 		path = storePath
 	}
 
-	version, err := pin.Read(path)
+	v, err := pin.Read(path)
 	if err != nil {
 		return "", ErrGodotNotFound
 	}
 
 	// Define the target 'Executable'.
-	ex := godot.Executable{Platform: p, Version: version}
+	ex, err := executable.New(v, p)
+	if err != nil {
+		return "", err
+	}
+
 	if !store.Has(storePath, ex) {
 		return "", ErrGodotNotFound
 	}
