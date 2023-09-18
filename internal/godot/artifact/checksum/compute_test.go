@@ -31,6 +31,7 @@ func TestCompute(t *testing.T) {
 			want:     "4f285d0c0cc77286d8731798b7aae2639e28270d4166f40d769cbbdca5230714d848483d364e2f39fe6cb9083c15229b39a33615ebc6d57605f7c43f6906739d",
 			err:      nil,
 		},
+		// TODO: Add a test case for a 'source.Archive'.
 	}
 
 	for i, tc := range tests {

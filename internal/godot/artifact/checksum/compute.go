@@ -15,15 +15,13 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 )
 
-var (
-	ErrUnsupportedArtifact = errors.New("unsupported artifact")
-)
+var ErrUnsupportedArtifact = errors.New("unsupported artifact")
 
 /* -------------------------------------------------------------------------- */
 /*                              Function: Compute                             */
 /* -------------------------------------------------------------------------- */
 
-// Computes and returns the sha-512 checksum of the specified archive.
+// Computes and returns the correct checksum of the specified archive.
 func Compute[T artifact.Artifact, U archive.Archive[T]](d artifact.Local[U]) (string, error) {
 	f, err := os.Open(d.Path)
 	if err != nil {

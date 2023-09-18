@@ -20,6 +20,7 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
 
+// An 'Artifact' representing a Godot executable file.
 type Executable struct {
 	version  version.Version
 	platform platform.Platform

@@ -2,6 +2,7 @@ package archive
 
 import "github.com/coffeebeats/gdenv/internal/godot/artifact"
 
+// An interface representing a compressed 'Artifact' archive.
 type Archive[T artifact.Artifact] interface {
 	artifact.Artifact
 
