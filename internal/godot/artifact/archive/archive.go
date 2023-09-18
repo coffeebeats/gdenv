@@ -14,6 +14,8 @@ type Archive[T artifact.Artifact] interface {
 /*                              Function: Extract                             */
 /* -------------------------------------------------------------------------- */
 
+// Given a downloaded 'Archive', extract the contents and return a local
+// 'Artifact' pointing to it.
 func Extract[T artifact.Artifact](a artifact.Local[Archive[T]], out string) (artifact.Local[T], error) {
 	return a.Artifact.extract(a.Path, out)
 }
