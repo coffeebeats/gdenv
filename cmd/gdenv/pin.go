@@ -78,10 +78,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				}
 
 				// Define the target 'Executable'.
-				ex, err := executable.New(v, p)
-				if err != nil {
-					return fail(err)
-				}
+				ex := executable.New(v, p)
 
 				if err := install(storePath, ex); err != nil {
 					return fail(err)

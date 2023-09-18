@@ -83,10 +83,7 @@ func which(storePath, pinPath string, p platform.Platform) (string, error) {
 	}
 
 	// Define the target 'Executable'.
-	ex, err := executable.New(v, p)
-	if err != nil {
-		return "", err
-	}
+	ex := executable.New(v, p)
 
 	if !store.Has(storePath, ex) {
 		return "", ErrGodotNotFound

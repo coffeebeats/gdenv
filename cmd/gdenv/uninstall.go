@@ -46,10 +46,7 @@ func NewUninstall() *cli.Command {
 				}
 
 				// Define the target 'Executable'.
-				ex, err := executable.New(v, p)
-				if err != nil {
-					return fail(err)
-				}
+				ex := executable.New(v, p)
 
 				if err := uninstall(storePath, ex); err != nil {
 					return fail(err)

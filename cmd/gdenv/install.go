@@ -55,10 +55,7 @@ func NewInstall() *cli.Command {
 			}
 
 			// Define the target 'Executable'.
-			ex, err := executable.New(v, p)
-			if err != nil {
-				return fail(err)
-			}
+			ex := executable.New(v, p)
 
 			if store.Has(storePath, ex) && !c.Bool("force") {
 				return nil

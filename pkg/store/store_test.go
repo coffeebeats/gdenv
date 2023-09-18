@@ -82,10 +82,7 @@ func TestAdd(t *testing.T) {
 			}
 
 			// Define the 'Executable' for the test.
-			ex, err := executable.New(v, p)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
-			}
+			ex := executable.New(v, p)
 
 			// Create the tool to be moved.
 			if err := os.WriteFile(tool, []byte(""), os.ModePerm); err != nil {
@@ -148,10 +145,7 @@ func TestRemove(t *testing.T) {
 			}
 
 			// Define the 'Executable' for the test.
-			ex, err := executable.New(v, p)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
-			}
+			ex := executable.New(v, p)
 
 			// Create the tool to be moved.
 			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), ex.Name())

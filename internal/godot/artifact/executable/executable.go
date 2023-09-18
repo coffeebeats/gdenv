@@ -31,8 +31,12 @@ var _ artifact.Artifact = Executable{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 
-func New(v version.Version, p platform.Platform) (Executable, error) {
-	return Executable{version: v, platform: p}, nil
+// Creates a new 'Executable' struct with the specified values.
+//
+// NOTE: This method is rather pointless, but the 'Versioned' and 'Platformed'
+// interfaces conflict with the desired field names.
+func New(v version.Version, p platform.Platform) Executable {
+	return Executable{version: v, platform: p}
 }
 
 /* --------------------------- Function: ToArchive -------------------------- */
