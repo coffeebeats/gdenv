@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.3 (2023-09-18)
+
+## What's Changed
+* feat(internal/godot/artifact,pkg/godot): create new `artifact` package; remove `pkg/godot` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/69
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.7.0 to 2.8.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/68
+* chore(deps): bump goreleaser/goreleaser-action from 4 to 5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/67
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.3.2...v0.3.3
+
 ## 0.3.2 (2023-09-16)
 
 ## What's Changed
