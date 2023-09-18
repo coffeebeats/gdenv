@@ -93,7 +93,7 @@ func TestExecutableName(t *testing.T) {
 			got := Executable{v, tc.platform}.Name()
 
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

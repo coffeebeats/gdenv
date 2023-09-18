@@ -37,11 +37,11 @@ func TestNew(t *testing.T) {
 
 			// Then: It matches the expected value.
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 
 			}
 			if !reflect.DeepEqual(got, want) {
-				t.Fatalf("output: got %#v, want %#v", got, want)
+				t.Errorf("output: got %#v, want %#v", got, want)
 			}
 		})
 	}
@@ -66,7 +66,7 @@ func TestProgressPercentage(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
 			p, err := New(tc.size)
 			if !errors.Is(err, nil) {
-				t.Fatalf("err: got %#v, want %#v", err, nil)
+				t.Errorf("err: got %#v, want %#v", err, nil)
 
 			}
 
@@ -76,7 +76,7 @@ func TestProgressPercentage(t *testing.T) {
 			// When: The current progress percentage is collected.
 			// Then: It matches the expected value of 'current' / 'total'.
 			if got := p.Percentage(); got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
@@ -107,12 +107,12 @@ func TestProgressReset(t *testing.T) {
 
 			// Then: The 'current' progress is reset to '0'.
 			if got := p.current.Load(); got != 0 {
-				t.Fatalf("output: got %#v, want %#v", got, 0)
+				t.Errorf("output: got %#v, want %#v", got, 0)
 			}
 
 			// Then: The 'total' value is unchanged.
 			if got := p.total.Load(); got != tc.total {
-				t.Fatalf("output: got %#v, want %#v", got, tc.total)
+				t.Errorf("output: got %#v, want %#v", got, tc.total)
 			}
 		})
 	}
@@ -149,17 +149,17 @@ func TestProgressTotal(t *testing.T) {
 
 			// Then: An error is returned if the new value is invalid.
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// Then: The 'current' progress is unchanged.
 			if got := p.current.Load(); got != tc.current {
-				t.Fatalf("output: got %#v, want %#v", got, tc.current)
+				t.Errorf("output: got %#v, want %#v", got, tc.current)
 			}
 
 			// Then: The 'total' field is updated to the desired value.
 			if got := p.total.Load(); got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
@@ -184,19 +184,19 @@ func TestProgressAdd(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
 			p, err := New(tc.size)
 			if !errors.Is(err, nil) {
-				t.Fatalf("err: got %#v, want %#v", err, nil)
+				t.Errorf("err: got %#v, want %#v", err, nil)
 
 			}
 
 			// When: The specified progress amount is added.
 			// Then: It returns the expected new value.
 			if got := p.add(uint64(tc.add)); got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 
 			// Then: The reported progress reflects the added value.
 			if got := p.Percentage(); got != tc.percentage {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

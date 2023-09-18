@@ -19,7 +19,7 @@ func TestInit(t *testing.T) {
 
 	err := Init(tmp)
 	if err != nil {
-		t.Fatalf("err: %v", err)
+		t.Errorf("err: %v", err)
 	}
 
 	files, err := os.ReadDir(tmp)
@@ -34,13 +34,13 @@ func TestInit(t *testing.T) {
 
 	for _, d := range []string{storeDirBin, storeDirGodot} {
 		if isDir, ok := got[d]; !ok || !isDir {
-			t.Fatalf("output: missing directory %s", d)
+			t.Errorf("output: missing directory %s", d)
 		}
 	}
 
 	for _, d := range []string{storeFileLayout} {
 		if isDir, ok := got[d]; !ok || isDir {
-			t.Fatalf("output: missing file %s", d)
+			t.Errorf("output: missing file %s", d)
 		}
 	}
 }
@@ -69,7 +69,7 @@ func TestAdd(t *testing.T) {
 
 			err := Init(store)
 			if err != nil {
-				t.Fatalf("err: %v", err)
+				t.Errorf("err: %v", err)
 			}
 
 			// Define the 'Version' for the test.
@@ -91,18 +91,18 @@ func TestAdd(t *testing.T) {
 
 			// Invoke the 'Add' function.
 			if err := Add(store, tool, ex); !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// Verify the tool exists.
 			toolWant := filepath.Join(store, storeDirGodot, v.String(), ex.Name())
 			info, err := os.Stat(toolWant)
 			if err != nil {
-				t.Fatalf("output: %s", err)
+				t.Errorf("output: %s", err)
 			}
 
 			if !info.Mode().IsRegular() {
-				t.Fatalf("output is not a file: %s", toolWant)
+				t.Errorf("output is not a file: %s", toolWant)
 			}
 		})
 	}
@@ -132,7 +132,7 @@ func TestRemove(t *testing.T) {
 
 			err := Init(tmp)
 			if err != nil {
-				t.Fatalf("err: %v", err)
+				t.Errorf("err: %v", err)
 			}
 
 			// Define the 'Version' for the test.
@@ -158,17 +158,17 @@ func TestRemove(t *testing.T) {
 
 			// Invoke the 'Remove' function.
 			if err := Remove(tmp, ex); !errors.Is(err, nil) {
-				t.Fatalf("err: got %#v, want %#v", err, nil)
+				t.Errorf("err: got %#v, want %#v", err, nil)
 			}
 
 			// Verify the tool is removed, along with the parent directory.
 			info, err := os.Stat(filepath.Dir(toolWant))
 			if !errors.Is(err, fs.ErrNotExist) {
-				t.Fatalf("output: %s", err)
+				t.Errorf("output: %s", err)
 			}
 
 			if info != nil && info.Mode().IsDir() {
-				t.Fatalf("output is not removed: %s", toolWant)
+				t.Errorf("output is not removed: %s", toolWant)
 			}
 		})
 	}

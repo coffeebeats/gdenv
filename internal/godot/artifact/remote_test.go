@@ -39,12 +39,12 @@ func TestRemoteParseURL(t *testing.T) {
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// Then: The resulting 'Asset' matches expectations.
 			if !reflect.DeepEqual(got, tc.want) {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

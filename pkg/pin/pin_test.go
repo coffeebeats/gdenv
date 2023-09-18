@@ -50,11 +50,11 @@ func TestRead(t *testing.T) {
 
 			got, err := Read(path)
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %v, want %v", err, tc.err)
+				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
@@ -98,7 +98,7 @@ func TestResolve(t *testing.T) {
 
 			got, err := Resolve(path)
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %v, want %v", err, tc.err)
+				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
 			got, err = filepath.Rel(tmp, got)
@@ -107,7 +107,7 @@ func TestResolve(t *testing.T) {
 			}
 
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
@@ -148,11 +148,11 @@ func TestRemove(t *testing.T) {
 
 			err = Remove(path)
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %v, want %v", err, tc.err)
+				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
 			if _, err := os.Stat(pin); !errors.Is(err, fs.ErrNotExist) {
-				t.Fatalf("err: %v", err)
+				t.Errorf("err: %v", err)
 			}
 		})
 	}
@@ -187,7 +187,7 @@ func TestWrite(t *testing.T) {
 
 			err = Write(v, p)
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %v, want %v", err, tc.err)
+				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
 			p, err = Clean(p)
@@ -201,7 +201,7 @@ func TestWrite(t *testing.T) {
 			}
 
 			if c := string((contents)); c != tc.want {
-				t.Fatalf("contents: got %v, want %v", c, tc.want)
+				t.Errorf("contents: got %v, want %v", c, tc.want)
 			}
 		})
 	}

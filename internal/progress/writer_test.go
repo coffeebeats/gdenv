@@ -11,7 +11,7 @@ func TestWriter(t *testing.T) {
 	// Given: A 'Progress' struct to report progress through.
 	p, err := New(4)
 	if err != nil {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+		t.Errorf("err: got %#v, want %#v", err, nil)
 
 	}
 
@@ -45,7 +45,7 @@ func TestWriter(t *testing.T) {
 	for i := range [4]int{} {
 		// Given: The correct initial progress value.
 		if got, want := p.Percentage(), float64(i)/float64(4); got != want {
-			t.Fatalf("output: got %#v, want %#v", got, want)
+			t.Errorf("output: got %#v, want %#v", got, want)
 		}
 
 		// When: A single byte is written in another thread.
@@ -55,10 +55,10 @@ func TestWriter(t *testing.T) {
 		case <-wrote:
 			// Then: The 'Progress' value in this thread updates accordingly.
 			if got, want := p.Percentage(), float64(i+1)/float64(4); got != want {
-				t.Fatalf("output: got %#v, want %#v", got, want)
+				t.Errorf("output: got %#v, want %#v", got, want)
 			}
 		case err := <-errs:
-			t.Fatalf("err: got %#v, want %#v", err, nil)
+			t.Errorf("err: got %#v, want %#v", err, nil)
 		}
 	}
 
