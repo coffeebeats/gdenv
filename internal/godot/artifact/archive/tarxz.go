@@ -34,7 +34,7 @@ func (a TarXZ[T]) Contents() T { //nolint:ireturn
 }
 
 // Extracts the archive to the specified file path.
-func (a TarXZ[T]) extract(path, out string) (artifact.Local[T], error) {
+func (a TarXZ[T]) extract(_, out string) (artifact.Local[T], error) { //nolint:unused
 	// TODO: Implement the archive extraction.
 	return artifact.Local[T]{Artifact: a.Inner, Path: out}, nil
 }
