@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -72,13 +72,13 @@ func NewPin() *cli.Command { //nolint:funlen
 				}
 
 				// Define the host 'Platform'.
-				platform, err := detectPlatform()
+				p, err := detectPlatform()
 				if err != nil {
 					return fail(err)
 				}
 
 				// Define the target 'Executable'.
-				ex := godot.Executable{Platform: platform, Version: v}
+				ex := executable.New(v, p)
 
 				if err := install(storePath, ex); err != nil {
 					return fail(err)

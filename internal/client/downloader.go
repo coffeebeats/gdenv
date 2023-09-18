@@ -7,11 +7,11 @@ import (
 )
 
 /* -------------------------------------------------------------------------- */
-/*                          Interface: FileDownloader                         */
+/*                            Interface: Downloader                           */
 /* -------------------------------------------------------------------------- */
 
 // An interface specifying simple methods for downloading files.
-type FileDownloader[S any] interface {
+type Downloader[S any] interface {
 	Download(source S, w ...io.Writer) error
 	DownloadTo(source S, out string) error
 	DownloadToWithProgress(source S, out string, p *progress.Progress) error

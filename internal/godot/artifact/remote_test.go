@@ -1,4 +1,4 @@
-package mirror
+package artifact
 
 import (
 	"errors"
@@ -6,34 +6,36 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
 )
 
-/* ----------------------------- Test: NewAsset ----------------------------- */
+/* -------------------------- Test: RemoteParseURL -------------------------- */
 
-func TestNewAsset(t *testing.T) {
+func TestRemoteParseURL(t *testing.T) {
 	tests := []struct {
-		name, url string
-		want      Asset
-		err       error
+		url  string
+		want *url.URL
+		err  error
 	}{
 		// Invalid inputs
-		{name: "", url: "https://example.com", want: Asset{}, err: ErrMissingName},
-		{name: "file.zip", url: "", want: Asset{}, err: ErrMissingURL},
-		{name: "file.zip", url: "://invalid-", want: Asset{}, err: ErrInvalidURL},
+		{url: "", want: nil, err: ErrMissingURL},
+		{url: "://invalid-", want: nil, err: ErrInvalidURL},
 
 		// Valid inputs
 		{
-			name: "file.zip",
 			url:  "https://example.com",
-			want: Asset{name: "file.zip", url: mustParseURL(t, "https://example.com")},
+			want: mustParseURL(t, "https://example.com"),
 			err:  nil,
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%s-%s", tc.name, tc.url), func(t *testing.T) {
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-url='%s'", i, tc.url), func(t *testing.T) {
+			r := Remote[artifacttest.Artifact]{Artifact: artifacttest.Artifact{}, URL: tc.url}
+
 			// When: A new asset is created with the specified values.
-			got, err := NewAsset(tc.name, tc.url)
+			got, err := r.ParseURL()
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {

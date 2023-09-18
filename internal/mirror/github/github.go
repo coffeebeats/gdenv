@@ -6,9 +6,12 @@ import (
 	"net/url"
 
 	"github.com/coffeebeats/gdenv/internal/client"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/mirror"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 const (
@@ -40,61 +43,10 @@ func New() GitHub {
 	return GitHub{&c}
 }
 
-/* ----------------------------- Impl: Checksum ----------------------------- */
-
-// Returns an 'Asset' to download the checksums file for the specified version
-// from GitHub.
-func (m GitHub) Checksum(v version.Version) (mirror.Asset, error) {
-	if !m.Supports(v) {
-		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
-	}
-
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	urlRaw, err := url.JoinPath(urlRelease, mirror.FilenameChecksums)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(mirror.FilenameChecksums, urlRaw)
-}
-
-/* ---------------------------- Impl: Executable ---------------------------- */
-
-// Returns an 'Asset' to download a Godot executable for the specified version
-// from GitHub.
-func (m GitHub) Executable(ex godot.Executable) (mirror.Asset, error) {
-	if !m.Supports(ex.Version) {
-		return mirror.Asset{}, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version.String())
-	}
-
-	name, err := ex.Name()
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidSpecification, err)
-	}
-
-	urlRelease, err := urlGitHubRelease(ex.Version)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	filename := name + ".zip"
-
-	urlRaw, err := url.JoinPath(urlRelease, filename)
-	if err != nil {
-		return mirror.Asset{}, errors.Join(mirror.ErrInvalidURL, err)
-	}
-
-	return mirror.NewAsset(filename, urlRaw)
-}
-
-/* -------------------------------- Impl: Has ------------------------------- */
+/* ------------------------------ Impl: Mirror ------------------------------ */
 
 // Issues a request to see if the mirror host has the specific version.
-func (m GitHub) Has(v version.Version) bool {
+func (m GitHub) CheckIfSupports(v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -114,12 +66,112 @@ func (m GitHub) Has(v version.Version) bool {
 	return exists
 }
 
-/* ----------------------------- Impl: Supports ----------------------------- */
+func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
+	var a artifact.Remote[executable.Archive]
+
+	if !m.Supports(ex.Version()) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version())
+	}
+
+	urlRelease, err := urlGitHubRelease(ex.Version())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	executableArchive := ex.ToArchive()
+
+	urlRaw, err := url.JoinPath(urlRelease, executableArchive.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = executableArchive, urlRaw
+
+	return a, nil
+}
+
+func (m GitHub) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error) {
+	var a artifact.Remote[checksum.Executable]
+
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+	}
+
+	urlRelease, err := urlGitHubRelease(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	checksumsExecutable, err := checksum.NewExecutable(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+	}
+
+	urlRaw, err := url.JoinPath(urlRelease, checksumsExecutable.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = checksumsExecutable, urlRaw
+
+	return a, nil
+}
+
+func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
+	var a artifact.Remote[source.Archive]
+
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v)
+	}
+
+	urlRelease, err := urlGitHubRelease(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	sourceArchive := source.New(v).ToArchive()
+
+	urlRaw, err := url.JoinPath(urlRelease, sourceArchive.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = sourceArchive, urlRaw
+
+	return a, nil
+}
+
+func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error) {
+	var a artifact.Remote[checksum.Source]
+
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+	}
+
+	urlRelease, err := urlGitHubRelease(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	checksumsSource, err := checksum.NewSource(v)
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+	}
+
+	urlRaw, err := url.JoinPath(urlRelease, checksumsSource.Name())
+	if err != nil {
+		return a, errors.Join(mirror.ErrInvalidURL, err)
+	}
+
+	a.Artifact, a.URL = checksumsSource, urlRaw
+
+	return a, nil
+}
 
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'Has' method.
+// use the 'CheckIfSupports' method.
 func (m GitHub) Supports(v version.Version) bool {
 	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0

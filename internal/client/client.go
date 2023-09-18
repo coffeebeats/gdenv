@@ -39,8 +39,8 @@ type Client struct {
 	restyClient *resty.Client
 }
 
-// Validate at compile-time that 'Client' implements 'FileDownloader'.
-var _ FileDownloader[*url.URL] = &Client{} //nolint:exhaustruct
+// Validate at compile-time that 'Client' implements 'Downloader'.
+var _ Downloader[*url.URL] = &Client{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 

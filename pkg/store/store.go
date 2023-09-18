@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/pkg/godot"
 )
 
 const storeDirBin = "bin"
@@ -71,7 +71,7 @@ func InitAtPath() (string, error) {
 /* ------------------------------ Function: Add ----------------------------- */
 
 // Move the specified file into the store for the specified version.
-func Add(store, file string, ex godot.Executable) error {
+func Add(store, file string, ex executable.Executable) error {
 	store, err := Clean(store)
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func Add(store, file string, ex godot.Executable) error {
 /* ------------------------------ Function: Has ----------------------------- */
 
 // Return whether the store has the specified version cached.
-func Has(store string, ex godot.Executable) bool {
+func Has(store string, ex executable.Executable) bool {
 	store, err := Clean(store)
 	if err != nil {
 		return false
@@ -123,7 +123,7 @@ func Has(store string, ex godot.Executable) bool {
 /* ---------------------------- Function: Remove ---------------------------- */
 
 // Removes the specified version from the store.
-func Remove(store string, ex godot.Executable) error {
+func Remove(store string, ex executable.Executable) error {
 	store, err := Clean(store)
 	if err != nil {
 		return err
@@ -167,24 +167,19 @@ func Remove(store string, ex godot.Executable) error {
 // Returns the full path to the tool in the store.
 //
 // NOTE: This does *not* mean the tool exists.
-func ToolPath(store string, ex godot.Executable) (string, error) {
+func ToolPath(store string, ex executable.Executable) (string, error) {
 	store, err := Clean(store)
 	if err != nil {
 		return "", err
 	}
 
-	name, err := ex.Name()
-	if err != nil {
-		return "", errors.Join(ErrInvalidSpecification, err)
-	}
-
-	return filepath.Join(store, storeDirGodot, ex.Version.String(), name), nil
+	return filepath.Join(store, storeDirGodot, ex.Version().String(), ex.Name()), nil
 }
 
 /* --------------------------- Function: Versions --------------------------- */
 
 // Returns a list of cached Godot executables.
-func Executables(store string) ([]godot.Executable, error) {
+func Executables(store string) ([]executable.Executable, error) {
 	store, err := Clean(store)
 	if err != nil {
 		return nil, err
@@ -203,7 +198,7 @@ func Executables(store string) ([]godot.Executable, error) {
 		return nil, fmt.Errorf("%w: '%s'", err, pathCache)
 	}
 
-	out := make([]godot.Executable, 0)
+	out := make([]executable.Executable, 0)
 
 	for _, dirVersion := range versions {
 		v, err := version.Parse(dirVersion.Name())
@@ -227,7 +222,7 @@ func Executables(store string) ([]godot.Executable, error) {
 			}
 
 			// Validate that executables are found under the correct directory.
-			if ex.Version != v {
+			if ex.Version() != v {
 				return out, fmt.Errorf("%w: '%s'", ErrUnexpectedLayout, ex)
 			}
 		}
@@ -241,8 +236,8 @@ func Executables(store string) ([]godot.Executable, error) {
 /* ---------------------- Function: collectExecutables ---------------------- */
 
 // Collects the set of 'Executable' files found under the specified directory.
-func collectExecutables(path string) ([]godot.Executable, error) {
-	out := make([]godot.Executable, 0)
+func collectExecutables(path string) ([]executable.Executable, error) {
+	out := make([]executable.Executable, 0)
 
 	executables, err := os.ReadDir(path)
 	if err != nil {
@@ -250,7 +245,7 @@ func collectExecutables(path string) ([]godot.Executable, error) {
 	}
 
 	for _, file := range executables {
-		ex, err := godot.ParseExecutable(file.Name())
+		ex, err := executable.Parse(file.Name())
 		if err != nil {
 			return nil, errors.Join(ErrInvalidSpecification, err)
 		}
