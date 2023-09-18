@@ -16,10 +16,9 @@ import (
 
 func TestTuxFamilyExecutableArchive(t *testing.T) {
 	tests := []struct {
-		ex   executable.Executable
-		name string
-		url  string
-		err  error
+		ex        executable.Executable
+		name, url string
+		err       error
 	}{
 		// Invalid inputs
 		{ex: executable.Executable{}, err: mirror.ErrInvalidSpecification},
@@ -48,12 +47,14 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 			got, err := (&TuxFamily{}).ExecutableArchive(tc.ex)
 
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Fatalf("err: got %v, want %v", err, tc.err)
 			}
 
-			want := artifact.Remote[executable.Archive]{Artifact: tc.ex.ToArchive(), URL: tc.url}
-			if !reflect.DeepEqual(got, want) {
-				t.Fatalf("output: got %#v, want %#v", got, want)
+			if got := got.Name(); got != tc.name {
+				t.Fatalf("output: got %v, want %v", got, tc.name)
+			}
+			if got := got.URL; got != tc.url {
+				t.Fatalf("output: got %v, want %v", got, tc.url)
 			}
 		})
 	}
@@ -67,6 +68,10 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 		url string
 		err error
 	}{
+		// Invalid inputs
+		{v: version.Version{}, err: mirror.ErrInvalidSpecification},
+		{v: version.MustParse("v0.0.0"), err: mirror.ErrInvalidSpecification},
+
 		// Valid inputs
 		{
 			v:   version.MustParse("4.1.1-stable"),
@@ -88,6 +93,11 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 
 			if !errors.Is(err, tc.err) {
 				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+			}
+
+			// The test setup below will fail for invalid inputs.
+			if tc.url == "" {
+				return
 			}
 
 			ex, err := checksum.NewExecutable(tc.v)

@@ -24,6 +24,8 @@ const (
 )
 
 var (
+	versionTuxFamilyMinSupported = version.MustParse("v1.1") //nolint:gochecknoglobals
+
 	// This expression matches all Godot v4.0 "pre-alpha" versions which use a
 	// release label similar to 'dev.20211015'. This expressions has been tested
 	// manually.
@@ -50,6 +52,27 @@ func New() TuxFamily {
 }
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
+
+// Issues a request to see if the mirror host has the specific version.
+func (m TuxFamily) CheckIfSupports(v version.Version) bool {
+	if !m.Supports(v) {
+		return false
+	}
+
+	// Rather than maintaining a separate source of truth, issue a HEAD request
+	// to test whether the version exists.
+	urlVersionDir, err := urlTuxFamilyVersionDir(v)
+	if err != nil {
+		return false
+	}
+
+	exists, err := m.client.Exists(urlVersionDir)
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
 
 func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
 	var a artifact.Remote[executable.Archive]
@@ -153,34 +176,13 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 	return a, nil
 }
 
-// Issues a request to see if the mirror host has the specific version.
-func (m TuxFamily) CheckIfSupports(v version.Version) bool {
-	if !m.Supports(v) {
-		return false
-	}
-
-	// Rather than maintaining a separate source of truth, issue a HEAD request
-	// to test whether the version exists.
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return false
-	}
-
-	exists, err := m.client.Exists(urlVersionDir)
-	if err != nil {
-		return false
-	}
-
-	return exists
-}
-
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'Has' method.
-func (m TuxFamily) Supports(_ version.Version) bool {
+// use the 'CheckIfSupports' method.
+func (m TuxFamily) Supports(v version.Version) bool {
 	// TuxFamily seems to contain all published releases.
-	return true
+	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0
 }
 
 /* -------------------- Function: urlTuxFamilyVersionDir -------------------- */
