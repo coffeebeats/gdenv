@@ -18,7 +18,12 @@ type TarXZ[T artifact.Artifact] struct {
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 func (a TarXZ[T]) Name() string {
-	return a.Inner.Name() + extensionTarXZ
+	name := a.Inner.Name()
+	if name != "" {
+		name += extensionTarXZ
+	}
+
+	return name
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */

@@ -18,7 +18,12 @@ type Zip[T artifact.Artifact] struct {
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 func (a Zip[T]) Name() string {
-	return a.Inner.Name() + extensionZip
+	name := a.Inner.Name()
+	if name != "" {
+		name += extensionZip
+	}
+
+	return name
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */
