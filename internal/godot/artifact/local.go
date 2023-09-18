@@ -7,6 +7,8 @@ import (
 
 var ErrMissingPath = errors.New("missing path")
 
+type Downloaded = Local[Artifact]
+
 /* -------------------------------------------------------------------------- */
 /*                                Struct: Local                               */
 /* -------------------------------------------------------------------------- */
