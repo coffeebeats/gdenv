@@ -44,10 +44,10 @@ func TestParseArch(t *testing.T) {
 			got, err := ParseArch(tc.s)
 
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

@@ -23,7 +23,7 @@ func TestSourceName(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("%d-'%s'", i, tc.version), func(t *testing.T) {
 			if got := (Source{tc.version}).Name(); got != tc.want {
-				t.Fatalf("output: got %v, want %v", got, tc.want)
+				t.Errorf("output: got %v, want %v", got, tc.want)
 			}
 		})
 	}

@@ -44,7 +44,7 @@ func TestVersionNormal(t *testing.T) {
 			got := tc.v.Normal()
 
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}
@@ -90,7 +90,7 @@ func TestVersionString(t *testing.T) {
 			got := tc.v.String()
 
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

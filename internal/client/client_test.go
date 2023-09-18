@@ -44,7 +44,7 @@ func TestClientDownload(t *testing.T) {
 
 	// When: The file is downloaded.
 	if err := c.Download(u, f); err != nil {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
 	// Then: The target file should have the correct contents.
@@ -53,7 +53,7 @@ func TestClientDownload(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 	if string(got) != want {
-		t.Fatalf("output: got %#v, want %#v", got, want)
+		t.Errorf("output: got %#v, want %#v", got, want)
 	}
 }
 
@@ -85,7 +85,7 @@ func TestClientDownloadTo(t *testing.T) {
 
 	// When: The file is downloaded.
 	if err := c.DownloadTo(u, f); err != nil {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
 	// Then: The target file should have the correct contents.
@@ -94,7 +94,7 @@ func TestClientDownloadTo(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 	if string(got) != want {
-		t.Fatalf("output: got %#v, want %#v", got, want)
+		t.Errorf("output: got %#v, want %#v", got, want)
 	}
 }
 
@@ -132,7 +132,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 
 	// When: The file is downloaded.
 	if err := c.DownloadToWithProgress(u, f, p); err != nil {
-		t.Fatalf("err: got %#v, want %#v", err, nil)
+		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
 	// Then: The target file should have the correct contents.
@@ -141,12 +141,12 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 	if string(got) != want {
-		t.Fatalf("output: got %#v, want %#v", got, want)
+		t.Errorf("output: got %#v, want %#v", got, want)
 	}
 
 	// Then: The progress value should be 100%.
 	if got, want := p.Percentage(), 1.0; got != want {
-		t.Fatalf("output: got %#v, want %#v", got, want)
+		t.Errorf("output: got %#v, want %#v", got, want)
 	}
 }
 
@@ -187,12 +187,12 @@ func TestClientExists(t *testing.T) {
 
 			// Then: The returned error matches expectations.
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// Then: The returned existence value matches expectations.
 			if got != tc.want {
-				t.Fatalf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
 	}

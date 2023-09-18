@@ -47,14 +47,14 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 			got, err := (&TuxFamily{}).ExecutableArchive(tc.ex)
 
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %v, want %v", err, tc.err)
+				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
 			if got := got.Name(); got != tc.name {
-				t.Fatalf("output: got %v, want %v", got, tc.name)
+				t.Errorf("output: got %v, want %v", got, tc.name)
 			}
 			if got := got.URL; got != tc.url {
-				t.Fatalf("output: got %v, want %v", got, tc.url)
+				t.Errorf("output: got %v, want %v", got, tc.url)
 			}
 		})
 	}
@@ -92,7 +92,7 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 			got, err := (&TuxFamily{}).ExecutableArchiveChecksums(tc.v)
 
 			if !errors.Is(err, tc.err) {
-				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
 			}
 
 			// The test setup below will fail for invalid inputs.
@@ -107,7 +107,7 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 
 			want := artifact.Remote[checksum.Executable]{Artifact: ex, URL: tc.url}
 			if !reflect.DeepEqual(got, want) {
-				t.Fatalf("output: got %#v, want %#v", got, want)
+				t.Errorf("output: got %#v, want %#v", got, want)
 			}
 		})
 	}
