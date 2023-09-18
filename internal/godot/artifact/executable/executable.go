@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
@@ -38,8 +37,8 @@ func New(v version.Version, p platform.Platform) (Executable, error) {
 /* --------------------------- Function: ToArchive -------------------------- */
 
 // A convenience method which returns a Godot executable archive 'Artifact'.
-func (ex Executable) ToArchive() archive.Zip[Executable] {
-	return archive.Zip[Executable]{Inner: ex}
+func (ex Executable) ToArchive() Archive {
+	return Archive{Inner: ex}
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -20,6 +19,7 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /*                               Struct: Source                               */
 /* -------------------------------------------------------------------------- */
 
+// An 'Artifact' representing Godot source code for a specific version.
 type Source struct {
 	version version.Version
 }
@@ -29,6 +29,7 @@ var _ artifact.Artifact = Source{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 
+// Creates a new 'Source' for the specified 'Version'.
 func New(v version.Version) Source {
 	return Source{v}
 }
@@ -36,8 +37,8 @@ func New(v version.Version) Source {
 /* --------------------------- Function: ToArchive -------------------------- */
 
 // A convenience method which returns a Godot source archive 'Artifact'.
-func (s Source) ToArchive() archive.TarXZ[Source] {
-	return archive.TarXZ[Source]{Inner: s}
+func (s Source) ToArchive() Archive {
+	return Archive{Inner: s}
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
@@ -51,7 +52,7 @@ func (s Source) Name() string {
 	name.WriteString(namePrefix)
 	name.WriteString(nameSeparator)
 
-	name.WriteString(s.version.String())
+	name.WriteString(strings.TrimPrefix(s.version.String(), version.Prefix))
 
 	return name.String()
 }
