@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
 )
 
 /* -------------------------- Test: RemoteParseURL -------------------------- */
@@ -32,7 +30,7 @@ func TestRemoteParseURL(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("%d-url='%s'", i, tc.url), func(t *testing.T) {
-			r := Remote[artifacttest.Artifact]{Artifact: artifacttest.Artifact{}, URL: tc.url}
+			r := Remote[EmptyArtifact]{Artifact: EmptyArtifact{}, URL: tc.url}
 
 			// When: A new asset is created with the specified values.
 			got, err := r.ParseURL()
@@ -50,7 +48,7 @@ func TestRemoteParseURL(t *testing.T) {
 	}
 }
 
-/* ------------------------- Function:  mustParseURL ------------------------ */
+/* -------------------------  ------------------------ */
 
 func mustParseURL(t *testing.T, urlRaw string) *url.URL {
 	u, err := url.Parse(urlRaw)
@@ -59,4 +57,18 @@ func mustParseURL(t *testing.T, urlRaw string) *url.URL {
 	}
 
 	return u
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            Struct: EmptyArtifact                           */
+/* -------------------------------------------------------------------------- */
+
+// An empty test 'Artifact'.
+type EmptyArtifact struct {
+}
+
+/* ----------------------------- Impl: Artifact ----------------------------- */
+
+func (a EmptyArtifact) Name() string {
+	return "artifact"
 }
