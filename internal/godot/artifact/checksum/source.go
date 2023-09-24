@@ -49,7 +49,7 @@ func (s Source) Version() version.Version {
 
 /* ----------------------------- Impl: Checksums ---------------------------- */
 
-func (s Source) supports(archive.TarXZ[artifact.Folder[source.Source]]) {} //nolint:unused
+func (s Source) supports(source.Archive) {} //nolint:unused
 
 /* -------------------------------------------------------------------------- */
 /*                  Function: versionSourceChecksumsSupported                 */

@@ -2,7 +2,6 @@ package checksum
 
 import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
@@ -51,7 +50,7 @@ func (ex Executable) Version() version.Version {
 
 /* ----------------------------- Impl: Checksums ---------------------------- */
 
-func (ex Executable) supports(archive.Zip[artifact.Folder[executable.Executable]]) {} //nolint:unused
+func (ex Executable) supports(executable.Archive) {} //nolint:unused
 
 /* -------------------------------------------------------------------------- */
 /*                Function: versionExecutableChecksumsSupported               */
