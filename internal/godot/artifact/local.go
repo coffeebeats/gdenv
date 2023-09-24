@@ -7,8 +7,6 @@ import (
 
 var ErrMissingPath = errors.New("missing path")
 
-type Downloaded = Local[Artifact]
-
 /* -------------------------------------------------------------------------- */
 /*                                Struct: Local                               */
 /* -------------------------------------------------------------------------- */
@@ -38,4 +36,10 @@ func (l Local[T]) Exists() (bool, error) {
 
 func (l Local[T]) Name() string {
 	return l.Artifact.Name()
+}
+
+/* ---------------------------- Impl: Downloaded ---------------------------- */
+
+func (l Local[T]) Filepath() string {
+	return l.Path
 }
