@@ -14,6 +14,7 @@ const (
 	namePrefix    = "Godot"
 	nameSeparator = "_"
 
+	nameGodotMacOSApp      = "Godot.app"
 	pathGodotAppExecutable = "Contents/MacOS/Godot"
 )
 
@@ -52,7 +53,7 @@ func New(v version.Version, p platform.Platform) Executable {
 // a path within the app folder.
 func (ex Executable) Path() string {
 	if ex.platform.OS == platform.MacOS {
-		return filepath.Join(ex.Name(), pathGodotAppExecutable)
+		return filepath.Join(nameGodotMacOSApp, pathGodotAppExecutable)
 	}
 
 	return ex.Name()
@@ -68,7 +69,7 @@ func (ex Executable) Path() string {
 // macOS platforms. As such, 'Godot.app' is returned for the name.
 func (ex Executable) Name() string {
 	if ex.platform.OS == platform.MacOS {
-		return "Godot.app"
+		return nameGodotMacOSApp
 	}
 
 	return Name(ex.version, ex.platform)
