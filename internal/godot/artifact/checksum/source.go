@@ -18,7 +18,7 @@ type Source checksums
 var _ artifact.Artifact = Source{} //nolint:exhaustruct
 
 // Compile-time verifications that 'Source' implements 'Checksums'.
-var _ Checksums[artifact.Folder[source.Source], source.Archive] = Source{} //nolint:exhaustruct
+var _ Checksums[source.Archive] = Source{} //nolint:exhaustruct
 
 /* --------------------------- Function: NewSource -------------------------- */
 

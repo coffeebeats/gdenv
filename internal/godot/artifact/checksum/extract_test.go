@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -21,13 +20,13 @@ import (
 func TestExtractExecutable(t *testing.T) {
 	nameV4, nameV5 := "Godot_v4.0-stable_linux.x86_64", "Godot_v5.0-stable_linux.x86_64"
 
-	archiveV4 := archive.Zip[executable.Executable]{Inner: executable.MustParse(nameV4)}
-	archiveV5 := archive.Zip[executable.Executable]{Inner: executable.MustParse(nameV5)}
+	archiveV4 := executable.Archive{Inner: executable.Folder{Inner: executable.MustParse(nameV4), FolderName: nameV4}}
+	archiveV5 := executable.Archive{Inner: executable.Folder{Inner: executable.MustParse(nameV5), FolderName: nameV5}}
 
 	tests := []struct {
 		contents string
 		exists   bool
-		archive  archive.Zip[executable.Executable]
+		archive  executable.Archive
 		want     string
 		err      error
 	}{
@@ -58,7 +57,7 @@ func TestExtractExecutable(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var c artifact.Local[Checksums[executable.Executable, archive.Zip[executable.Executable]]]
+			var c artifact.Local[Checksums[executable.Archive]]
 
 			// NOTE: Property 'Artifact' doesn't need to be accessed.
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")
@@ -87,13 +86,13 @@ func TestExtractExecutable(t *testing.T) {
 func TestExtractSource(t *testing.T) {
 	sourceV3, sourceV4 := source.New(version.Godot3()), source.New(version.Godot4())
 
-	archiveV3 := archive.TarXZ[source.Source]{Inner: sourceV3}
-	archiveV4 := archive.TarXZ[source.Source]{Inner: sourceV4}
+	archiveV3 := source.Archive{Inner: source.Folder{Inner: sourceV3, FolderName: sourceV3.Name()}}
+	archiveV4 := source.Archive{Inner: source.Folder{Inner: sourceV4, FolderName: sourceV4.Name()}}
 
 	tests := []struct {
 		contents string
 		exists   bool
-		archive  archive.TarXZ[source.Source]
+		archive  source.Archive
 		want     string
 		err      error
 	}{
@@ -124,7 +123,7 @@ func TestExtractSource(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var c artifact.Local[Checksums[source.Source, archive.TarXZ[source.Source]]]
+			var c artifact.Local[Checksums[source.Archive]]
 
 			// NOTE: Property 'Artifact' doesn't need to be accessed.
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")

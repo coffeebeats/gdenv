@@ -19,7 +19,7 @@ type Executable checksums
 var _ artifact.Artifact = Executable{} //nolint:exhaustruct
 
 // Compile-time verifications that 'Executable' implements 'Checksums'.
-var _ Checksums[artifact.Folder[executable.Executable], executable.Archive] = Executable{} //nolint:exhaustruct
+var _ Checksums[executable.Archive] = Executable{} //nolint:exhaustruct
 
 /* ------------------------- Function: NewExecutable ------------------------ */
 
