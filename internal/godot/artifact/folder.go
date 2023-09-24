@@ -19,6 +19,6 @@ func (f Folder[T]) Name() string {
 
 /* ------------------------------ Impl: Wrapper ----------------------------- */
 
-func (f Folder[T]) Contents() T {
+func (f Folder[T]) Contents() T { //nolint:ireturn
 	return f.Inner
 }
