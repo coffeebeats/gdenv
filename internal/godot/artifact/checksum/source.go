@@ -18,7 +18,7 @@ type Source checksums
 var _ artifact.Artifact = Source{} //nolint:exhaustruct
 
 // Compile-time verifications that 'Source' implements 'Checksums'.
-var _ Checksums[source.Source, archive.TarXZ[source.Source]] = Source{} //nolint:exhaustruct
+var _ Checksums[source.Archive] = Source{} //nolint:exhaustruct
 
 /* --------------------------- Function: NewSource -------------------------- */
 
@@ -49,7 +49,7 @@ func (s Source) Version() version.Version {
 
 /* ----------------------------- Impl: Checksums ---------------------------- */
 
-func (s Source) supports(archive.TarXZ[source.Source]) {} //nolint:unused
+func (s Source) supports(source.Archive) {} //nolint:unused
 
 /* -------------------------------------------------------------------------- */
 /*                  Function: versionSourceChecksumsSupported                 */

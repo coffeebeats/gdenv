@@ -32,23 +32,21 @@ func Compute[T artifact.Artifact, U archive.Archive[T]](d artifact.Local[U]) (st
 
 	var h hash.Hash
 
-	contents := d.Artifact.Contents()
-
-	switch any(contents).(type) { // FIXME: https://github.com/golang/go/issues/45380
-	case executable.Executable:
+	switch any(d.Artifact).(type) { // FIXME: https://github.com/golang/go/issues/45380
+	case executable.Archive:
 		h = sha512.New()
 		if _, err := io.Copy(h, f); err != nil {
 			return "", err
 		}
 
-	case source.Source:
+	case source.Archive:
 		h = sha256.New()
 		if _, err := io.Copy(h, f); err != nil {
 			return "", err
 		}
 
 	default:
-		return "", fmt.Errorf("%w: '%T'", ErrUnsupportedArtifact, contents)
+		return "", fmt.Errorf("%w: '%T'", ErrUnsupportedArtifact, d.Artifact)
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil

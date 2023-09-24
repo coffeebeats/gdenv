@@ -78,7 +78,12 @@ func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[exe
 		return a, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	executableArchive := ex.ToArchive()
+	executableArchive := executable.Archive{
+		Inner: executable.Folder{
+			Inner:      ex,
+			FolderName: ex.Name(),
+		},
+	}
 
 	urlRaw, err := url.JoinPath(urlRelease, executableArchive.Name())
 	if err != nil {
@@ -129,7 +134,13 @@ func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive
 		return a, errors.Join(mirror.ErrInvalidURL, err)
 	}
 
-	sourceArchive := source.New(v).ToArchive()
+	s := source.New(v)
+	sourceArchive := source.Archive{
+		Inner: source.Folder{
+			Inner:      s,
+			FolderName: s.Name(),
+		},
+	}
 
 	urlRaw, err := url.JoinPath(urlRelease, sourceArchive.Name())
 	if err != nil {

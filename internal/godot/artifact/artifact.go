@@ -15,11 +15,13 @@ type Artifact interface {
 	Name() string
 }
 
-/* -------------------------- Interface: Versioned -------------------------- */
+/* -------------------------- Interface: Downloaded ------------------------- */
 
-// An interface for any artifacts which are tied to a specific version of Godot.
-type Versioned interface {
-	Version() version.Version
+// An interface for an 'Artifact' that's locally available on the file system.
+type Downloaded interface {
+	Artifact
+
+	Filepath() string
 }
 
 /* -------------------------- Interface: Platformed ------------------------- */
@@ -27,5 +29,25 @@ type Versioned interface {
 // An interface for any artifacts which are tied to a specific operating system
 // and CPU architecture.
 type Platformed interface {
+	Artifact
+
 	Platform() platform.Platform
+}
+
+/* -------------------------- Interface: Versioned -------------------------- */
+
+// An interface for any artifacts which are tied to a specific version of Godot.
+type Versioned interface {
+	Artifact
+
+	Version() version.Version
+}
+
+/* --------------------------- Interface: Wrapper --------------------------- */
+
+// An interface for an 'Artifact' which contain another 'Artifact'.
+type Wrapper[T Artifact] interface {
+	Artifact
+
+	Contents() T
 }
