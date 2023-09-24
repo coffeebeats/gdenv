@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
@@ -21,6 +22,9 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /* -------------------------------------------------------------------------- */
 /*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
+
+type Folder = artifact.Folder[Executable]
+type Archive = archive.Zip[Folder]
 
 // An 'Artifact' representing the Godot application itself.
 type Executable struct {

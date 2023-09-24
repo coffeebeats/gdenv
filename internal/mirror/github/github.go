@@ -79,7 +79,7 @@ func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[exe
 	}
 
 	executableArchive := executable.Archive{
-		Inner: artifact.Folder[executable.Executable]{
+		Inner: executable.Folder{
 			Inner:      ex,
 			FolderName: ex.Name(),
 		},
@@ -136,7 +136,7 @@ func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive
 
 	s := source.New(v)
 	sourceArchive := source.Archive{
-		Inner: artifact.Folder[source.Source]{
+		Inner: source.Folder{
 			Inner:      s,
 			FolderName: s.Name(),
 		},

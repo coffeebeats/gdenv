@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -18,6 +19,9 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Source                               */
 /* -------------------------------------------------------------------------- */
+
+type Folder = artifact.Folder[Source]
+type Archive = archive.TarXZ[Folder]
 
 // An 'Artifact' representing Godot source code for a specific version.
 type Source struct {

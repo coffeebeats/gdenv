@@ -87,7 +87,7 @@ func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[
 	}
 
 	executableArchive := executable.Archive{
-		Inner: artifact.Folder[executable.Executable]{
+		Inner: executable.Folder{
 			Inner:      ex,
 			FolderName: ex.Name(),
 		},
@@ -144,7 +144,7 @@ func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Arch
 
 	s := source.New(v)
 	sourceArchive := source.Archive{
-		Inner: artifact.Folder[source.Source]{
+		Inner: source.Folder{
 			Inner:      s,
 			FolderName: s.Name(),
 		},
