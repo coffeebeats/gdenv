@@ -20,7 +20,7 @@ type Executable checksums
 var _ artifact.Artifact = Executable{} //nolint:exhaustruct
 
 // Compile-time verifications that 'Executable' implements 'Checksums'.
-var _ Checksums[executable.Executable, archive.Zip[executable.Executable]] = Executable{} //nolint:exhaustruct
+var _ Checksums[artifact.Folder[executable.Executable], executable.Archive] = Executable{} //nolint:exhaustruct
 
 /* ------------------------- Function: NewExecutable ------------------------ */
 
@@ -51,7 +51,7 @@ func (ex Executable) Version() version.Version {
 
 /* ----------------------------- Impl: Checksums ---------------------------- */
 
-func (ex Executable) supports(archive.Zip[executable.Executable]) {} //nolint:unused
+func (ex Executable) supports(archive.Zip[artifact.Folder[executable.Executable]]) {} //nolint:unused
 
 /* -------------------------------------------------------------------------- */
 /*                Function: versionExecutableChecksumsSupported               */

@@ -2,7 +2,7 @@ package executable
 
 import (
 	"errors"
-	"strings"
+	"path/filepath"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
@@ -12,6 +12,8 @@ import (
 const (
 	namePrefix    = "Godot"
 	nameSeparator = "_"
+
+	pathGodotAppExecutable = "Contents/MacOS/Godot"
 )
 
 var ErrInvalidPlatform = errors.New("invalid platform")
@@ -20,7 +22,7 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
 
-// An 'Artifact' representing a Godot executable file.
+// An 'Artifact' representing the Godot application itself.
 type Executable struct {
 	version  version.Version
 	platform platform.Platform
@@ -39,43 +41,29 @@ func New(v version.Version, p platform.Platform) Executable {
 	return Executable{version: v, platform: p}
 }
 
-/* --------------------------- Function: ToArchive -------------------------- */
+/* ----------------------------- Function: Path ----------------------------- */
 
-// A convenience method which returns a Godot executable archive 'Artifact'.
-func (ex Executable) ToArchive() Archive {
-	return Archive{Inner: ex}
+// The path relative to the 'Artifact' that executes Godot. For Linux and
+// Windows this will be the executable 'Artifact' itself. On macOS this will be
+// a path within the app folder.
+func (ex Executable) Path() string {
+	if ex.platform.OS == platform.MacOS {
+		return filepath.Join(ex.Name(), pathGodotAppExecutable)
+	}
+
+	return ex.Name()
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
-// Returns the name of the Godot executable, given the specified 'Version' and
-// 'Platform'.
+// Returns the top-level name of the application artifact that should be stored
+// by 'gdenv'.
 //
-// NOTE: Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>',
-// with Windows executables getting an extra '.exe' extension. Both the version
-// and platform identifiers are version-specific, but the overall naming scheme
-// has not changed (as of v4.2).
+// NOTE: On Linux and Windows this is simply the executable itself, but on
+// macOS an app folder structure is shipped. That folder should be saved for
+// macOS platforms. As such, 'Godot.app' is returned for the name.
 func (ex Executable) Name() string {
-	var name strings.Builder
-
-	name.WriteString(namePrefix)
-	name.WriteString(nameSeparator)
-
-	name.WriteString(ex.version.String())
-	name.WriteString(nameSeparator)
-
-	platformIdentifier, err := platform.Format(ex.platform, ex.version)
-	if err != nil {
-		return ""
-	}
-
-	name.WriteString(platformIdentifier)
-
-	if ex.platform.OS == platform.Windows {
-		name.WriteString(".exe")
-	}
-
-	return name.String()
+	return Name(ex.version, ex.platform)
 }
 
 /* ----------------------------- Impl: Versioned ---------------------------- */
