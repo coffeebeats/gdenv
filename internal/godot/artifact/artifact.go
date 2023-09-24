@@ -19,6 +19,8 @@ type Artifact interface {
 
 // An interface for an 'Artifact' that's locally available on the file system.
 type Downloaded interface {
+	Artifact
+
 	Filepath() string
 }
 
@@ -27,6 +29,8 @@ type Downloaded interface {
 // An interface for any artifacts which are tied to a specific operating system
 // and CPU architecture.
 type Platformed interface {
+	Artifact
+
 	Platform() platform.Platform
 }
 
@@ -34,6 +38,8 @@ type Platformed interface {
 
 // An interface for any artifacts which are tied to a specific version of Godot.
 type Versioned interface {
+	Artifact
+
 	Version() version.Version
 }
 
