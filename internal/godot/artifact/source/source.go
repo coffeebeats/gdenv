@@ -34,13 +34,6 @@ func New(v version.Version) Source {
 	return Source{v}
 }
 
-/* --------------------------- Function: ToArchive -------------------------- */
-
-// A convenience method which returns a Godot source archive 'Artifact'.
-func (s Source) ToArchive() Archive {
-	return Archive{Inner: s}
-}
-
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 // Returns the name of the Godot source directory for the specified 'Version'.

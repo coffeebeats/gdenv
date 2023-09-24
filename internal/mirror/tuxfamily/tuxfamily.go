@@ -86,7 +86,12 @@ func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[
 		return a, err
 	}
 
-	executableArchive := ex.ToArchive()
+	executableArchive := executable.Archive{
+		Inner: artifact.Folder[executable.Executable]{
+			Inner:      ex,
+			FolderName: ex.Name(),
+		},
+	}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, executableArchive.Name())
 	if err != nil {
@@ -137,7 +142,13 @@ func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Arch
 		return a, err
 	}
 
-	sourceArchive := source.New(v).ToArchive()
+	s := source.New(v)
+	sourceArchive := source.Archive{
+		Inner: artifact.Folder[source.Source]{
+			Inner:      s,
+			FolderName: s.Name(),
+		},
+	}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, sourceArchive.Name())
 	if err != nil {
