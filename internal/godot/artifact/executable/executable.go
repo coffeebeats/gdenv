@@ -67,6 +67,10 @@ func (ex Executable) Path() string {
 // macOS an app folder structure is shipped. That folder should be saved for
 // macOS platforms. As such, 'Godot.app' is returned for the name.
 func (ex Executable) Name() string {
+	if ex.platform.OS == platform.MacOS {
+		return "Godot.app"
+	}
+
 	return Name(ex.version, ex.platform)
 }
 
