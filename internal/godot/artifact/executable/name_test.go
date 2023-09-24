@@ -8,9 +8,9 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
-/* -------------------------- Test: Executable.Name ------------------------- */
+/* ------------------------------- Test: Name ------------------------------- */
 
-func TestExecutableName(t *testing.T) {
+func TestName(t *testing.T) {
 	tests := []struct {
 		platform platform.Platform
 		version  string
@@ -90,9 +90,7 @@ func TestExecutableName(t *testing.T) {
 				v = version.MustParse(tc.version)
 			}
 
-			got := Executable{v, tc.platform}.Name()
-
-			if got != tc.want {
+			if got := Name(v, tc.platform); got != tc.want {
 				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
