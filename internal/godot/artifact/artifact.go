@@ -17,6 +17,7 @@ type Artifact interface {
 
 /* -------------------------- Interface: Downloaded ------------------------- */
 
+// An interface for an 'Artifact' that's locally available on the file system.
 type Downloaded interface {
 	Filepath() string
 }
