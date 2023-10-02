@@ -1,4 +1,4 @@
-package github
+package mirror
 
 import (
 	"errors"
@@ -9,7 +9,6 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/mirror"
 )
 
 /* ------------------------- Test: GitHub.Executable ------------------------ */
@@ -21,9 +20,9 @@ func TestGitHubExecutable(t *testing.T) {
 		err       error
 	}{
 		// Invalid inputs
-		{ex: executable.Executable{}, err: mirror.ErrInvalidSpecification},
-		{ex: executable.MustParse("Godot_v0.1.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
-		{ex: executable.MustParse("Godot_v4.1.1-unsupported-label_linux.x86_64"), err: mirror.ErrInvalidSpecification},
+		{ex: executable.Executable{}, err: ErrInvalidSpecification},
+		{ex: executable.MustParse("Godot_v0.1.0-stable_linux.x86_64"), err: ErrInvalidSpecification},
+		{ex: executable.MustParse("Godot_v4.1.1-unsupported-label_linux.x86_64"), err: ErrInvalidSpecification},
 
 		// Valid inputs
 		{
@@ -46,7 +45,7 @@ func TestGitHubExecutable(t *testing.T) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
-			if got := got.Name(); got != tc.name {
+			if got := got.Artifact.Name(); got != tc.name {
 				t.Errorf("output: got %v, want %v", got, tc.name)
 			}
 			if got := got.URL; got != tc.url {
@@ -65,9 +64,9 @@ func TestGitHubChecksum(t *testing.T) {
 		err error
 	}{
 		// Invalid inputs
-		{v: version.Version{}, err: mirror.ErrInvalidSpecification},
-		{v: version.MustParse("v0.0.0"), err: mirror.ErrInvalidSpecification},
-		{v: version.MustParse("v4.1.1-unsupported-label"), err: mirror.ErrInvalidSpecification},
+		{v: version.Version{}, err: ErrInvalidSpecification},
+		{v: version.MustParse("v0.0.0"), err: ErrInvalidSpecification},
+		{v: version.MustParse("v4.1.1-unsupported-label"), err: ErrInvalidSpecification},
 
 		// Valid inputs
 		{

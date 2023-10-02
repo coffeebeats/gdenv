@@ -1,4 +1,4 @@
-package tuxfamily
+package mirror
 
 import (
 	"errors"
@@ -9,7 +9,6 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/mirror"
 )
 
 /* ----------------------- TuxFamily.ExecutableArchive ---------------------- */
@@ -21,8 +20,8 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 		err       error
 	}{
 		// Invalid inputs
-		{ex: executable.Executable{}, err: mirror.ErrInvalidSpecification},
-		{ex: executable.MustParse("Godot_v0.0.0-stable_linux.x86_64"), err: mirror.ErrInvalidSpecification},
+		{ex: executable.Executable{}, err: ErrInvalidSpecification},
+		{ex: executable.MustParse("Godot_v0.0.0-stable_linux.x86_64"), err: ErrInvalidSpecification},
 
 		// Valid inputs
 		{
@@ -50,7 +49,7 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
-			if got := got.Name(); got != tc.name {
+			if got := got.Artifact.Name(); got != tc.name {
 				t.Errorf("output: got %v, want %v", got, tc.name)
 			}
 			if got := got.URL; got != tc.url {
@@ -69,8 +68,8 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 		err error
 	}{
 		// Invalid inputs
-		{v: version.Version{}, err: mirror.ErrInvalidSpecification},
-		{v: version.MustParse("v0.0.0"), err: mirror.ErrInvalidSpecification},
+		{v: version.Version{}, err: ErrInvalidSpecification},
+		{v: version.MustParse("v0.0.0"), err: ErrInvalidSpecification},
 
 		// Valid inputs
 		{
