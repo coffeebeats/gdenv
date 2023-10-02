@@ -17,7 +17,8 @@ type Archive interface {
 /*                            Interface: Archivable                           */
 /* -------------------------------------------------------------------------- */
 
-// An interface representing an 'Artifact' that can be archived.
+// An interface representing an 'Artifact' that can be compressed into an
+// archive.
 type Archivable interface {
 	artifact.Artifact
 

@@ -176,7 +176,7 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 	return a, nil
 }
 
-// Checks whether the version is broadly supported by the  No network
+// Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
 // use the 'CheckIfSupports' method.
