@@ -22,7 +22,7 @@ var ErrUnsupportedArtifact = errors.New("unsupported artifact")
 /* -------------------------------------------------------------------------- */
 
 // Computes and returns the correct checksum of the specified archive.
-func Compute[T artifact.Artifact, U archive.Archive[T]](d artifact.Local[U]) (string, error) {
+func Compute[T archive.Archive](d artifact.Local[T]) (string, error) {
 	f, err := os.Open(d.Path)
 	if err != nil {
 		return "", err

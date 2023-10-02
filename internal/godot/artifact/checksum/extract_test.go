@@ -20,8 +20,8 @@ import (
 func TestExtractExecutable(t *testing.T) {
 	nameV4, nameV5 := "Godot_v4.0-stable_linux.x86_64", "Godot_v5.0-stable_linux.x86_64"
 
-	archiveV4 := executable.Archive{Inner: executable.Folder{Inner: executable.MustParse(nameV4), FolderName: nameV4}}
-	archiveV5 := executable.Archive{Inner: executable.Folder{Inner: executable.MustParse(nameV5), FolderName: nameV5}}
+	archiveV4 := executable.Archive{Artifact: executable.MustParse(nameV4)}
+	archiveV5 := executable.Archive{Artifact: executable.MustParse(nameV5)}
 
 	tests := []struct {
 		contents string
@@ -86,8 +86,8 @@ func TestExtractExecutable(t *testing.T) {
 func TestExtractSource(t *testing.T) {
 	sourceV3, sourceV4 := source.New(version.Godot3()), source.New(version.Godot4())
 
-	archiveV3 := source.Archive{Inner: source.Folder{Inner: sourceV3, FolderName: sourceV3.Name()}}
-	archiveV4 := source.Archive{Inner: source.Folder{Inner: sourceV4, FolderName: sourceV4.Name()}}
+	archiveV3 := source.Archive{Artifact: sourceV3}
+	archiveV4 := source.Archive{Artifact: sourceV4}
 
 	tests := []struct {
 		contents string

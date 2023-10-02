@@ -11,9 +11,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 )
 
-const (
-	checksumEntryParts = 2
-)
+const checksumEntryParts = 2
 
 var (
 	ErrChecksumNotFound    = errors.New("checksum not found")
@@ -27,7 +25,7 @@ var (
 
 // Given a locally-available checksums file, find and return the checksum for
 // the specified archive.
-func Extract[T artifact.Artifact, U archive.Archive[T]](c artifact.Local[Checksums[U]], a U) (string, error) {
+func Extract[T archive.Archive](c artifact.Local[Checksums[T]], a T) (string, error) {
 	f, err := os.Open(c.Path)
 	if err != nil {
 		return "", err
