@@ -11,8 +11,6 @@ var (
 	ErrMissingURL = errors.New("missing URL")
 )
 
-type Hosted = Remote[Artifact]
-
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Remote                               */
 /* -------------------------------------------------------------------------- */
@@ -42,10 +40,4 @@ func (r Remote[T]) ParseURL() (*url.URL, error) {
 	}
 
 	return urlParsed, nil
-}
-
-/* ----------------------------- Impl: Artifact ----------------------------- */
-
-func (r Remote[T]) Name() string {
-	return r.Artifact.Name()
 }

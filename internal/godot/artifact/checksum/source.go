@@ -38,7 +38,7 @@ func NewSource(v version.Version) (Source, error) {
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 func (s Source) Name() string {
-	return archive.TarXZ[source.Source]{Inner: source.New(s.version)}.Name() + ".sha256"
+	return archive.TarXZ[source.Source]{Artifact: source.New(s.version)}.Name() + ".sha256"
 }
 
 /* ----------------------------- Impl: Versioned ---------------------------- */

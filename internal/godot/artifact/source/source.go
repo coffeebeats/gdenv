@@ -20,8 +20,7 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /*                               Struct: Source                               */
 /* -------------------------------------------------------------------------- */
 
-type Folder = artifact.Folder[Source]
-type Archive = archive.TarXZ[Folder]
+type Archive = archive.TarXZ[Source]
 
 // An 'Artifact' representing Godot source code for a specific version.
 type Source struct {
@@ -37,6 +36,11 @@ var _ artifact.Artifact = Source{} //nolint:exhaustruct
 func New(v version.Version) Source {
 	return Source{v}
 }
+
+/* ---------------------------- Impl: Archivable ---------------------------- */
+
+// Allows 'Source' to be used by 'Archive' implementation.
+func (s Source) Archivable() {}
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 

@@ -1,4 +1,4 @@
-package tuxfamily
+package mirror
 
 import (
 	"errors"
@@ -13,7 +13,6 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/mirror"
 )
 
 const (
@@ -42,11 +41,11 @@ type TuxFamily struct {
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
-var _ mirror.Mirror = &TuxFamily{} //nolint:exhaustruct
+var _ Mirror = &TuxFamily{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 
-func New() TuxFamily {
+func NewTuxFamily() TuxFamily {
 	c := client.NewWithRedirectDomains(tuxfamilyDownloadsDomain)
 	return TuxFamily{&c}
 }
@@ -78,7 +77,7 @@ func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[
 	var a artifact.Remote[executable.Archive]
 
 	if !m.Supports(ex.Version()) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version())
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(ex.Version())
@@ -86,16 +85,11 @@ func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[
 		return a, err
 	}
 
-	executableArchive := executable.Archive{
-		Inner: executable.Folder{
-			Inner:      ex,
-			FolderName: ex.Name(),
-		},
-	}
+	executableArchive := executable.Archive{Artifact: ex}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, executableArchive.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = executableArchive, urlRaw
@@ -107,12 +101,12 @@ func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remot
 	var a artifact.Remote[checksum.Executable]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	checksumsExecutable, err := checksum.NewExecutable(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
@@ -122,7 +116,7 @@ func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remot
 
 	urlRaw, err := url.JoinPath(urlVersionDir, checksumsExecutable.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = checksumsExecutable, urlRaw
@@ -134,7 +128,7 @@ func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Arch
 	var a artifact.Remote[source.Archive]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
@@ -143,16 +137,11 @@ func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Arch
 	}
 
 	s := source.New(v)
-	sourceArchive := source.Archive{
-		Inner: source.Folder{
-			Inner:      s,
-			FolderName: s.Name(),
-		},
-	}
+	sourceArchive := source.Archive{Artifact: s}
 
 	urlRaw, err := url.JoinPath(urlVersionDir, sourceArchive.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = sourceArchive, urlRaw
@@ -164,12 +153,12 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 	var a artifact.Remote[checksum.Source]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	checksumsSource, err := checksum.NewSource(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(v)
@@ -179,7 +168,7 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 
 	urlRaw, err := url.JoinPath(urlVersionDir, checksumsSource.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = checksumsSource, urlRaw
@@ -236,7 +225,7 @@ func urlTuxFamilyVersionDir(v version.Version) (string, error) {
 
 	urlVersionDir, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
 	if err != nil {
-		return "", errors.Join(mirror.ErrInvalidURL, err)
+		return "", errors.Join(ErrInvalidURL, err)
 	}
 
 	return urlVersionDir, nil

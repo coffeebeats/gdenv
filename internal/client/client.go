@@ -39,9 +39,6 @@ type Client struct {
 	restyClient *resty.Client
 }
 
-// Validate at compile-time that 'Client' implements 'Downloader'.
-var _ Downloader[*url.URL] = &Client{} //nolint:exhaustruct
-
 /* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new 'Client' with default settings for mirrors.
@@ -138,7 +135,7 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 	}
 }
 
-/* ----------------------------- Impl: Download ----------------------------- */
+/* ---------------------------- Method: Download ---------------------------- */
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
@@ -151,7 +148,7 @@ func (c Client) Download(u *url.URL, w ...io.Writer) error {
 	})
 }
 
-/* ---------------------------- Impl: DownloadTo ---------------------------- */
+/* --------------------------- Method: DownloadTo --------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
 func (c Client) DownloadTo(u *url.URL, out string) error {
@@ -170,7 +167,7 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 	})
 }
 
-/* ---------------------- Impl: DownloadToWithProgress ---------------------- */
+/* --------------------- Method: DownloadToWithProgress --------------------- */
 
 // Downloads the response of a request to the specified filepath, reporting the
 // download progress to the provided progress pointer 'p'.

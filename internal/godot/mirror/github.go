@@ -1,4 +1,4 @@
-package github
+package mirror
 
 import (
 	"errors"
@@ -11,7 +11,6 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/mirror"
 )
 
 const (
@@ -32,13 +31,13 @@ type GitHub struct {
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
-var _ mirror.Mirror = &GitHub{} //nolint:exhaustruct
+var _ Mirror = &GitHub{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new GitHub 'Mirror' client with default retry mechanisms and
 // redirect policies configured.
-func New() GitHub {
+func NewGitHub() GitHub {
 	c := client.NewWithRedirectDomains(gitHubContentDomain)
 	return GitHub{&c}
 }
@@ -70,24 +69,19 @@ func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[exe
 	var a artifact.Remote[executable.Archive]
 
 	if !m.Supports(ex.Version()) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, ex.Version())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version())
 	}
 
 	urlRelease, err := urlGitHubRelease(ex.Version())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	executableArchive := executable.Archive{
-		Inner: executable.Folder{
-			Inner:      ex,
-			FolderName: ex.Name(),
-		},
-	}
+	executableArchive := executable.Archive{Artifact: ex}
 
 	urlRaw, err := url.JoinPath(urlRelease, executableArchive.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = executableArchive, urlRaw
@@ -99,22 +93,22 @@ func (m GitHub) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[c
 	var a artifact.Remote[checksum.Executable]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	checksumsExecutable, err := checksum.NewExecutable(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	urlRaw, err := url.JoinPath(urlRelease, checksumsExecutable.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = checksumsExecutable, urlRaw
@@ -126,25 +120,20 @@ func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive
 	var a artifact.Remote[source.Archive]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v)
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v)
 	}
 
 	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	s := source.New(v)
-	sourceArchive := source.Archive{
-		Inner: source.Folder{
-			Inner:      s,
-			FolderName: s.Name(),
-		},
-	}
+	sourceArchive := source.Archive{Artifact: s}
 
 	urlRaw, err := url.JoinPath(urlRelease, sourceArchive.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = sourceArchive, urlRaw
@@ -156,22 +145,22 @@ func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[check
 	var a artifact.Remote[checksum.Source]
 
 	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", mirror.ErrInvalidSpecification, v.String())
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
 	}
 
 	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	checksumsSource, err := checksum.NewSource(v)
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidSpecification, err)
+		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
 	urlRaw, err := url.JoinPath(urlRelease, checksumsSource.Name())
 	if err != nil {
-		return a, errors.Join(mirror.ErrInvalidURL, err)
+		return a, errors.Join(ErrInvalidURL, err)
 	}
 
 	a.Artifact, a.URL = checksumsSource, urlRaw

@@ -3,6 +3,7 @@ package executable
 import (
 	"errors"
 	"path/filepath"
+	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
@@ -24,8 +25,7 @@ var ErrInvalidPlatform = errors.New("invalid platform")
 /*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
 
-type Folder = artifact.Folder[Executable]
-type Archive = archive.Zip[Folder]
+type Archive = archive.Zip[Executable]
 
 // An 'Artifact' representing the Godot application itself.
 type Executable struct {
@@ -59,20 +59,41 @@ func (ex Executable) Path() string {
 	return ex.Name()
 }
 
+/* ---------------------------- Impl: Archivable ---------------------------- */
+
+// Allows 'Executable' to be used by 'Archive' implementation.
+func (ex Executable) Archivable() {}
+
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
-// Returns the top-level name of the application artifact that should be stored
-// by 'gdenv'.
+// Returns the name of the Godot executable, given the specified 'Version' and
+// 'Platform'.
 //
-// NOTE: On Linux and Windows this is simply the executable itself, but on
-// macOS an app folder structure is shipped. That folder should be saved for
-// macOS platforms. As such, 'Godot.app' is returned for the name.
+// NOTE: Godot names its executables in the format 'Godot_<VERSION>_<PLATFORM>',
+// with Windows executables getting an extra '.exe' extension. Both the version
+// and platform identifiers are version-specific, but the overall naming scheme
+// has not changed (as of v4.2).
 func (ex Executable) Name() string {
-	if ex.platform.OS == platform.MacOS {
-		return nameGodotMacOSApp
+	var name strings.Builder
+
+	name.WriteString(namePrefix)
+	name.WriteString(nameSeparator)
+
+	name.WriteString(ex.version.String())
+	name.WriteString(nameSeparator)
+
+	platformIdentifier, err := platform.Format(ex.platform, ex.version)
+	if err != nil {
+		return ""
 	}
 
-	return Name(ex.version, ex.platform)
+	name.WriteString(platformIdentifier)
+
+	if ex.platform.OS == platform.Windows {
+		name.WriteString(".exe")
+	}
+
+	return name.String()
 }
 
 /* ----------------------------- Impl: Versioned ---------------------------- */

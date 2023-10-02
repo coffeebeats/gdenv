@@ -90,7 +90,7 @@ func TestName(t *testing.T) {
 				v = version.MustParse(tc.version)
 			}
 
-			if got := Name(v, tc.platform); got != tc.want {
+			if got := (Executable{v, tc.platform}).Name(); got != tc.want {
 				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})
