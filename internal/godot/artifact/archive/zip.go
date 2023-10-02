@@ -1,9 +1,5 @@
 package archive
 
-import (
-	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-)
-
 const extensionZip = ".zip"
 
 /* -------------------------------------------------------------------------- */
@@ -11,14 +7,14 @@ const extensionZip = ".zip"
 /* -------------------------------------------------------------------------- */
 
 // A struct representing a 'zip'-compressed archive.
-type Zip[T artifact.Artifact] struct {
-	Inner T
+type Zip[T Archivable] struct {
+	Artifact T
 }
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 func (a Zip[T]) Name() string {
-	name := a.Inner.Name()
+	name := a.Artifact.Name()
 	if name != "" {
 		name += extensionZip
 	}
@@ -28,13 +24,7 @@ func (a Zip[T]) Name() string {
 
 /* ------------------------------ Impl: Archive ----------------------------- */
 
-// Returns the 'Artifact' contained in this 'Archive'.
-func (a Zip[T]) Contents() T { //nolint:ireturn
-	return a.Inner
-}
-
-// Extracts the archive to the specified file path.
-func (a Zip[T]) extract(_, out string) (artifact.Local[T], error) { //nolint:unused
-	// TODO: Implement the archive extraction.
-	return artifact.Local[T]{Artifact: a.Inner, Path: out}, nil
+// Extracts the archived contents to the specified directory.
+func (a Zip[T]) extract(path, out string) error { //nolint:revive
+	return nil // TODO: Implement the archive extraction.
 }

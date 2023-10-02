@@ -2,12 +2,26 @@ package archive
 
 import "github.com/coffeebeats/gdenv/internal/godot/artifact"
 
+/* -------------------------------------------------------------------------- */
+/*                             Interface: Archive                             */
+/* -------------------------------------------------------------------------- */
+
 // An interface representing a compressed 'Artifact' archive.
-type Archive[T artifact.Artifact] interface {
+type Archive interface {
 	artifact.Artifact
 
-	Contents() T
-	extract(path, out string) (artifact.Local[T], error)
+	extract(path, out string) error
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            Interface: Archivable                           */
+/* -------------------------------------------------------------------------- */
+
+// An interface representing an 'Artifact' that can be archived.
+type Archivable interface {
+	artifact.Artifact
+
+	Archivable()
 }
 
 /* -------------------------------------------------------------------------- */
@@ -16,6 +30,6 @@ type Archive[T artifact.Artifact] interface {
 
 // Given a downloaded 'Archive', extract the contents and return a local
 // 'Artifact' pointing to it.
-func Extract[T artifact.Artifact](a artifact.Local[Archive[T]], out string) (artifact.Local[T], error) {
+func Extract[T Archive](a artifact.Local[Archive], out string) error {
 	return a.Artifact.extract(a.Path, out)
 }
