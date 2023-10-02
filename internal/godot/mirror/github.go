@@ -31,7 +31,7 @@ type GitHub struct {
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
-var _Mirror = &GitHub{} //nolint:exhaustruct
+var _ Mirror = &GitHub{} //nolint:exhaustruct
 
 /* ------------------------------ Function: New ----------------------------- */
 
