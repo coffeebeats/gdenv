@@ -202,7 +202,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	// v3.0 - v3.0.6
 	case v.Major() == 3 && v.Minor() < 1:
 		switch a {
-		case I386, Amd64:
+		case I386, Amd64, Universal:
 			return "osx.fat", nil
 
 		default:
@@ -223,7 +223,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	case v.CompareNormal(version.Godot4()) < 0 ||
 		(v.CompareNormal(version.Godot4()) == 0 && reV4MacOSLabelsWithOSXUniversal.MatchString(v.Label())):
 		switch a {
-		case Amd64, Arm64:
+		case Amd64, Arm64, Universal:
 			return "osx.universal", nil
 
 		default:
@@ -232,7 +232,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 	// v4.0-alpha13+
 	default:
 		switch a {
-		case Amd64, Arm64:
+		case Amd64, Arm64, Universal:
 			return "macos.universal", nil
 
 		default:
