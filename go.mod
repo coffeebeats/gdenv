@@ -6,7 +6,7 @@ require (
 	github.com/go-resty/resty/v2 v2.9.1
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/urfave/cli/v2 v2.25.7
-	golang.org/x/mod v0.12.0
+	golang.org/x/mod v0.13.0
 	golang.org/x/tools v0.13.0
 )
 
