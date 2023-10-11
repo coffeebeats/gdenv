@@ -26,9 +26,38 @@ var (
 	ErrHTTPResponseStatusCode = errors.New("received error status code")
 	ErrInvalidURL             = errors.New("invalid URL")
 	ErrMissingSize            = errors.New("missing progress size")
+	ErrMissingURL             = errors.New("missing URL")
 	ErrRequestFailed          = errors.New("request failed")
 	ErrUnexpectedRedirect     = errors.New("unexpected redirect")
 )
+
+/* -------------------------------------------------------------------------- */
+/*                             Function: ParseURL                             */
+/* -------------------------------------------------------------------------- */
+
+// Returns a parsed URL or fails if it's invalid.
+func ParseURL(urlBaseRaw string, urlPartsRaw ...string) (*url.URL, error) {
+	if urlBaseRaw == "" {
+		return nil, ErrMissingURL
+	}
+
+	urlRaw, err := url.JoinPath(urlBaseRaw, urlPartsRaw...)
+	if err != nil {
+		return nil, errors.Join(ErrInvalidURL, err)
+	}
+
+	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
+	urlParsed, err := url.ParseRequestURI(urlRaw)
+	if err != nil {
+		return nil, errors.Join(ErrInvalidURL, err)
+	}
+
+	if urlParsed.Host == "" || urlParsed.Scheme == "" {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidURL, urlRaw)
+	}
+
+	return urlParsed, nil
+}
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Client                               */
