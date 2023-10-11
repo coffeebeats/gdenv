@@ -2,6 +2,7 @@ package mirror
 
 import (
 	"errors"
+	"net/url"
 	"reflect"
 	"testing"
 
@@ -15,9 +16,10 @@ import (
 
 func TestGitHubExecutable(t *testing.T) {
 	tests := []struct {
-		ex        executable.Executable
-		name, url string
-		err       error
+		ex   executable.Executable
+		name string
+		url  *url.URL
+		err  error
 	}{
 		// Invalid inputs
 		{ex: executable.Executable{}, err: ErrInvalidSpecification},
@@ -28,12 +30,12 @@ func TestGitHubExecutable(t *testing.T) {
 		{
 			ex:   executable.MustParse("Godot_v4.1.1-stable_linux.x86_64"),
 			name: "Godot_v4.1.1-stable_linux.x86_64.zip",
-			url:  "https://github.com/godotengine/godot/releases/download/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip",
+			url:  mustParseURL(t, "https://github.com/godotengine/godot/releases/download/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip"),
 		},
 		{
 			ex:   executable.MustParse("Godot_v4.1-stable_linux.x86_64"),
 			name: "Godot_v4.1-stable_linux.x86_64.zip",
-			url:  "https://github.com/godotengine/godot/releases/download/4.1-stable/Godot_v4.1-stable_linux.x86_64.zip",
+			url:  mustParseURL(t, "https://github.com/godotengine/godot/releases/download/4.1-stable/Godot_v4.1-stable_linux.x86_64.zip"),
 		},
 	}
 
@@ -48,7 +50,7 @@ func TestGitHubExecutable(t *testing.T) {
 			if got := got.Artifact.Name(); got != tc.name {
 				t.Errorf("output: got %v, want %v", got, tc.name)
 			}
-			if got := got.URL; got != tc.url {
+			if got := got.URL; !reflect.DeepEqual(got, tc.url) {
 				t.Errorf("output: got %v, want %v", got, tc.url)
 			}
 		})
@@ -60,7 +62,7 @@ func TestGitHubExecutable(t *testing.T) {
 func TestGitHubChecksum(t *testing.T) {
 	tests := []struct {
 		v   version.Version
-		url string
+		url *url.URL
 		err error
 	}{
 		// Invalid inputs
@@ -71,11 +73,11 @@ func TestGitHubChecksum(t *testing.T) {
 		// Valid inputs
 		{
 			v:   version.MustParse("4.1.1-stable"),
-			url: "https://github.com/godotengine/godot/releases/download/4.1.1-stable/SHA512-SUMS.txt",
+			url: mustParseURL(t, "https://github.com/godotengine/godot/releases/download/4.1.1-stable/SHA512-SUMS.txt"),
 		},
 		{
 			v:   version.MustParse("4.1.0-stable"),
-			url: "https://github.com/godotengine/godot/releases/download/4.1-stable/SHA512-SUMS.txt",
+			url: mustParseURL(t, "https://github.com/godotengine/godot/releases/download/4.1-stable/SHA512-SUMS.txt"),
 		},
 	}
 
@@ -88,7 +90,7 @@ func TestGitHubChecksum(t *testing.T) {
 			}
 
 			// The test setup below will fail for invalid inputs.
-			if tc.url == "" {
+			if tc.url == nil {
 				return
 			}
 

@@ -2,6 +2,7 @@ package mirror
 
 import (
 	"errors"
+	"net/url"
 	"reflect"
 	"testing"
 
@@ -15,9 +16,10 @@ import (
 
 func TestTuxFamilyExecutableArchive(t *testing.T) {
 	tests := []struct {
-		ex        executable.Executable
-		name, url string
-		err       error
+		ex   executable.Executable
+		name string
+		url  *url.URL
+		err  error
 	}{
 		// Invalid inputs
 		{ex: executable.Executable{}, err: ErrInvalidSpecification},
@@ -27,17 +29,17 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 		{
 			ex:   executable.MustParse("Godot_v4.1.1-stable_mono_linux_x86_64"),
 			name: "Godot_v4.1.1-stable_mono_linux_x86_64.zip",
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1.1/mono/Godot_v4.1.1-stable_mono_linux_x86_64.zip",
+			url:  mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1.1/mono/Godot_v4.1.1-stable_mono_linux_x86_64.zip"),
 		},
 		{
 			ex:   executable.MustParse("Godot_v4.1-stable_linux.x86_64"),
 			name: "Godot_v4.1-stable_linux.x86_64.zip",
-			url:  "https://downloads.tuxfamily.org/godotengine/4.1/Godot_v4.1-stable_linux.x86_64.zip",
+			url:  mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1/Godot_v4.1-stable_linux.x86_64.zip"),
 		},
 		{
 			ex:   executable.MustParse("Godot_v4.0-dev.20220118_win64.exe"),
 			name: "Godot_v4.0-dev.20220118_win64.exe.zip",
-			url:  "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/Godot_v4.0-dev.20220118_win64.exe.zip",
+			url:  mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/Godot_v4.0-dev.20220118_win64.exe.zip"),
 		},
 	}
 
@@ -52,7 +54,7 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 			if got := got.Artifact.Name(); got != tc.name {
 				t.Errorf("output: got %v, want %v", got, tc.name)
 			}
-			if got := got.URL; got != tc.url {
+			if got := got.URL; !reflect.DeepEqual(got, tc.url) {
 				t.Errorf("output: got %v, want %v", got, tc.url)
 			}
 		})
@@ -64,7 +66,7 @@ func TestTuxFamilyExecutableArchive(t *testing.T) {
 func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 	tests := []struct {
 		v   version.Version
-		url string
+		url *url.URL
 		err error
 	}{
 		// Invalid inputs
@@ -74,15 +76,15 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 		// Valid inputs
 		{
 			v:   version.MustParse("4.1.1-stable"),
-			url: "https://downloads.tuxfamily.org/godotengine/4.1.1/SHA512-SUMS.txt",
+			url: mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1.1/SHA512-SUMS.txt"),
 		},
 		{
 			v:   version.MustParse("4.1-stable"),
-			url: "https://downloads.tuxfamily.org/godotengine/4.1/SHA512-SUMS.txt",
+			url: mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1/SHA512-SUMS.txt"),
 		},
 		{
 			v:   version.MustParse("4.0-dev.20220118"),
-			url: "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/SHA512-SUMS.txt",
+			url: mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.0/pre-alpha/4.0-dev.20220118/SHA512-SUMS.txt"),
 		},
 	}
 
@@ -95,7 +97,7 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 			}
 
 			// The test setup below will fail for invalid inputs.
-			if tc.url == "" {
+			if tc.url == nil {
 				return
 			}
 
