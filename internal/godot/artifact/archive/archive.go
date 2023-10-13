@@ -3,11 +3,15 @@ package archive
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 )
+
+// Only write to 'out'; create a new file/overwrite an existing.
+const copyFileWriteFlag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
 
 /* -------------------------------------------------------------------------- */
 /*                             Interface: Archive                             */
@@ -64,4 +68,21 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 
 	// Extract the contents to the specified 'out' directory.
 	return a.Artifact.extract(a.Path, out)
+}
+
+/* --------------------------- Function: copyFile --------------------------- */
+
+func copyFile(f io.Reader, mode os.FileMode, out string) error {
+	dst, err := os.OpenFile(out, copyFileWriteFlag, mode)
+	if err != nil {
+		return err
+	}
+
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, f); err != nil {
+		return err
+	}
+
+	return nil
 }
