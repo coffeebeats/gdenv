@@ -15,9 +15,10 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/pkg/store"
 )
 
-const permUserReadWrite = 0700
+const modeWorkingDir = 0700 // rwx------
 
 var (
 	ErrInvalidExecutable = errors.New("unsupported platform")
@@ -32,7 +33,7 @@ type Version = version.Version
 /* -------------------------------------------------------------------------- */
 
 // Downloads and caches a platform-specific version of Godot.
-func Executable(_ string, ex executable.Executable) error { //nolint:funlen,cyclop
+func Executable(storePath string, ex executable.Executable) error { //nolint:funlen,cyclop
 	log.Println("Selecting mirror for executable:", ex.Name())
 
 	m, err := ChooseMirror(ex.Version())
@@ -53,7 +54,7 @@ func Executable(_ string, ex executable.Executable) error { //nolint:funlen,cycl
 		return err
 	}
 
-	// defer os.RemoveAll(tmp)
+	defer os.RemoveAll(tmp)
 
 	errs := make(chan error)
 	exPath, got, want := make(chan string, 1), make(chan string, 1), make(chan string, 1)
@@ -122,39 +123,35 @@ func Executable(_ string, ex executable.Executable) error { //nolint:funlen,cycl
 		Artifact: remote.Artifact,
 		Path:     p,
 	}
-	if err := archive.Extract[executable.Archive](a, tmp); err != nil {
+
+	extract := filepath.Join(tmp, "extract")
+	if err := archive.Extract[executable.Archive](a, extract); err != nil {
 		return err
+	}
+
+	os.Remove(a.Path)
+
+	extracted, err := os.ReadDir(extract)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range extracted {
+		log.Println("Adding file to store:", filepath.Join(extract, f.Name()))
+		// Finally, add the extracted executable to the specified store.
+		if err := store.Add(storePath, filepath.Join(extract, f.Name()), ex); err != nil {
+			return err
+		}
 	}
 
 	log.Println("Successfully extracted executable!")
 
-	// // Finally, add the extracted executable to the specified store.
-	// // TODO: Fix this.
-	// if _, err := os.Stat(filepath.Join(filepath.Dir(p), "Godot.app")); !errors.Is(err, fs.ErrNotExist) {
-	// 	if err := store.Add(storePath, filepath.Join(filepath.Dir(p), "Godot.app"), ex); err != nil {
-	// 		return err
-	// 	}
+	t, err := store.ToolPath(storePath, ex)
+	if err != nil {
+		return err
+	}
 
-	// } else {
-	// 	if err := store.Add(storePath, strings.TrimSuffix(p, filepath.Ext(p)), ex); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// for _, path := range extracted {
-	// 	log.Println("Adding extracted file to store:", path)
-
-	// 	if err := store.Add(storePath, path, ex); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// t, err := store.ToolPath(storePath, ex)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// log.Println("Successfully added executable to store: " + t)
+	log.Println("Successfully added executable to store:", t)
 
 	return nil
 }
@@ -231,13 +228,16 @@ func createTempDir() (string, error) {
 			return "", err
 		}
 
-		// Create a directory with user read and write permissions. Files placed
-		// in here should *not* be executable and they don't need to be viewable
-		// by anyone except the user running this process.
-		//
 		// NOTE: Don't use 'MkdirAll'; the system temp. directory should exist.
-		if err := os.Mkdir(tmp, os.ModeDir|permUserReadWrite); err != nil {
+		if err := os.Mkdir(tmp, modeWorkingDir); err != nil {
 			return "", err
+		}
+	}
+
+	// Update the permissions of the working directory if needed.
+	if info != nil && info.Mode()&modeWorkingDir == 0 {
+		if err := os.Chmod(tmp, info.Mode()|modeWorkingDir); err != nil {
+			return "", fmt.Errorf("could not set permissions: %w", err)
 		}
 	}
 
