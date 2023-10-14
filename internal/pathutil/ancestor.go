@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+var ErrUnknownMode = errors.New("cannot determine mode")
+
 /* -------------------------------------------------------------------------- */
 /*                             Function: Ancestor                             */
 /* -------------------------------------------------------------------------- */
@@ -80,12 +82,12 @@ func AncestorDir(path string) (string, error) {
 func AncestorMode(path string) (fs.FileMode, error) {
 	ancestor, err := AncestorDir(path)
 	if err != nil {
-		return 0, err
+		return 0, errors.Join(ErrUnknownMode, err)
 	}
 
 	info, err := os.Stat(ancestor)
 	if err != nil {
-		return 0, err
+		return 0, errors.Join(ErrUnknownMode, err)
 	}
 
 	return info.Mode(), nil
