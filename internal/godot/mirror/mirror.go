@@ -57,7 +57,7 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:c
 	defer func() {
 		cancel()
 
-		// NOTE: The 'errgroup.Group' needs to be waited to prevent a leak.
+		// NOTE: Wait on 'errgroup.Group'to prevent goroutine leaks.
 		eg.Wait() //nolint:errcheck
 	}()
 
