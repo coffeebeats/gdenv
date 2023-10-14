@@ -53,7 +53,7 @@ func NewInstall() *cli.Command {
 				return nil
 			}
 
-			return install(c.Context, storePath, ex)
+			return Install(c.Context, storePath, ex)
 		},
 	}
 }
@@ -61,6 +61,6 @@ func NewInstall() *cli.Command {
 /* ---------------------------- Function: install --------------------------- */
 
 // Downloads and caches a platform-specific version of Godot.
-func install(_ context.Context, _ string, _ executable.Executable) error {
+func Install(_ context.Context, _ string, _ executable.Executable) error {
 	return nil
 }
