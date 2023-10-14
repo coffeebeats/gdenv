@@ -118,13 +118,13 @@ func TestFormatPlatform(t *testing.T) {
 		// v3.0 - v3.0.6
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.0", want: "osx.fat"},
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.0", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0", want: "osx.fat"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.0", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0", err: ErrUnrecognizedArch},
 
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.0.6", want: "osx.fat"},
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.0.6", want: "osx.fat"},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0", want: "osx.fat"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.0.6", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.0.6", err: ErrUnrecognizedArch},
 
 		// v3.1 - v3.2.4-beta2
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.1", want: "osx.64"},
@@ -141,53 +141,53 @@ func TestFormatPlatform(t *testing.T) {
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-beta3", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-beta3", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-beta3", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-beta3", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-beta3", want: "osx.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-rc1", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-rc1", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-rc1", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-rc1", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-rc1", want: "osx.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "3.2.4-stable", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "3.2.4-stable", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "3.2.4-stable", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-stable", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "3.2.4-stable", want: "osx.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-dev.20210727", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-dev.20210727", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-dev.20210727", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-dev.20210727", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-dev.20210727", want: "osx.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha1", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha1", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha1", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha1", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha1", want: "osx.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha12", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha12", want: "osx.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha12", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha12", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha12", want: "osx.universal"},
 
 		// v4.0-alpha13+
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-alpha13", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-alpha13", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-alpha13", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha13", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-alpha13", want: "macos.universal"},
 
-		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-beta1", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-beta1", want: "macos.universal"},
+		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-beta1", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-beta1", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-beta1", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-beta1", want: "macos.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0-rc1", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0-rc1", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0-rc1", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-rc1", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0-rc1", want: "macos.universal"},
 
 		{platform: Platform{OS: MacOS, Arch: Amd64}, version: "4.0", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: Arm64}, version: "4.0", want: "macos.universal"},
 		{platform: Platform{OS: MacOS, Arch: I386}, version: "4.0", err: ErrUnrecognizedArch},
-		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0", err: ErrUnrecognizedArch},
+		{platform: Platform{OS: MacOS, Arch: Universal}, version: "4.0", want: "macos.universal"},
 
 		// Valid inputs - Windows
 
@@ -204,8 +204,8 @@ func TestFormatPlatform(t *testing.T) {
 		{platform: Platform{OS: Windows, Arch: Universal}, version: "4.0", err: ErrUnrecognizedArch},
 	}
 
-	for i, tc := range tests {
-		t.Run(fmt.Sprintf("%d-%v-%s", i, tc.platform, tc.version), func(t *testing.T) {
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("%s-%s-%s", tc.platform.OS, tc.platform.Arch, tc.version), func(t *testing.T) {
 			var v version.Version
 			if tc.version != "" {
 				v = version.MustParse(tc.version)

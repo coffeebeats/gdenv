@@ -27,7 +27,7 @@ var versionGitHubAssetSupport = version.MustParse("v3.1.1") //nolint:gochecknogl
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
 type GitHub struct {
-	client *client.Client
+	client client.Client
 }
 
 // Validate at compile-time that 'GitHub' implements 'Mirror'.
@@ -39,7 +39,7 @@ var _ Mirror = &GitHub{} //nolint:exhaustruct
 // redirect policies configured.
 func NewGitHub() GitHub {
 	c := client.NewWithRedirectDomains(gitHubContentDomain)
-	return GitHub{&c}
+	return GitHub{c}
 }
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
@@ -65,6 +65,11 @@ func (m GitHub) CheckIfSupports(v version.Version) bool {
 	return exists
 }
 
+// Returns a new 'client.Client' for downloading artifacts from the mirror.
+func (m GitHub) Client() client.Client {
+	return m.client
+}
+
 func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
 	var a artifact.Remote[executable.Archive]
 
@@ -79,12 +84,12 @@ func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[exe
 
 	executableArchive := executable.Archive{Artifact: ex}
 
-	urlRaw, err := url.JoinPath(urlRelease, executableArchive.Name())
+	urlParsed, err := client.ParseURL(urlRelease, executableArchive.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = executableArchive, urlRaw
+	a.Artifact, a.URL = executableArchive, urlParsed
 
 	return a, nil
 }
@@ -106,12 +111,12 @@ func (m GitHub) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[c
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
-	urlRaw, err := url.JoinPath(urlRelease, checksumsExecutable.Name())
+	urlParsed, err := client.ParseURL(urlRelease, checksumsExecutable.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = checksumsExecutable, urlRaw
+	a.Artifact, a.URL = checksumsExecutable, urlParsed
 
 	return a, nil
 }
@@ -131,12 +136,12 @@ func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive
 	s := source.New(v)
 	sourceArchive := source.Archive{Artifact: s}
 
-	urlRaw, err := url.JoinPath(urlRelease, sourceArchive.Name())
+	urlParsed, err := client.ParseURL(urlRelease, sourceArchive.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = sourceArchive, urlRaw
+	a.Artifact, a.URL = sourceArchive, urlParsed
 
 	return a, nil
 }
@@ -158,12 +163,12 @@ func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[check
 		return a, errors.Join(ErrInvalidSpecification, err)
 	}
 
-	urlRaw, err := url.JoinPath(urlRelease, checksumsSource.Name())
+	urlParsed, err := client.ParseURL(urlRelease, checksumsSource.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = checksumsSource, urlRaw
+	a.Artifact, a.URL = checksumsSource, urlParsed
 
 	return a, nil
 }

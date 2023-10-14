@@ -37,7 +37,7 @@ var (
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
 type TuxFamily struct {
-	client *client.Client
+	client client.Client
 }
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror'.
@@ -47,7 +47,7 @@ var _ Mirror = &TuxFamily{} //nolint:exhaustruct
 
 func NewTuxFamily() TuxFamily {
 	c := client.NewWithRedirectDomains(tuxfamilyDownloadsDomain)
-	return TuxFamily{&c}
+	return TuxFamily{c}
 }
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
@@ -73,6 +73,11 @@ func (m TuxFamily) CheckIfSupports(v version.Version) bool {
 	return exists
 }
 
+// Returns a new 'client.Client' for downloading artifacts from the mirror.
+func (m TuxFamily) Client() client.Client {
+	return m.client
+}
+
 func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
 	var a artifact.Remote[executable.Archive]
 
@@ -87,12 +92,12 @@ func (m TuxFamily) ExecutableArchive(ex executable.Executable) (artifact.Remote[
 
 	executableArchive := executable.Archive{Artifact: ex}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, executableArchive.Name())
+	urlParsed, err := client.ParseURL(urlVersionDir, executableArchive.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = executableArchive, urlRaw
+	a.Artifact, a.URL = executableArchive, urlParsed
 
 	return a, nil
 }
@@ -114,12 +119,12 @@ func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remot
 		return a, err
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, checksumsExecutable.Name())
+	urlParsed, err := client.ParseURL(urlVersionDir, checksumsExecutable.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = checksumsExecutable, urlRaw
+	a.Artifact, a.URL = checksumsExecutable, urlParsed
 
 	return a, nil
 }
@@ -139,12 +144,12 @@ func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Arch
 	s := source.New(v)
 	sourceArchive := source.Archive{Artifact: s}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, sourceArchive.Name())
+	urlParsed, err := client.ParseURL(urlVersionDir, sourceArchive.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = sourceArchive, urlRaw
+	a.Artifact, a.URL = sourceArchive, urlParsed
 
 	return a, nil
 }
@@ -166,12 +171,12 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 		return a, err
 	}
 
-	urlRaw, err := url.JoinPath(urlVersionDir, checksumsSource.Name())
+	urlParsed, err := client.ParseURL(urlVersionDir, checksumsSource.Name())
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	a.Artifact, a.URL = checksumsSource, urlRaw
+	a.Artifact, a.URL = checksumsSource, urlParsed
 
 	return a, nil
 }

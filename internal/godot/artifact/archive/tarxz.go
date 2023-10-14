@@ -1,5 +1,14 @@
 package archive
 
+import (
+	"archive/tar"
+	"io"
+	"os"
+	"path/filepath"
+
+	"github.com/ulikunitz/xz"
+)
+
 const extensionTarXZ = ".tar.xz"
 
 /* -------------------------------------------------------------------------- */
@@ -25,6 +34,51 @@ func (a TarXZ[T]) Name() string {
 /* ------------------------------ Impl: Archive ----------------------------- */
 
 // Extracts the archived contents to the specified directory.
-func (a TarXZ[T]) extract(path, out string) error { //nolint:revive
-	return nil // TODO: Implement the archive extraction.
+//
+// NOTE: This method does not detect insecure filepaths included in the archive.
+// Instead, ensure the binary is compiled with the GODEBUG option
+// 'tarinsecurepath=0' (see https://github.com/golang/go/issues/55356).
+func (a TarXZ[T]) extract(path, out string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	decompressed, err := xz.NewReader(f)
+	if err != nil {
+		return err
+	}
+
+	archive := tar.NewReader(decompressed)
+
+	// Extract all files within the archive.
+	for {
+		hdr, err := archive.Next()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+
+			return err
+		}
+
+		mode := hdr.FileInfo().Mode()
+		out := filepath.Join(out, hdr.Name) //nolint:gosec
+
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(out, mode); err != nil {
+				return err
+			}
+
+		case tar.TypeReg:
+			if err := copyFile(archive, mode, out); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

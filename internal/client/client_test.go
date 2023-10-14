@@ -7,13 +7,58 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 )
+
+/* ----------------------------- Test: ParseURL ----------------------------- */
+
+func TestParseURL(t *testing.T) {
+	tests := []struct {
+		urlParts []string
+		want     *url.URL
+		err      error
+	}{
+		// Invalid inputs
+		{urlParts: []string{""}, want: nil, err: ErrMissingURL},
+		{urlParts: []string{"://invalid-"}, want: nil, err: ErrInvalidURL},
+
+		// Valid inputs
+		{
+			urlParts: []string{"https://example.com"},
+			want:     mustParseURL(t, "https://example.com/"),
+			err:      nil,
+		},
+		{
+			urlParts: []string{"https://example.com", "abc"},
+			want:     mustParseURL(t, "https://example.com/abc"),
+			err:      nil,
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-url='%s'", i, strings.Join(tc.urlParts, "/")), func(t *testing.T) {
+			// When: A new asset is created with the specified values.
+			got, err := ParseURL(tc.urlParts[0], tc.urlParts[1:]...)
+
+			// Then: The resulting error matches expectations.
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
+			}
+
+			// Then: The resulting 'Asset' matches expectations.
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
 
 /* -------------------------- Test: Client.Download ------------------------- */
 
@@ -196,4 +241,15 @@ func TestClientExists(t *testing.T) {
 			}
 		})
 	}
+}
+
+/* ------------------------- Function: mustParseURL ------------------------- */
+
+func mustParseURL(t *testing.T, urlRaw string) *url.URL {
+	u, err := url.ParseRequestURI(urlRaw)
+	if err != nil {
+		t.Fatalf("test setup: %#v", err)
+	}
+
+	return u
 }

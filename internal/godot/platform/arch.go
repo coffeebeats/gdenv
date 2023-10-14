@@ -26,6 +26,23 @@ const (
 	Universal
 )
 
+/* ----------------------------- Impl: Stringer ----------------------------- */
+
+func (a Arch) String() string {
+	switch a {
+	case Amd64:
+		return "amd64"
+	case Arm64:
+		return "arm64"
+	case I386:
+		return "i386"
+	case Universal:
+		return "universal"
+	default:
+		return "unknown"
+	}
+}
+
 /* --------------------------- Function: ParseArch -------------------------- */
 
 // Parses an input string as a CPU architecture specification. Typically this

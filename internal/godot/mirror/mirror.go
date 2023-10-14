@@ -3,6 +3,7 @@ package mirror
 import (
 	"errors"
 
+	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -22,6 +23,7 @@ var (
 // An interface specifying methods for retrieving information about assets
 // available for download via a mirror host.
 type Mirror interface {
+	Client() client.Client
 	ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error)
 	ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error)
 
