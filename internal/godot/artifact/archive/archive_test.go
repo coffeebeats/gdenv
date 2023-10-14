@@ -8,9 +8,7 @@ import (
 	"testing"
 )
 
-const (
-	modeTestFile = 0600 // rw-------
-)
+const modeTestFile = 0600 // rw-------
 
 /* ------------------------------ Test: Extract ----------------------------- */
 
