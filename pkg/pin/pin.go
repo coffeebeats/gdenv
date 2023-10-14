@@ -2,12 +2,16 @@ package pin
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
+
+const modePinFile = 0664 // rw-rw-r--
 
 var (
 	ErrParseVersion   = errors.New("failed to parse version")
@@ -97,10 +101,17 @@ func Write(v version.Version, path string) error {
 		return err
 	}
 
+	// Determine the permissions of the nearest ancestor directory.
+	mode, err := pathutil.AncestorMode(path)
+	fmt.Println(mode)
+	if err != nil {
+		return fmt.Errorf("cannot determine permissions: %w", err)
+	}
+
 	// Make the parent directories if needed.
-	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), mode); err != nil {
 		return err
 	}
 
-	return os.WriteFile(path, []byte(v.String()), os.ModePerm)
+	return os.WriteFile(path, []byte(v.String()), modePinFile)
 }

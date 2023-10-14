@@ -12,6 +12,11 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
+const (
+	modeMockTool = 0600 // rw-------
+	modeTestDir  = 0600 // rw-------
+)
+
 /* ------------------------------- Test: Init ------------------------------- */
 
 func TestInit(t *testing.T) {
@@ -85,7 +90,7 @@ func TestAdd(t *testing.T) {
 			ex := executable.New(v, p)
 
 			// Create the tool to be moved.
-			if err := os.WriteFile(tool, []byte(""), os.ModePerm); err != nil {
+			if err := os.WriteFile(tool, []byte(""), modeMockTool); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
@@ -149,10 +154,10 @@ func TestRemove(t *testing.T) {
 
 			// Create the tool to be moved.
 			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), ex.Name())
-			if err := os.MkdirAll(filepath.Dir(toolWant), os.ModePerm); err != nil {
+			if err := os.MkdirAll(filepath.Dir(toolWant), modeTestDir); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
-			if err := os.WriteFile(toolWant, []byte(""), os.ModePerm); err != nil {
+			if err := os.WriteFile(toolWant, []byte(""), modeMockTool); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
