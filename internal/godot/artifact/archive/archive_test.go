@@ -2,66 +2,171 @@ package archive
 
 import (
 	"errors"
+	"io/fs"
+	"os"
 	"path/filepath"
-	"reflect"
-	"strconv"
 	"testing"
-
-	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 )
 
 /* ------------------------------ Test: Extract ----------------------------- */
 
 func TestExtract(t *testing.T) {
 	tests := []struct {
-		archive Zip[testArtifact]
+		name    string
+		archive MockArchive[MockArtifact]
 		out     string
 
-		want artifact.Local[testArtifact]
-		err  error
-	}{
-		// Valid inputs
-		{},
+		setUpFileSystem func(*testing.T, Local, string)
 
+		err error
+	}{
 		// Invalid inputs
-		{},
+		{
+			name:    "input artifact does not exist",
+			archive: MockArchive[MockArtifact]{name: "archive.zip"},
+			out:     "name",
+
+			setUpFileSystem: func(t *testing.T, archive Local, out string) {
+				// Given: The archive does not exist.
+				// Given: The output path does not exist.
+			},
+
+			err: fs.ErrNotExist,
+		},
+		{
+			name:    "'out' path exists but is a file",
+			archive: MockArchive[MockArtifact]{name: "archive.zip"},
+			out:     "directory",
+
+			setUpFileSystem: func(t *testing.T, archive Local, out string) {
+				// Given: The archive exists in the testing directory.
+				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+
+				// Given: The output path exists but is a file.
+				if err := os.WriteFile(out, []byte(""), 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+			},
+
+			err: fs.ErrInvalid,
+		},
+
+		// Valid inputs
+		{
+			name:    "archive fails to extract",
+			archive: MockArchive[MockArtifact]{name: "archive.zip", err: fs.ErrPermission}, // arbitrary error
+			out:     "directory",
+
+			setUpFileSystem: func(t *testing.T, archive Local, out string) {
+				// Given: The archive exists in the testing directory.
+				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+
+				// Given: The output path does not exist.
+			},
+
+			err: fs.ErrPermission,
+		},
+		{
+			name:    "archive extracts successfully with missing 'out'",
+			archive: MockArchive[MockArtifact]{name: "archive.zip"},
+			out:     "directory",
+
+			setUpFileSystem: func(t *testing.T, archive Local, out string) {
+				// Given: The archive exists in the testing directory.
+				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+
+				// Given: The output path does not exist.
+			},
+
+			err: nil,
+		},
+		{
+			name:    "archive extracts successfully with existing 'out' directory",
+			archive: MockArchive[MockArtifact]{name: "archive.zip"},
+			out:     "directory",
+
+			setUpFileSystem: func(t *testing.T, archive Local, out string) {
+				// Given: The archive exists in the testing directory.
+				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+
+				// Given: The output path exists and is a directory.
+				if err := os.MkdirAll(out, 0600); err != nil { // owner r+w
+					t.Fatal(err)
+				}
+			},
+
+			err: nil,
+		},
 	}
 
-	for i, tc := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
 			tmp := t.TempDir()
 
-			err := Extract(
-				Local{
-					Artifact: tc.archive,
-					Path:     filepath.Join(tmp, tc.archive.Name()),
-				},
-				tc.out,
-			)
+			src := filepath.Join(tmp, tc.archive.Name())
+			dst := filepath.Join(tmp, tc.out)
+
+			localArchive := Local{
+				Artifact: tc.archive,
+				Path:     src,
+			}
+
+			tc.setUpFileSystem(t, localArchive, dst)
+
+			err := Extract(localArchive, dst)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
-			}
-
-			if !reflect.DeepEqual(got, tc.want) {
-				t.Errorf("output: got %v, want %v", got, tc.want)
 			}
 		})
 	}
 }
 
 /* -------------------------------------------------------------------------- */
-/*                            Struct: testArtifact                            */
+/*                             Struct: MockArchive                            */
 /* -------------------------------------------------------------------------- */
 
-type testArtifact struct{}
+type MockArchive[T Archivable] struct {
+	name string
+	err  error
+}
+
+var _ Archive = MockArchive[MockArtifact]{}
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
-func (t testArtifact) Name() string {
-	return ""
+func (a MockArchive[T]) Name() string {
+	return a.name
+}
+
+/* ------------------------------ Impl: Archive ----------------------------- */
+
+func (a MockArchive[T]) extract(path, out string) error {
+	return a.err
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            Struct: MockArtifact                            */
+/* -------------------------------------------------------------------------- */
+
+type MockArtifact struct {
+	name string
+}
+
+/* ----------------------------- Impl: Artifact ----------------------------- */
+
+func (a MockArtifact) Name() string {
+	return a.name
 }
 
 /* ---------------------------- Impl: Archivable ---------------------------- */
 
-func (t testArtifact) Archivable() {}
+func (a MockArtifact) Archivable() {}
