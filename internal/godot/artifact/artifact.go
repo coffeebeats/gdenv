@@ -53,16 +53,12 @@ type Local[T Artifact] struct {
 /* ----------------------------- Method: Exists ----------------------------- */
 
 // Returns whether the downloaded file exists on the local file system.
-func (l Local[T]) Exists() (bool, error) {
-	if l.Path == "" {
-		return false, ErrMissingPath
-	}
-
+func (l Local[T]) Exists() bool {
 	if _, err := os.Stat(l.Path); err != nil {
-		return false, err
+		return false
 	}
 
-	return true, nil
+	return true
 }
 
 /* -------------------------------------------------------------------------- */

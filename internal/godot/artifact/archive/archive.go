@@ -47,12 +47,7 @@ type Archivable interface {
 // 'Artifact' pointing to it.
 func Extract[T Archive](a artifact.Local[T], out string) error {
 	// Validate that the artifact exists.
-	ok, err := a.Exists()
-	if err != nil {
-		return err
-	}
-
-	if !ok {
+	if !a.Exists() {
 		return fmt.Errorf("%w: '%s'", fs.ErrNotExist, a.Path)
 	}
 
@@ -72,6 +67,8 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 
 /* --------------------------- Function: copyFile --------------------------- */
 
+// A shared helper function which copies the contents of an 'io.Reader' to a new
+// file created with the specified 'os.FileMode'.
 func copyFile(f io.Reader, mode os.FileMode, out string) error {
 	dst, err := os.OpenFile(out, copyFileWriteFlag, mode)
 	if err != nil {
