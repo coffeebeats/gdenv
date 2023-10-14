@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -88,7 +89,7 @@ func TestClientDownload(t *testing.T) {
 		httpmock.NewStringResponder(200, want))
 
 	// When: The file is downloaded.
-	if err := c.Download(u, f); err != nil {
+	if err := c.Download(context.Background(), u, f); err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -129,7 +130,7 @@ func TestClientDownloadTo(t *testing.T) {
 		httpmock.NewStringResponder(200, want))
 
 	// When: The file is downloaded.
-	if err := c.DownloadTo(u, f); err != nil {
+	if err := c.DownloadTo(context.Background(), u, f); err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -176,7 +177,7 @@ func TestClientDownloadToWithProgress(t *testing.T) {
 		httpmock.NewStringResponder(200, want).SetContentLength())
 
 	// When: The file is downloaded.
-	if err := c.DownloadToWithProgress(u, f, p); err != nil {
+	if err := c.DownloadToWithProgress(context.Background(), u, f, p); err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -228,7 +229,7 @@ func TestClientExists(t *testing.T) {
 				httpmock.NewStringResponder(tc.res, ""))
 
 			// When: The URL is checked for existence.
-			got, err := c.Exists(tc.url)
+			got, err := c.Exists(context.Background(), tc.url)
 
 			// Then: The returned error matches expectations.
 			if !errors.Is(err, tc.err) {

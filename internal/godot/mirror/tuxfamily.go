@@ -1,6 +1,7 @@
 package mirror
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -54,7 +55,7 @@ func NewTuxFamily() TuxFamily {
 /* ------------------------------ Impl: Mirror ------------------------------ */
 
 // Issues a request to see if the mirror host has the specific version.
-func (m TuxFamily) CheckIfSupports(v version.Version) bool {
+func (m TuxFamily) CheckIfExists(ctx context.Context, v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -66,7 +67,7 @@ func (m TuxFamily) CheckIfSupports(v version.Version) bool {
 		return false
 	}
 
-	exists, err := m.client.Exists(urlVersionDir)
+	exists, err := m.client.Exists(ctx, urlVersionDir)
 	if err != nil {
 		return false
 	}
@@ -188,7 +189,7 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'CheckIfSupports' method.
+// use the 'CheckIfExists' method.
 func (m TuxFamily) Supports(v version.Version) bool {
 	// TuxFamily seems to contain all published releases.
 	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0

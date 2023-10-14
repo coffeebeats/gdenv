@@ -16,7 +16,7 @@ const (
 
 	storeDirBin     = "bin"
 	storeDirGodot   = "godot"
-	storeFileLayout = "layout.v1" // simplify migrating in the future
+	storeFileLayout = "layout.v0" // simplify migrating in the future
 )
 
 var (

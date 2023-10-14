@@ -1,9 +1,11 @@
 package mirror
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
@@ -46,7 +48,7 @@ func NewGitHub() GitHub {
 /* ------------------------------ Impl: Mirror ------------------------------ */
 
 // Issues a request to see if the mirror host has the specific version.
-func (m GitHub) CheckIfSupports(v version.Version) bool {
+func (m GitHub) CheckIfExists(ctx context.Context, v version.Version) bool {
 	if !m.Supports(v) {
 		return false
 	}
@@ -58,7 +60,7 @@ func (m GitHub) CheckIfSupports(v version.Version) bool {
 		return false
 	}
 
-	exists, err := m.client.Exists(urlRelease)
+	exists, err := m.client.Exists(ctx, strings.Replace(urlRelease, "download", "tag", 1))
 	if err != nil {
 		return false
 	}
@@ -177,7 +179,7 @@ func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[check
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'CheckIfSupports' method.
+// use the 'CheckIfExists' method.
 func (m GitHub) Supports(v version.Version) bool {
 	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
