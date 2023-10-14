@@ -41,7 +41,7 @@ func TestGitHubExecutable(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.ex.String(), func(t *testing.T) {
-			got, err := (&GitHub{}).ExecutableArchive(tc.ex)
+			got, err := (&GitHub{}).ExecutableArchive(tc.ex.Version(), tc.ex.Platform())
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)

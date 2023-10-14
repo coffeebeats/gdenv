@@ -8,6 +8,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -24,7 +25,7 @@ var (
 // available for download via a mirror host.
 type Mirror interface {
 	Client() client.Client
-	ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error)
+	ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error)
 	ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error)
 
 	SourceArchive(v version.Version) (artifact.Remote[source.Archive], error)

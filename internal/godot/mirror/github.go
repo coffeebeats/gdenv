@@ -10,6 +10,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -70,19 +71,19 @@ func (m GitHub) Client() client.Client {
 	return m.client
 }
 
-func (m GitHub) ExecutableArchive(ex executable.Executable) (artifact.Remote[executable.Archive], error) {
+func (m GitHub) ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error) {
 	var a artifact.Remote[executable.Archive]
 
-	if !m.Supports(ex.Version()) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, ex.Version())
+	if !m.Supports(v) {
+		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v)
 	}
 
-	urlRelease, err := urlGitHubRelease(ex.Version())
+	urlRelease, err := urlGitHubRelease(v)
 	if err != nil {
 		return a, errors.Join(ErrInvalidURL, err)
 	}
 
-	executableArchive := executable.Archive{Artifact: ex}
+	executableArchive := executable.Archive{Artifact: executable.New(v, p)}
 
 	urlParsed, err := client.ParseURL(urlRelease, executableArchive.Name())
 	if err != nil {
