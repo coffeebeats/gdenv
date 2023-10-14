@@ -1,5 +1,3 @@
-//go:debug tarinsecurepath=0
-//go:debug zipinsecurepath=0
 package main
 
 import (
