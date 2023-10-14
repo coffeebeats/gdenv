@@ -62,6 +62,7 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 		return fmt.Errorf("%w: expected a directory", fs.ErrInvalid)
 	}
 
+	// Create the required output directories if they don't exist.
 	if info == nil {
 		ancestorMode, err := pathutil.AncestorMode(out)
 		if err != nil {
