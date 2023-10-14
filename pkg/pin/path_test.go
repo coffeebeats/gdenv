@@ -76,11 +76,11 @@ func TestExists(t *testing.T) {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.MkdirAll(filepath.Dir(pin), os.ModePerm); err != nil {
+				if err := os.MkdirAll(filepath.Dir(pin), modeTestDir); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.WriteFile(pin, []byte(""), os.ModePerm); err != nil {
+				if err := os.WriteFile(pin, []byte(""), modePinFile); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 			}

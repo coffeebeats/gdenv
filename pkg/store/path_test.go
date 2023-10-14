@@ -74,7 +74,7 @@ func TestExists(t *testing.T) {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.MkdirAll(store, os.ModePerm); err != nil {
+				if err := os.MkdirAll(store, modeTestDir); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 			}

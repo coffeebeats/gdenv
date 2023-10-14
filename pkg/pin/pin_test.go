@@ -11,6 +11,8 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
+const modeTestDir = 0700 // rwx------
+
 /* ------------------------------- Test: Read ------------------------------- */
 
 func TestRead(t *testing.T) {
@@ -39,11 +41,11 @@ func TestRead(t *testing.T) {
 
 			if tc.existing {
 				// Create the pin file
-				if err := os.MkdirAll(filepath.Dir(pin), os.ModePerm); err != nil {
+				if err := os.MkdirAll(filepath.Dir(pin), modeTestDir); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.WriteFile(pin, []byte(v.String()), os.ModePerm); err != nil {
+				if err := os.WriteFile(pin, []byte(v.String()), modePinFile); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 			}
@@ -88,11 +90,11 @@ func TestResolve(t *testing.T) {
 			}
 
 			// Create the pin file
-			if err := os.MkdirAll(filepath.Dir(pin), os.ModePerm); err != nil {
+			if err := os.MkdirAll(filepath.Dir(pin), modeTestDir); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			if err := os.WriteFile(pin, []byte(""), os.ModePerm); err != nil {
+			if err := os.WriteFile(pin, []byte(""), modePinFile); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
@@ -137,11 +139,11 @@ func TestRemove(t *testing.T) {
 			}
 
 			if tc.existing {
-				if err := os.MkdirAll(filepath.Dir(pin), os.ModePerm); err != nil {
+				if err := os.MkdirAll(filepath.Dir(pin), modeTestDir); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 
-				if err := os.WriteFile(pin, []byte(""), os.ModePerm); err != nil {
+				if err := os.WriteFile(pin, []byte(""), modePinFile); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 			}

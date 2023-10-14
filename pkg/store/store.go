@@ -10,9 +10,14 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
-const storeDirBin = "bin"
-const storeDirGodot = "godot"
-const storeFileLayout = "layout.v1" // simplify migrating in the future
+const (
+	modeStoreDir    = 0755 // rwxr-xr-x
+	modeStoreLayout = 0644 // rw-r--r--
+
+	storeDirBin     = "bin"
+	storeDirGodot   = "godot"
+	storeFileLayout = "layout.v1" // simplify migrating in the future
+)
 
 var (
 	ErrInvalidSpecification = errors.New("invalid specification")
@@ -30,20 +35,20 @@ func Init(path string) error {
 	}
 
 	// Create the 'Store' directory, if needed.
-	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+	if err := os.MkdirAll(path, modeStoreDir); err != nil {
 		return err
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirGodot} {
-		if err := os.MkdirAll(filepath.Join(path, d), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Join(path, d), modeStoreDir); err != nil {
 			return err
 		}
 	}
 
 	// Create the required files, if needed.
 	for _, f := range []string{storeFileLayout} {
-		if err := os.WriteFile(filepath.Join(path, f), nil, os.ModePerm); err != nil {
+		if err := os.WriteFile(filepath.Join(path, f), nil, modeStoreLayout); err != nil {
 			return err
 		}
 	}
@@ -87,7 +92,7 @@ func Add(store, file string, ex executable.Executable) error {
 	}
 
 	// Create the required directories, if needed.
-	if err := os.MkdirAll(filepath.Dir(tool), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(tool), modeStoreDir); err != nil {
 		return err
 	}
 

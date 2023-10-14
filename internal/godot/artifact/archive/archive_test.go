@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+const modeTestFile = 0600 // rw-------
+
 /* ------------------------------ Test: Extract ----------------------------- */
 
 func TestExtract(t *testing.T) {
@@ -40,12 +42,12 @@ func TestExtract(t *testing.T) {
 
 			setUpFileSystem: func(t *testing.T, archive Local, out string) {
 				// Given: The archive exists in the testing directory.
-				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+				if err := os.WriteFile(archive.Path, []byte(""), modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 
 				// Given: The output path exists but is a file.
-				if err := os.WriteFile(out, []byte(""), 0600); err != nil { // owner r+w
+				if err := os.WriteFile(out, []byte(""), modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 			},
@@ -61,7 +63,7 @@ func TestExtract(t *testing.T) {
 
 			setUpFileSystem: func(t *testing.T, archive Local, out string) {
 				// Given: The archive exists in the testing directory.
-				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+				if err := os.WriteFile(archive.Path, []byte(""), modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 
@@ -77,7 +79,7 @@ func TestExtract(t *testing.T) {
 
 			setUpFileSystem: func(t *testing.T, archive Local, out string) {
 				// Given: The archive exists in the testing directory.
-				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+				if err := os.WriteFile(archive.Path, []byte(""), modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 
@@ -93,12 +95,12 @@ func TestExtract(t *testing.T) {
 
 			setUpFileSystem: func(t *testing.T, archive Local, out string) {
 				// Given: The archive exists in the testing directory.
-				if err := os.WriteFile(archive.Path, []byte(""), 0600); err != nil { // owner r+w
+				if err := os.WriteFile(archive.Path, []byte(""), modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 
 				// Given: The output path exists and is a directory.
-				if err := os.MkdirAll(out, 0600); err != nil { // owner r+w
+				if err := os.MkdirAll(out, modeTestFile); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 			},
