@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/mirror"
-	"github.com/coffeebeats/gdenv/internal/mirror/github"
-	"github.com/coffeebeats/gdenv/internal/mirror/tuxfamily"
 )
 
 var ErrNoMirrorFound = errors.New("no mirror found")
@@ -20,10 +18,9 @@ var ErrNoMirrorFound = errors.New("no mirror found")
 func ChooseMirror(v version.Version) (mirror.Mirror, error) { //nolint:ireturn
 	log.Printf("Checking whether mirror 'GitHub' supports version: %s\n", v.String())
 
-	// NOTE: Use the empty struct to avoid initializing a client before it's
-	// necessary.
-	if (github.GitHub{}).Supports(v) {
-		m := github.New()
+	// NOTE: Use a zero value to avoid initializing a client before necessary.
+	if (mirror.GitHub{}).Supports(v) {
+		m := mirror.NewGitHub()
 		if m.CheckIfSupports(v) {
 			log.Printf("Success! Mirror 'GitHub' supports version: %s\n", v.String())
 			return m, nil
@@ -34,10 +31,9 @@ func ChooseMirror(v version.Version) (mirror.Mirror, error) { //nolint:ireturn
 
 	log.Printf("Checking whether mirror 'TuxFamily' supports version: %s\n", v.String())
 
-	// NOTE: Use the empty struct to avoid initializing a client before it's
-	// necessary.
-	if (tuxfamily.TuxFamily{}).Supports(v) {
-		m := tuxfamily.New()
+	// NOTE: Use a zero value to avoid initializing a client before necessary.
+	if (mirror.TuxFamily{}).Supports(v) {
+		m := mirror.NewTuxFamily()
 		if m.CheckIfSupports(v) {
 			log.Printf("Success! Mirror 'TuxFamily' supports version: %s\n", v.String())
 			return m, nil
