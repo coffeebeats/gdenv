@@ -58,6 +58,15 @@ func AncestorDir(path string) (string, error) {
 		return "", err
 	}
 
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+
+	if info.IsDir() {
+		return path, nil
+	}
+
 	return filepath.Dir(path), nil
 }
 
