@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
 
 // Only write to 'out'; create a new file/overwrite an existing.
@@ -61,6 +62,17 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 		return fmt.Errorf("%w: expected a directory", fs.ErrInvalid)
 	}
 
+	if info == nil {
+		ancestorMode, err := pathutil.AncestorMode(out)
+		if err != nil {
+			return err
+		}
+
+		if err := os.MkdirAll(out, ancestorMode); err != nil {
+			return err
+		}
+	}
+
 	// Extract the contents to the specified 'out' directory.
 	return a.Artifact.extract(a.Path, out)
 }
@@ -69,7 +81,7 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 
 // A shared helper function which copies the contents of an 'io.Reader' to a new
 // file created with the specified 'os.FileMode'.
-func copyFile(f io.Reader, mode os.FileMode, out string) error {
+func copyFile(f io.Reader, mode fs.FileMode, out string) error {
 	dst, err := os.OpenFile(out, copyFileWriteFlag, mode)
 	if err != nil {
 		return err
