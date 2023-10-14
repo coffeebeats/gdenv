@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -101,6 +102,9 @@ func New() Client {
 		log.Println("Retrying due to:", err, fmt.Sprintf("(%s)", r.Status()))
 	})
 
+	// Disable internal resty client logging.
+	restyClient.SetLogger(silentLogger{})
+
 	return Client{restyClient}
 }
 
@@ -128,7 +132,7 @@ func NewWithRedirectDomains(domains ...string) Client {
 /* ----------------------------- Method: Exists ----------------------------- */
 
 // Issues a 'HEAD' request to test whether or not the URL is reachable.
-func (c Client) Exists(urlRaw string) (bool, error) {
+func (c Client) Exists(ctx context.Context, urlRaw string) (bool, error) {
 	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
 	urlParsed, err := url.ParseRequestURI(urlRaw)
 	if err != nil {
@@ -140,7 +144,7 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 	}
 
 	// Use a no-op response handler, as just the response code is used.
-	err = c.head(urlParsed, func(r *resty.Response) error {
+	err = c.head(ctx, urlParsed, func(r *resty.Response) error {
 		// Redirects should be followed by the client, not accepted as a valid
 		// result for 'Exists'. Return an error so the caller knows the client
 		// is incorrectly configured.
@@ -168,8 +172,8 @@ func (c Client) Exists(urlRaw string) (bool, error) {
 
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers.
-func (c Client) Download(u *url.URL, w ...io.Writer) error {
-	return c.get(u, func(r *resty.Response) error {
+func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error {
+	return c.get(ctx, u, func(r *resty.Response) error {
 		// Copy the asset contents into provided writers.
 		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
@@ -180,7 +184,7 @@ func (c Client) Download(u *url.URL, w ...io.Writer) error {
 /* --------------------------- Method: DownloadTo --------------------------- */
 
 // Downloads the provided asset to a specified file 'out'.
-func (c Client) DownloadTo(u *url.URL, out string) error {
+func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
 		return err
@@ -188,7 +192,7 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 
 	defer f.Close()
 
-	return c.get(u, func(r *resty.Response) error {
+	return c.get(ctx, u, func(r *resty.Response) error {
 		// Copy the response contents into the writer.
 		_, err := io.Copy(f, r.RawBody())
 
@@ -202,7 +206,7 @@ func (c Client) DownloadTo(u *url.URL, out string) error {
 // download progress to the provided progress pointer 'p'.
 //
 // NOTE: The provided 'Progress' struct will be reconfigured as needed.
-func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progress) error {
+func (c Client) DownloadToWithProgress(ctx context.Context, u *url.URL, out string, p *progress.Progress) error {
 	f, err := os.Create(out)
 	if err != nil {
 		return err
@@ -210,7 +214,7 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 
 	defer f.Close()
 
-	return c.get(u, func(r *resty.Response) error {
+	return c.get(ctx, u, func(r *resty.Response) error {
 		// Reset any pre-existing progress in the 'Progress' reporter.
 		p.Reset()
 
@@ -229,15 +233,15 @@ func (c Client) DownloadToWithProgress(u *url.URL, out string, p *progress.Progr
 /* ------------------------------- Method: get ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'GET' request.
-func (c Client) get(u *url.URL, h func(*resty.Response) error) error {
-	return execute(c.restyClient.R(), resty.MethodGet, u.String(), h)
+func (c Client) get(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
+	return execute(ctx, c.restyClient.R(), resty.MethodGet, u.String(), h)
 }
 
 /* ------------------------------ Method: head ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'HEAD' request.
-func (c Client) head(u *url.URL, h func(*resty.Response) error) error {
-	return execute(c.restyClient.R(), resty.MethodHead, u.String(), h)
+func (c Client) head(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
+	return execute(ctx, c.restyClient.R(), resty.MethodHead, u.String(), h)
 }
 
 /* ---------------------------- Function: execute --------------------------- */
@@ -245,11 +249,11 @@ func (c Client) head(u *url.URL, h func(*resty.Response) error) error {
 // Executes the provided request, but delegates the response handling to the
 // provided function. The handler should *not* close the response, as that's
 // handled by this function.
-func execute(req *resty.Request, m, u string, h func(*resty.Response) error) error {
-	// Take over response parsing (requires response body to be manually closed).
-	req.SetDoNotParseResponse(true)
-
-	res, err := req.Execute(m, u)
+func execute(ctx context.Context, req *resty.Request, m, u string, h func(*resty.Response) error) error {
+	res, err := req.
+		SetContext(ctx).             // Allow canceling the request.
+		SetDoNotParseResponse(true). // Take over response parsing (requires manually closing response body).
+		Execute(m, u)
 	if err != nil {
 		return errors.Join(ErrRequestFailed, err)
 	}
@@ -262,3 +266,17 @@ func execute(req *resty.Request, m, u string, h func(*resty.Response) error) err
 
 	return h(res)
 }
+
+/* -------------------------------------------------------------------------- */
+/*                             Type: silentLogger                             */
+/* -------------------------------------------------------------------------- */
+
+// silentLogger is a 'resty.Logger' implementation that emits no logs.
+type silentLogger struct{}
+
+// Compile-time verification that 'silentLogger' implements 'resty.Logger'.
+var _ resty.Logger = silentLogger{}
+
+func (l silentLogger) Debugf(string, ...interface{}) {}
+func (l silentLogger) Errorf(string, ...interface{}) {}
+func (l silentLogger) Warnf(string, ...interface{})  {}
