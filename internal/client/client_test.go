@@ -26,15 +26,18 @@ func TestParseURL(t *testing.T) {
 		err      error
 	}{
 		// Invalid inputs
-		{urlParts: []string{}, want: nil, err: ErrMissingURL},
 		{urlParts: []string{""}, want: nil, err: ErrMissingURL},
-
 		{urlParts: []string{"://invalid-"}, want: nil, err: ErrInvalidURL},
 
 		// Valid inputs
 		{
 			urlParts: []string{"https://example.com"},
-			want:     mustParseURL(t, "https://example.com"),
+			want:     mustParseURL(t, "https://example.com/"),
+			err:      nil,
+		},
+		{
+			urlParts: []string{"https://example.com", "abc"},
+			want:     mustParseURL(t, "https://example.com/abc"),
 			err:      nil,
 		},
 	}
@@ -42,7 +45,7 @@ func TestParseURL(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("%d-url='%s'", i, strings.Join(tc.urlParts, "/")), func(t *testing.T) {
 			// When: A new asset is created with the specified values.
-			got, err := ParseURL(strings.Join(tc.urlParts, "/"))
+			got, err := ParseURL(tc.urlParts[0], tc.urlParts[1:]...)
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {
@@ -243,7 +246,7 @@ func TestClientExists(t *testing.T) {
 /* ------------------------- Function: mustParseURL ------------------------- */
 
 func mustParseURL(t *testing.T, urlRaw string) *url.URL {
-	u, err := url.Parse(urlRaw)
+	u, err := url.ParseRequestURI(urlRaw)
 	if err != nil {
 		t.Fatalf("test setup: %#v", err)
 	}
