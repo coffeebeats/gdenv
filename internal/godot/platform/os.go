@@ -25,6 +25,21 @@ const (
 	Windows
 )
 
+/* ----------------------------- Impl: Stringer ----------------------------- */
+
+func (o OS) String() string {
+	switch o {
+	case Linux:
+		return "linux"
+	case MacOS:
+		return "macOS"
+	case Windows:
+		return "windows"
+	default:
+		return "unknown"
+	}
+}
+
 /* ---------------------------- Function: ParseOS --------------------------- */
 
 // Parses an input string as an operating system specification. Typically this
