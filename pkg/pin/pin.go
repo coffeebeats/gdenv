@@ -103,7 +103,6 @@ func Write(v version.Version, path string) error {
 
 	// Determine the permissions of the nearest ancestor directory.
 	mode, err := pathutil.AncestorMode(path)
-	fmt.Println(mode)
 	if err != nil {
 		return fmt.Errorf("cannot determine permissions: %w", err)
 	}

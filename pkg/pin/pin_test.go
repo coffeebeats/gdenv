@@ -11,7 +11,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
-const modeTestDir = 0600 // rw-------
+const modeTestDir = 0700 // rwx------
 
 /* ------------------------------- Test: Read ------------------------------- */
 

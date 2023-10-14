@@ -14,7 +14,7 @@ import (
 
 const (
 	modeMockTool = 0600 // rw-------
-	modeTestDir  = 0600 // rw-------
+	modeTestDir  = 0700 // rwx------
 )
 
 /* ------------------------------- Test: Init ------------------------------- */
