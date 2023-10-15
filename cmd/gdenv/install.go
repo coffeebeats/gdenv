@@ -10,12 +10,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const (
-	EnvGDEnvArch     = "GDENV_ARCH"
-	EnvGDEnvOS       = "GDENV_OS"
-	EnvGDEnvPlatform = "GDENV_PLATFORM"
-)
-
 // A 'urfave/cli' command to download and cache a specific version of Godot.
 func NewInstall() *cli.Command {
 	return &cli.Command{
