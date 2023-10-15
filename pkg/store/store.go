@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -184,7 +185,7 @@ func ToolPath(store string, ex executable.Executable) (string, error) {
 /* --------------------------- Function: Versions --------------------------- */
 
 // Returns a list of cached Godot executables.
-func Executables(store string) ([]executable.Executable, error) {
+func Executables(ctx context.Context, store string) ([]executable.Executable, error) { //nolint:cyclop
 	store, err := Clean(store)
 	if err != nil {
 		return nil, err
@@ -206,6 +207,10 @@ func Executables(store string) ([]executable.Executable, error) {
 	out := make([]executable.Executable, 0)
 
 	for _, dirVersion := range versions {
+		if ctx.Err() != nil {
+			return out, ctx.Err()
+		}
+
 		v, err := version.Parse(dirVersion.Name())
 		if err != nil {
 			return nil, errors.Join(ErrInvalidSpecification, err)
@@ -219,6 +224,10 @@ func Executables(store string) ([]executable.Executable, error) {
 		}
 
 		for _, ex := range executables {
+			if ctx.Err() != nil {
+				return out, ctx.Err()
+			}
+
 			// Check that the executable for the current platform exists. Much
 			// of this call is redundant with checks above, but 'Has' may also
 			// check things like whether the file is indeed a file, etc.).
