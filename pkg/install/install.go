@@ -1,6 +1,7 @@
 package install
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -33,10 +34,10 @@ type Version = version.Version
 /* -------------------------------------------------------------------------- */
 
 // Downloads and caches a platform-specific version of Godot.
-func Executable(storePath string, ex executable.Executable) error { //nolint:funlen,cyclop
+func Executable(ctx context.Context, storePath string, ex executable.Executable) error { //nolint:funlen,cyclop
 	log.Println("Selecting mirror for executable:", ex.Name())
 
-	m, err := ChooseMirror(ex.Version())
+	m, err := mirror.Choose(ctx, ex.Version())
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func Executable(storePath string, ex executable.Executable) error { //nolint:fun
 
 	// Download the Godot executable and compute the checksum.
 	go func() {
-		path, err := fetchExecutable(tmp, m, ex)
+		path, err := fetchExecutable(ctx, tmp, m, ex)
 		if err != nil {
 			errs <- err
 			return
@@ -73,7 +74,7 @@ func Executable(storePath string, ex executable.Executable) error { //nolint:fun
 
 		a := artifact.Local[executable.Archive]{Path: path, Artifact: remote.Artifact}
 
-		checksum, err := checksum.Compute[executable.Archive](a)
+		checksum, err := checksum.Compute[executable.Archive](ctx, a)
 		if err != nil {
 			errs <- err
 			return
@@ -86,7 +87,7 @@ func Executable(storePath string, ex executable.Executable) error { //nolint:fun
 
 	// Download the checksums file for the version and extract the checksum.
 	go func() {
-		checksum, err := fetchChecksum(tmp, m, remote.Artifact)
+		checksum, err := fetchChecksum(ctx, tmp, m, remote.Artifact)
 		if err != nil {
 			errs <- err
 			return
@@ -125,7 +126,7 @@ func Executable(storePath string, ex executable.Executable) error { //nolint:fun
 	}
 
 	extract := filepath.Join(tmp, "extract")
-	if err := archive.Extract[executable.Archive](a, extract); err != nil {
+	if err := archive.Extract[executable.Archive](ctx, a, extract); err != nil {
 		return err
 	}
 
@@ -158,7 +159,7 @@ func Executable(storePath string, ex executable.Executable) error { //nolint:fun
 
 /* ------------------------- Function: fetchChecksum ------------------------ */
 
-func fetchChecksum(dir string, m mirror.Mirror, ex executable.Archive) (string, error) {
+func fetchChecksum(ctx context.Context, dir string, m mirror.Mirror, ex executable.Archive) (string, error) {
 	asset, err := m.ExecutableArchiveChecksums(ex.Artifact.Version())
 	if err != nil {
 		return "", err
@@ -169,7 +170,7 @@ func fetchChecksum(dir string, m mirror.Mirror, ex executable.Archive) (string, 
 
 	log.Println("Downloading asset: " + name)
 
-	if err := m.Client().DownloadTo(asset.URL, out); err != nil {
+	if err := m.Client().DownloadTo(ctx, asset.URL, out); err != nil {
 		return "", err
 	}
 	defer os.Remove(out)
@@ -183,7 +184,7 @@ func fetchChecksum(dir string, m mirror.Mirror, ex executable.Archive) (string, 
 		Path:     out,
 	}
 
-	checksum, err := checksum.Extract[executable.Archive](c, ex)
+	checksum, err := checksum.Extract[executable.Archive](ctx, c, ex)
 	if err != nil {
 		return "", err
 	}
@@ -195,7 +196,7 @@ func fetchChecksum(dir string, m mirror.Mirror, ex executable.Archive) (string, 
 
 /* ------------------------ Function: fetchExecutable ----------------------- */
 
-func fetchExecutable(dir string, m mirror.Mirror, ex executable.Executable) (string, error) {
+func fetchExecutable(ctx context.Context, dir string, m mirror.Mirror, ex executable.Executable) (string, error) {
 	asset, err := m.ExecutableArchive(ex.Version(), ex.Platform())
 	if err != nil {
 		return "", err
@@ -206,7 +207,7 @@ func fetchExecutable(dir string, m mirror.Mirror, ex executable.Executable) (str
 
 	log.Println("Downloading asset: " + name)
 
-	if err := m.Client().DownloadTo(asset.URL, out); err != nil {
+	if err := m.Client().DownloadTo(ctx, asset.URL, out); err != nil {
 		return "", err
 	}
 
