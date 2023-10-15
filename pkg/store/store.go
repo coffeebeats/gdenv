@@ -10,6 +10,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/osutil"
 )
 
 const (
@@ -26,21 +27,6 @@ var (
 	ErrMissingStore         = errors.New("missing store")
 	ErrUnexpectedLayout     = errors.New("unexpected layout")
 )
-
-/* -------------------------- Function: ExecutePath ------------------------- */
-
-// Returns the full path to the *executable* file in the store. This will either
-// be equal to the result of 'ToolPath' or be a subdirectory of it.
-//
-// NOTE: This does *not* mean the executable exists.
-func ExecutePath(store string, ex executable.Executable) (string, error) {
-	store, err := Clean(store)
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(store, storeDirGodot, ex.Version().String(), ex.Path()), nil
-}
 
 /* ----------------------------- Function: Init ----------------------------- */
 
@@ -93,8 +79,8 @@ func InitAtPath() (string, error) {
 /* ------------------------------ Function: Add ----------------------------- */
 
 // Move the specified file into the store for the specified version.
-func Add(store, file string, ex executable.Executable) error {
-	store, err := Clean(store)
+func Add(store string, v version.Version, files ...string) error {
+	directory, err := ToolDirectory(store, v)
 	if err != nil {
 		return err
 	}
@@ -103,17 +89,42 @@ func Add(store, file string, ex executable.Executable) error {
 		return fmt.Errorf("%w: '%s'", ErrMissingStore, store)
 	}
 
-	tool, err := ToolPath(store, ex)
+	// Create the required directories, if needed.
+	if err := os.MkdirAll(directory, modeStoreDir); err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		// Verify that the file-to-add exists.
+		if _, err := os.Stat(f); err != nil {
+			return err
+		}
+
+		tool := filepath.Join(directory, filepath.Base(f))
+		if err := osutil.ForceRename(f, tool); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/* ------------------------- Function: AddDirectory ------------------------- */
+
+// Move a directory's contents into the store under the specified version.
+func AddDirectory(store string, v version.Version, directory string) error {
+	files, err := os.ReadDir(directory)
 	if err != nil {
 		return err
 	}
 
-	// Create the required directories, if needed.
-	if err := os.MkdirAll(filepath.Dir(tool), modeStoreDir); err != nil {
-		return err
+	artifacts := make([]string, 0, len(files))
+
+	for _, f := range files {
+		artifacts = append(artifacts, filepath.Join(directory, f.Name()))
 	}
 
-	return os.Rename(file, tool)
+	return Add(store, v, artifacts...)
 }
 
 /* ------------------------------ Function: Has ----------------------------- */
@@ -134,12 +145,9 @@ func Has(store string, ex executable.Executable) bool {
 		return false
 	}
 
-	info, err := os.Stat(tool)
-	if err != nil {
-		return false
-	}
+	_, err = os.Stat(tool)
 
-	return info.Mode().IsRegular()
+	return err == nil
 }
 
 /* ---------------------------- Function: Remove ---------------------------- */
@@ -184,13 +192,43 @@ func Remove(store string, ex executable.Executable) error {
 	return os.RemoveAll(toolParent)
 }
 
+/* ------------------------- Function: ToolDirectory ------------------------ */
+
+// Returns the directory in which all cached artifacts for a specific version of
+// Godot are stored.
+//
+// NOTE: This does *not* mean that any tools exist for the version.
+func ToolDirectory(store string, v version.Version) (string, error) {
+	store, err := Clean(store)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(store, storeDirGodot, v.String()), nil
+}
+
+/* ------------------------ Function: ToolExecutePath ----------------------- */
+
+// Returns the full path to the *executable* file in the store. This will either
+// be equal to the result of 'ToolPath' or be a subdirectory of it.
+//
+// NOTE: This does *not* mean the executable exists.
+func ToolExecutePath(store string, ex executable.Executable) (string, error) {
+	directory, err := ToolDirectory(store, ex.Version())
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(directory, ex.Path()), nil
+}
+
 /* --------------------------- Function: ToolPath --------------------------- */
 
 // Returns the full path to the tool in the store.
 //
 // NOTE: This does *not* mean the tool exists.
 func ToolPath(store string, ex executable.Executable) (string, error) {
-	store, err := Clean(store)
+	directory, err := ToolDirectory(store, ex.Version())
 	if err != nil {
 		return "", err
 	}
@@ -200,7 +238,7 @@ func ToolPath(store string, ex executable.Executable) (string, error) {
 		return "", fmt.Errorf("%w: missing tool path: '%s'", ErrInvalidSpecification, ex.Path())
 	}
 
-	return filepath.Join(store, storeDirGodot, ex.Version().String(), paths[0]), nil
+	return filepath.Join(directory, paths[0]), nil
 }
 
 /* --------------------------- Function: Versions --------------------------- */
