@@ -36,6 +36,9 @@ linters:
     - wrapcheck
 
 linters-settings:
+  cyclop:
+    max-complexity: 12
+
   exhaustive:
     default-signifies-exhaustive: true
 

@@ -185,7 +185,7 @@ func ToolPath(store string, ex executable.Executable) (string, error) {
 /* --------------------------- Function: Versions --------------------------- */
 
 // Returns a list of cached Godot executables.
-func Executables(ctx context.Context, store string) ([]executable.Executable, error) { //nolint:cyclop
+func Executables(ctx context.Context, store string) ([]executable.Executable, error) {
 	store, err := Clean(store)
 	if err != nil {
 		return nil, err

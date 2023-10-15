@@ -50,7 +50,7 @@ type Mirror interface {
 
 // Choose selects the best 'Mirror' for downloading assets for the specified
 // version of Godot.
-func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:cyclop,funlen,ireturn
+func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:funlen,ireturn
 	eg, ctx := errgroup.WithContext(ctx)
 
 	ctx, cancel := context.WithCancel(ctx)

@@ -39,7 +39,7 @@ func (a TarXZ[T]) Name() string {
 // NOTE: This method does not detect insecure filepaths included in the archive.
 // Instead, ensure the binary is compiled with the GODEBUG option
 // 'tarinsecurepath=0' (see https://github.com/golang/go/issues/55356).
-func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolint:cyclop
+func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
