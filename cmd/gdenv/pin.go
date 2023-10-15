@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -39,6 +37,11 @@ func NewPin() *cli.Command { //nolint:funlen
 				Aliases: []string{"i"},
 				Usage:   "installs the specified version of Godot if missing",
 			},
+			&cli.BoolFlag{
+				Name:    "force",
+				Aliases: []string{"f"},
+				Usage:   "forcibly overwrite an existing cache entry (only used with '-i')",
+			},
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
@@ -49,14 +52,13 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				err := fmt.Errorf("%w: cannot specify both '--global' and '--path'", ErrOptionUsage)
+				err := fmt.Errorf("%w: cannot specify both '-g/--global' and '-p/--path'", ErrOptionUsage)
 				return UsageError{ctx: c, err: err}
 			}
 
-			// Determine 'path' option
-			path, err := resolvePath(c)
-			if err != nil {
-				return err
+			if c.IsSet("force") && !c.IsSet("install") {
+				err := fmt.Errorf("%w: cannot specify '-f/--force' without '-i/--install'", ErrOptionUsage)
+				return UsageError{ctx: c, err: err}
 			}
 
 			// Validate arguments
@@ -65,28 +67,21 @@ func NewPin() *cli.Command { //nolint:funlen
 				return UsageError{ctx: c, err: err}
 			}
 
-			if c.Bool("install") {
-				// Ensure 'Store' layout
-				storePath, err := store.InitAtPath()
-				if err != nil {
-					return err
-				}
-
-				// Define the host 'Platform'.
-				p, err := platform.Detect()
-				if err != nil {
-					return err
-				}
-
-				// Define the target 'Executable'.
-				ex := executable.New(v, p)
-
-				if err := Install(c.Context, storePath, ex); err != nil {
-					return err
-				}
+			// Determine 'path' option
+			pinPath, err := resolvePath(c)
+			if err != nil {
+				return err
 			}
 
-			return pin.Write(c.Context, v, path)
+			if err := pin.Write(c.Context, v, pinPath); err != nil {
+				return err
+			}
+
+			if !c.Bool("install") {
+				return nil
+			}
+
+			return installExecutable(c.Context, v, c.Bool("force"))
 		},
 	}
 }
