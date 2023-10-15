@@ -48,7 +48,7 @@ func NewWhich() *cli.Command {
 			}
 
 			// Define the host 'Platform'.
-			platform, err := detectPlatform()
+			platform, err := platform.Detect()
 			if err != nil {
 				return err
 			}
