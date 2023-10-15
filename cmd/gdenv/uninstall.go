@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -34,7 +35,7 @@ func NewUninstall() *cli.Command {
 			}
 
 			// Define the host 'Platform'.
-			p, err := detectPlatform()
+			p, err := platform.Detect()
 			if err != nil {
 				return err
 			}

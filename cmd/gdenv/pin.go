@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -72,7 +73,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				}
 
 				// Define the host 'Platform'.
-				p, err := detectPlatform()
+				p, err := platform.Detect()
 				if err != nil {
 					return err
 				}
