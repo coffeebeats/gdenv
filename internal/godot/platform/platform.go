@@ -43,7 +43,7 @@ type Platform struct {
 // Parses a 'Platform' struct from a platform identifier. There are potentially
 // multiple valid identifiers for any given platform due to schema differences
 // across Godot versions.
-func Parse(input string) (Platform, error) { //nolint:cyclop
+func Parse(input string) (Platform, error) {
 	if input == "" {
 		return Platform{}, ErrMissingPlatform
 	}
