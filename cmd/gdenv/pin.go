@@ -49,47 +49,43 @@ func NewPin() *cli.Command { //nolint:funlen
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
 				err := fmt.Errorf("%w: cannot specify both '--global' and '--path'", ErrOptionUsage)
-				return failWithUsage(c, err)
+				return UsageError{ctx: c, err: err}
 			}
 
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Validate arguments
 			v, err := version.Parse(c.Args().First())
 			if err != nil {
-				return failWithUsage(c, err)
+				return UsageError{ctx: c, err: err}
 			}
 
 			if c.Bool("install") {
 				// Ensure 'Store' layout
 				storePath, err := store.InitAtPath()
 				if err != nil {
-					return fail(err)
+					return err
 				}
 
 				// Define the host 'Platform'.
 				p, err := detectPlatform()
 				if err != nil {
-					return fail(err)
+					return err
 				}
 
 				// Define the target 'Executable'.
 				ex := executable.New(v, p)
 
-				if err := install(storePath, ex); err != nil {
-					return fail(err)
+				if err := install(c.Context, storePath, ex); err != nil {
+					return err
 				}
 			}
 
-			if err := pin.Write(v, path); err != nil {
-				return fail(err)
-			}
-
-			return nil
+			return pin.Write(c.Context, v, path)
 		},
 	}
 }

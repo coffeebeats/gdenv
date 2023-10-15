@@ -28,13 +28,13 @@ func NewUninstall() *cli.Command {
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Define the host 'Platform'.
 			p, err := detectPlatform()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Uninstall a specific version.
@@ -42,25 +42,17 @@ func NewUninstall() *cli.Command {
 				// Validate arguments
 				v, err := version.Parse(c.Args().First())
 				if err != nil && !c.Bool("all") {
-					return failWithUsage(c, err)
+					return UsageError{ctx: c, err: err}
 				}
 
 				// Define the target 'Executable'.
 				ex := executable.New(v, p)
 
-				if err := uninstall(storePath, ex); err != nil {
-					return fail(err)
-				}
-
-				return nil
+				return uninstall(storePath, ex)
 			}
 
 			// Uninstall all versions.
-			if err := uninstallAll(storePath); err != nil {
-				return fail(err)
-			}
-
-			return nil
+			return uninstallAll(storePath)
 		},
 	}
 }
@@ -69,11 +61,7 @@ func NewUninstall() *cli.Command {
 
 // Deletes a platform-specific version of Godot from the store.
 func uninstall(storePath string, ex executable.Executable) error {
-	if err := store.Remove(storePath, ex); err != nil {
-		return fail(err)
-	}
-
-	return nil
+	return store.Remove(storePath, ex)
 }
 
 /* ------------------------- Function: uninstallAll ------------------------- */
@@ -82,12 +70,12 @@ func uninstall(storePath string, ex executable.Executable) error {
 func uninstallAll(storePath string) error {
 	executables, err := store.Executables(storePath)
 	if err != nil {
-		return fail(err)
+		return err
 	}
 
 	for _, ex := range executables {
 		if err := uninstall(storePath, ex); err != nil {
-			return fail(err)
+			return err
 		}
 	}
 
