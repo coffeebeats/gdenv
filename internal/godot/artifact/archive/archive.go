@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/ioutil"
 	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
 
@@ -91,28 +92,9 @@ func copyFile(ctx context.Context, f io.Reader, mode fs.FileMode, out string) er
 
 	defer dst.Close()
 
-	if _, err := io.Copy(dst, readerClosure(func(p []byte) (int, error) {
-		select {
-		case <-ctx.Done():
-			return 0, ctx.Err()
-		default:
-			return f.Read(p)
-		}
-	})); err != nil {
+	if _, err := io.Copy(dst, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
 		return err
 	}
 
 	return nil
 }
-
-/* -------------------------------------------------------------------------- */
-/*                             Type: readerClosure                            */
-/* -------------------------------------------------------------------------- */
-
-// readerClosure wraps a function which implements 'io.Reader', allowing for
-// inline 'io.Reader' definitions.
-type readerClosure func([]byte) (int, error)
-
-/* ----------------------------- Impl: io.Reader ---------------------------- */
-
-func (r readerClosure) Read(p []byte) (int, error) { return r(p) }

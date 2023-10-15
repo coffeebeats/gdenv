@@ -2,6 +2,7 @@ package checksum
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -25,7 +26,7 @@ var (
 
 // Given a locally-available checksums file, find and return the checksum for
 // the specified archive.
-func Extract[T archive.Archive](c artifact.Local[Checksums[T]], a T) (string, error) {
+func Extract[T archive.Archive](ctx context.Context, c artifact.Local[Checksums[T]], a T) (string, error) {
 	f, err := os.Open(c.Path)
 	if err != nil {
 		return "", err
@@ -37,6 +38,12 @@ func Extract[T archive.Archive](c artifact.Local[Checksums[T]], a T) (string, er
 	// conflicting entries (i.e. in case the file is malformed).
 	scanner, checksums := bufio.NewScanner(f), make(map[string]string)
 	for scanner.Scan() {
+		select {
+		case <-ctx.Done():
+			return "", ctx.Err()
+		default:
+		}
+
 		parts := strings.Fields(scanner.Text())
 		if len(parts) != checksumEntryParts {
 			return "", ErrUnrecognizedFormat
