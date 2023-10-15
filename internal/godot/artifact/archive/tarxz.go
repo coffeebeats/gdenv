@@ -2,6 +2,7 @@ package archive
 
 import (
 	"archive/tar"
+	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -38,7 +39,7 @@ func (a TarXZ[T]) Name() string {
 // NOTE: This method does not detect insecure filepaths included in the archive.
 // Instead, ensure the binary is compiled with the GODEBUG option
 // 'tarinsecurepath=0' (see https://github.com/golang/go/issues/55356).
-func (a TarXZ[T]) extract(path, out string) error {
+func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolint:cyclop
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -69,12 +70,18 @@ func (a TarXZ[T]) extract(path, out string) error {
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+			}
+
 			if err := os.MkdirAll(out, mode); err != nil {
 				return err
 			}
 
 		case tar.TypeReg:
-			if err := copyFile(archive, mode, out); err != nil {
+			if err := copyFile(ctx, archive, mode, out); err != nil {
 				return err
 			}
 		}
