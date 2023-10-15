@@ -15,8 +15,7 @@ const (
 	namePrefix    = "Godot"
 	nameSeparator = "_"
 
-	nameGodotMacOSApp      = "Godot.app"
-	pathGodotAppExecutable = "Contents/MacOS/Godot"
+	nameGodotMacOSApp = "Godot.app"
 )
 
 var ErrInvalidPlatform = errors.New("invalid platform")
@@ -53,7 +52,7 @@ func New(v version.Version, p platform.Platform) Executable {
 // a path within the app folder.
 func (ex Executable) Path() string {
 	if ex.platform.OS == platform.MacOS {
-		return filepath.Join(nameGodotMacOSApp, pathGodotAppExecutable)
+		return filepath.Join(nameGodotMacOSApp, pathGodotAppExecutable())
 	}
 
 	return ex.Name()
@@ -112,4 +111,14 @@ func (ex Executable) Platform() platform.Platform {
 
 func (ex Executable) String() string {
 	return ex.Name()
+}
+
+/* -------------------------------------------------------------------------- */
+/*                      Function: pathGodotAppExecutable                      */
+/* -------------------------------------------------------------------------- */
+
+// Returns an OS-specific path segment from the macOS Godot application to the
+// executable file.
+func pathGodotAppExecutable() string {
+	return filepath.Join("Contents", "MacOS", "Godot")
 }
