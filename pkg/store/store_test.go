@@ -55,16 +55,17 @@ func TestInit(t *testing.T) {
 func TestAdd(t *testing.T) {
 	tests := []struct {
 		os, arch, v string
-		err         error
+
+		want string
 	}{
-		{"linux", "amd64", "4.0", nil},
-		{"linux", "amd64", "4.0-alpha1", nil},
+		{os: "linux", arch: "amd64", v: "4.0", want: "v4.0-stable/Godot_v4.0-stable_linux.x86_64"},
+		{os: "linux", arch: "amd64", v: "4.0-alpha1", want: "v4.0-alpha1/Godot_v4.0-alpha1_linux.64"},
 
-		{"macos", "amd64", "4.0", nil},
-		{"macos", "amd64", "4.0-alpha1", nil},
+		{os: "macos", arch: "amd64", v: "4.0", want: "v4.0-stable/Godot.app"},
+		{os: "macos", arch: "amd64", v: "4.0-alpha1", want: "v4.0-alpha1/Godot.app"},
 
-		{"windows", "i386", "4.0", nil},
-		{"windows", "i386", "4.0-alpha1", nil},
+		{os: "windows", arch: "i386", v: "4.0", want: "v4.0-stable/Godot_v4.0-stable_win32.exe"},
+		{os: "windows", arch: "i386", v: "4.0-alpha1", want: "v4.0-alpha1/Godot_v4.0-alpha1_win32.exe"},
 	}
 
 	for _, tc := range tests {
@@ -95,19 +96,14 @@ func TestAdd(t *testing.T) {
 			}
 
 			// Invoke the 'Add' function.
-			if err := Add(store, tool, ex); !errors.Is(err, tc.err) {
-				t.Errorf("err: got %#v, want %#v", err, tc.err)
+			if err := Add(store, tool, ex); !errors.Is(err, nil) {
+				t.Errorf("err: got %#v, want %#v", err, nil)
 			}
 
 			// Verify the tool exists.
-			toolWant := filepath.Join(store, storeDirGodot, v.String(), ex.Name())
-			info, err := os.Stat(toolWant)
-			if err != nil {
-				t.Errorf("output: %s", err)
-			}
-
-			if !info.Mode().IsRegular() {
-				t.Errorf("output is not a file: %s", toolWant)
+			toolWant := filepath.Join(store, storeDirGodot, tc.want)
+			if _, err = os.Stat(toolWant); err != nil {
+				t.Errorf("err: %v", err)
 			}
 		})
 	}
@@ -118,16 +114,17 @@ func TestAdd(t *testing.T) {
 func TestRemove(t *testing.T) {
 	tests := []struct {
 		os, arch, v string
-		err         error
+
+		want string
 	}{
-		{"linux", "amd64", "4.0", nil},
-		{"linux", "amd64", "4.0-alpha1", nil},
+		{os: "linux", arch: "amd64", v: "4.0", want: "v4.0-stable/Godot_v4.0-stable_linux.x86_64"},
+		{os: "linux", arch: "amd64", v: "4.0-alpha1", want: "v4.0-alpha1/Godot_v4.0-alpha1_linux.64"},
 
-		{"macos", "amd64", "4.0", nil},
-		{"macos", "amd64", "4.0-alpha1", nil},
+		{os: "macos", arch: "amd64", v: "4.0", want: "v4.0-stable/Godot.app"},
+		{os: "macos", arch: "amd64", v: "4.0-alpha1", want: "v4.0-alpha1/Godot.app"},
 
-		{"windows", "i386", "4.0", nil},
-		{"windows", "i386", "4.0-alpha1", nil},
+		{os: "windows", arch: "i386", v: "4.0", want: "v4.0-stable/Godot_v4.0-stable_win32.exe"},
+		{os: "windows", arch: "i386", v: "4.0-alpha1", want: "v4.0-alpha1/Godot_v4.0-alpha1_win32.exe"},
 	}
 
 	for _, tc := range tests {
@@ -153,7 +150,7 @@ func TestRemove(t *testing.T) {
 			ex := executable.New(v, p)
 
 			// Create the tool to be moved.
-			toolWant := filepath.Join(tmp, storeDirGodot, v.String(), ex.Name())
+			toolWant := filepath.Join(tmp, storeDirGodot, tc.want)
 			if err := os.MkdirAll(filepath.Dir(toolWant), modeTestDir); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}

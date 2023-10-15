@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -25,6 +26,21 @@ var (
 	ErrMissingStore         = errors.New("missing store")
 	ErrUnexpectedLayout     = errors.New("unexpected layout")
 )
+
+/* -------------------------- Function: ExecutePath ------------------------- */
+
+// Returns the full path to the *executable* file in the store. This will either
+// be equal to the result of 'ToolPath' or be a subdirectory of it.
+//
+// NOTE: This does *not* mean the executable exists.
+func ExecutePath(store string, ex executable.Executable) (string, error) {
+	store, err := Clean(store)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(store, storeDirGodot, ex.Version().String(), ex.Path()), nil
+}
 
 /* ----------------------------- Function: Init ----------------------------- */
 
@@ -179,7 +195,12 @@ func ToolPath(store string, ex executable.Executable) (string, error) {
 		return "", err
 	}
 
-	return filepath.Join(store, storeDirGodot, ex.Version().String(), ex.Name()), nil
+	paths := strings.Split(ex.Path(), string(os.PathSeparator))
+	if len(paths) == 0 {
+		return "", fmt.Errorf("%w: missing tool path: '%s'", ErrInvalidSpecification, ex.Path())
+	}
+
+	return filepath.Join(store, storeDirGodot, ex.Version().String(), paths[0]), nil
 }
 
 /* --------------------------- Function: Versions --------------------------- */
