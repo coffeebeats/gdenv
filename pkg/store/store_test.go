@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -71,7 +72,7 @@ func TestAdd(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.v, func(t *testing.T) {
 			tmp := t.TempDir()
-			store, tool := filepath.Join(tmp, "store"), filepath.Join(tmp, "tool")
+			store := filepath.Join(tmp, "store")
 
 			err := Init(store)
 			if err != nil {
@@ -91,12 +92,13 @@ func TestAdd(t *testing.T) {
 			ex := executable.New(v, p)
 
 			// Create the tool to be moved.
+			tool := filepath.Join(tmp, strings.Split(ex.Path(), string(os.PathSeparator))[0])
 			if err := os.WriteFile(tool, []byte(""), modeMockTool); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
 			// Invoke the 'Add' function.
-			if err := Add(store, tool, ex); !errors.Is(err, nil) {
+			if err := Add(store, ex.Version(), tool); !errors.Is(err, nil) {
 				t.Errorf("err: got %#v, want %#v", err, nil)
 			}
 

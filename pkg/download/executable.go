@@ -9,10 +9,70 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"golang.org/x/sync/errgroup"
 )
 
 type localExArchive = artifact.Local[executable.Archive]
 type localExChecksums = artifact.Local[checksum.Executable]
+
+/* -------------------------------------------------------------------------- */
+/*                 Function: ExecutableWithChecksumValidation                 */
+/* -------------------------------------------------------------------------- */
+
+func ExecutableWithChecksumValidation(
+	ctx context.Context,
+	m mirror.Mirror,
+	ex executable.Executable,
+	out string,
+) (artifact.Local[executable.Archive], error) {
+	chArchive, chChecksums := make(chan artifact.Local[executable.Archive]), make(chan artifact.Local[checksum.Executable])
+	defer close(chArchive)
+	defer close(chChecksums)
+
+	eg, ctxEG := errgroup.WithContext(ctx)
+
+	eg.Go(func() error {
+		result, err := Executable(ctxEG, m, ex, out)
+		if err != nil {
+			return err
+		}
+
+		select {
+		case chArchive <- result:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+
+		return nil
+	})
+
+	eg.Go(func() error {
+		result, err := ExecutableChecksums(ctxEG, m, ex.Version(), out)
+		if err != nil {
+			return err
+		}
+
+		select {
+		case chChecksums <- result:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+
+		return nil
+	})
+
+	exArchive, exArchiveChecksums := <-chArchive, <-chChecksums
+
+	if err := eg.Wait(); err != nil {
+		return artifact.Local[executable.Archive]{}, err
+	}
+
+	if err := checksum.Compare[executable.Archive](ctx, exArchive, exArchiveChecksums); err != nil {
+		return artifact.Local[executable.Archive]{}, err
+	}
+
+	return exArchive, nil
+}
 
 /* -------------------------------------------------------------------------- */
 /*                            Function: Executable                            */
@@ -35,13 +95,14 @@ func Executable(
 		return localExArchive{}, err
 	}
 
+	out = filepath.Join(out, remote.Artifact.Name())
 	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
 		return localExArchive{}, err
 	}
 
 	return localExArchive{
 		Artifact: remote.Artifact,
-		Path:     filepath.Join(out, remote.Artifact.Name()),
+		Path:     out,
 	}, nil
 }
 
@@ -66,12 +127,13 @@ func ExecutableChecksums(
 		return localExChecksums{}, err
 	}
 
+	out = filepath.Join(out, remote.Artifact.Name())
 	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
 		return localExChecksums{}, err
 	}
 
 	return localExChecksums{
 		Artifact: remote.Artifact,
-		Path:     filepath.Join(out, remote.Artifact.Name()),
+		Path:     out,
 	}, nil
 }

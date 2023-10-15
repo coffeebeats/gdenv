@@ -32,7 +32,7 @@ func NewUnpin() *cli.Command {
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				err := fmt.Errorf("%w: cannot specify both '--global' and '--path'", ErrOptionUsage)
+				err := fmt.Errorf("%w: cannot specify both '-g/--global' and '-p/--path'", ErrOptionUsage)
 				return UsageError{ctx: c, err: err}
 			}
 
