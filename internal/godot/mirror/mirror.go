@@ -78,7 +78,7 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 		select {
 		case selected <- m:
 		case <-ctx.Done():
-			break
+			return ctx.Err()
 		}
 
 		return nil
@@ -99,7 +99,7 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 		select {
 		case selected <- m:
 		case <-ctx.Done():
-			break
+			return ctx.Err()
 		}
 
 		return nil
