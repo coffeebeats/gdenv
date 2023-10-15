@@ -58,10 +58,8 @@ func ls(ctx context.Context, storePath string) ([]string, error) {
 	out := make([]string, len(executables))
 
 	for i, ex := range executables {
-		select {
-		case <-ctx.Done():
+		if ctx.Err() != nil {
 			return out, ctx.Err()
-		default:
 		}
 
 		out[i] = ex.String()

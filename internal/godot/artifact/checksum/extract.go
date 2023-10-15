@@ -38,10 +38,8 @@ func Extract[T archive.Archive](ctx context.Context, c artifact.Local[Checksums[
 	// conflicting entries (i.e. in case the file is malformed).
 	scanner, checksums := bufio.NewScanner(f), make(map[string]string)
 	for scanner.Scan() {
-		select {
-		case <-ctx.Done():
+		if ctx.Err() != nil {
 			return "", ctx.Err()
-		default:
 		}
 
 		parts := strings.Fields(scanner.Text())
