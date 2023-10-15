@@ -50,7 +50,7 @@ func NewLs() *cli.Command {
 /* ------------------------------ Function: ls ------------------------------ */
 
 func ls(ctx context.Context, storePath string) ([]string, error) {
-	executables, err := store.Executables(storePath)
+	executables, err := store.Executables(ctx, storePath)
 	if err != nil {
 		return nil, err
 	}
