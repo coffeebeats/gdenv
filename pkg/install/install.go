@@ -50,7 +50,7 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 /*                              Function: Source                              */
 /* -------------------------------------------------------------------------- */
 
-// Downloads and caches a platform-specific version of Godot.
+// Downloads and caches a specific version of Godot's source code.
 func Source(ctx context.Context, storePath string, s source.Source) error {
 	m, err := mirror.Choose(ctx, s.Version())
 	if err != nil {
