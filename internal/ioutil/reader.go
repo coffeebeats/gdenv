@@ -16,12 +16,11 @@ type ReaderClosure func([]byte) (int, error)
 // reading once the provided 'context.Context' is closed.
 func NewReaderClosure(ctx context.Context, r func([]byte) (int, error)) ReaderClosure {
 	return ReaderClosure(func(p []byte) (int, error) {
-		select {
-		case <-ctx.Done():
+		if ctx.Err() != nil {
 			return 0, ctx.Err()
-		default:
-			return r(p)
 		}
+
+		return r(p)
 	})
 }
 

@@ -70,10 +70,8 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolin
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
-			select {
-			case <-ctx.Done():
+			if ctx.Err() != nil {
 				return ctx.Err()
-			default:
 			}
 
 			if err := os.MkdirAll(out, mode); err != nil {

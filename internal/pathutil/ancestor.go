@@ -27,10 +27,8 @@ func Ancestor(ctx context.Context, path string) (string, error) {
 	}
 
 	for {
-		select {
-		case <-ctx.Done():
+		if ctx.Err() != nil {
 			return "", ctx.Err()
-		default:
 		}
 
 		_, err := os.Stat(path)

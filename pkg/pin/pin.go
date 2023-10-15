@@ -47,10 +47,8 @@ func Read(path string) (version.Version, error) {
 func Resolve(ctx context.Context, path string) (string, error) {
 	// Check if the specified path (or any ancestors) has a pin
 	for path != "/" {
-		select {
-		case <-ctx.Done():
+		if ctx.Err() != nil {
 			return "", ctx.Err()
-		default:
 		}
 
 		// Don't overwrite 'path' or you'll go into an infinite loop due to

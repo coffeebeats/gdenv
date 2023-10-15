@@ -50,10 +50,8 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 		out := filepath.Join(out, f.Name) //nolint:gosec
 
 		if f.FileInfo().IsDir() {
-			select {
-			case <-ctx.Done():
+			if ctx.Err() != nil {
 				return ctx.Err()
-			default:
 			}
 
 			if err := os.MkdirAll(out, mode); err != nil {
