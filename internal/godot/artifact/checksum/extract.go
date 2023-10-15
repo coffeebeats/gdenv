@@ -26,7 +26,7 @@ var (
 
 // Given a locally-available checksums file, find and return the checksum for
 // the specified archive.
-func Extract[T archive.Archive](ctx context.Context, c artifact.Local[Checksums[T]], a T) (string, error) {
+func Extract[T archive.Archive, U Checksums[T]](ctx context.Context, c artifact.Local[U], a T) (string, error) {
 	f, err := os.Open(c.Path)
 	if err != nil {
 		return "", err

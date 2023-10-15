@@ -38,10 +38,10 @@ type Checksums[T artifact.Artifact] interface {
 // Compare takes a local executable archive and a local checksums file for
 // executable archives and validates that the executable archive's checksum
 // matches the expected value.
-func Compare[T archive.Archive](
+func Compare[T archive.Archive, U Checksums[T]](
 	ctx context.Context,
 	localArtifact artifact.Local[T],
-	localChecksums artifact.Local[Checksums[T]],
+	localChecksums artifact.Local[U],
 ) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
