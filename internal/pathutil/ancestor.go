@@ -1,6 +1,7 @@
 package pathutil
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"os"
@@ -15,7 +16,7 @@ var ErrUnknownMode = errors.New("cannot determine mode")
 
 // Returns the closest ancestor of the specified 'path' which exists. If 'path'
 // itself exists then it will be returned.
-func Ancestor(path string) (string, error) {
+func Ancestor(ctx context.Context, path string) (string, error) {
 	if path == "" {
 		return "", fs.ErrInvalid
 	}
@@ -26,6 +27,12 @@ func Ancestor(path string) (string, error) {
 	}
 
 	for {
+		select {
+		case <-ctx.Done():
+			return "", ctx.Err()
+		default:
+		}
+
 		_, err := os.Stat(path)
 		if err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
@@ -50,12 +57,12 @@ func Ancestor(path string) (string, error) {
 
 // Returns the closest ancestor directory of the specified 'path' which exists.
 // If 'path' itself exists and is a directory then it will be returned.
-func AncestorDir(path string) (string, error) {
+func AncestorDir(ctx context.Context, path string) (string, error) {
 	if path == "" {
 		return "", fs.ErrInvalid
 	}
 
-	path, err := Ancestor(path)
+	path, err := Ancestor(ctx, path)
 	if err != nil {
 		return "", err
 	}
@@ -79,8 +86,8 @@ func AncestorDir(path string) (string, error) {
 // Returns the 'fs.FileMode' of the closest ancestor directory of the specified
 // 'path' which exists. If 'path' itself exists and is a directory then it will
 // be returned.
-func AncestorMode(path string) (fs.FileMode, error) {
-	ancestor, err := AncestorDir(path)
+func AncestorMode(ctx context.Context, path string) (fs.FileMode, error) {
+	ancestor, err := AncestorDir(ctx, path)
 	if err != nil {
 		return 0, errors.Join(ErrUnknownMode, err)
 	}

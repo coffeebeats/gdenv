@@ -1,6 +1,7 @@
 package pin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -43,9 +44,15 @@ func Read(path string) (version.Version, error) {
 /* ---------------------------- Function: Resolve --------------------------- */
 
 // Tries to locate a pin file in the current directory or any parent directories.
-func Resolve(path string) (string, error) {
+func Resolve(ctx context.Context, path string) (string, error) {
 	// Check if the specified path (or any ancestors) has a pin
 	for path != "/" {
+		select {
+		case <-ctx.Done():
+			return "", ctx.Err()
+		default:
+		}
+
 		// Don't overwrite 'path' or you'll go into an infinite loop due to
 		// 'Clean()' appending filenames you're removing below.
 		pin, err := Clean(path)
@@ -95,14 +102,14 @@ func Remove(path string) error {
 /* ----------------------------- Function: Write ---------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
-func Write(v version.Version, path string) error {
+func Write(ctx context.Context, v version.Version, path string) error {
 	path, err := Clean(path)
 	if err != nil {
 		return err
 	}
 
 	// Determine the permissions of the nearest ancestor directory.
-	mode, err := pathutil.AncestorMode(path)
+	mode, err := pathutil.AncestorMode(ctx, path)
 	if err != nil {
 		return fmt.Errorf("cannot determine permissions: %w", err)
 	}

@@ -1,6 +1,7 @@
 package pin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -98,7 +99,7 @@ func TestResolve(t *testing.T) {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			got, err := Resolve(path)
+			got, err := Resolve(context.Background(), path)
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
@@ -187,7 +188,7 @@ func TestWrite(t *testing.T) {
 
 			p := filepath.Join(tmp, tc.path)
 
-			err = Write(v, p)
+			err = Write(context.Background(), v, p)
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
