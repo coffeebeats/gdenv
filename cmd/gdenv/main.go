@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func main() {
+func main() { //nolint:funlen
 	log.SetFlags(0)
 
 	cli.VersionPrinter = versionPrinter
@@ -46,6 +46,12 @@ func main() {
 	// returned to the caller.
 	var exitCode int
 	defer func() {
+		if err := recover(); err != nil {
+			exitCode = 1
+
+			log.Println(err)
+		}
+
 		os.Exit(exitCode)
 	}()
 
