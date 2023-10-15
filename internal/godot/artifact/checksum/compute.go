@@ -1,6 +1,7 @@
 package checksum
 
 import (
+	"context"
 	"crypto/sha256"
 	"crypto/sha512"
 	"errors"
@@ -13,6 +14,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/internal/ioutil"
 )
 
 var ErrUnsupportedArtifact = errors.New("unsupported artifact")
@@ -22,7 +24,7 @@ var ErrUnsupportedArtifact = errors.New("unsupported artifact")
 /* -------------------------------------------------------------------------- */
 
 // Computes and returns the correct checksum of the specified archive.
-func Compute[T archive.Archive](d artifact.Local[T]) (string, error) {
+func Compute[T archive.Archive](ctx context.Context, d artifact.Local[T]) (string, error) {
 	f, err := os.Open(d.Path)
 	if err != nil {
 		return "", err
@@ -35,13 +37,13 @@ func Compute[T archive.Archive](d artifact.Local[T]) (string, error) {
 	switch any(d.Artifact).(type) { // FIXME: https://github.com/golang/go/issues/45380
 	case executable.Archive:
 		h = sha512.New()
-		if _, err := io.Copy(h, f); err != nil {
+		if _, err := io.Copy(h, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
 			return "", err
 		}
 
 	case source.Archive:
 		h = sha256.New()
-		if _, err := io.Copy(h, f); err != nil {
+		if _, err := io.Copy(h, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
 			return "", err
 		}
 

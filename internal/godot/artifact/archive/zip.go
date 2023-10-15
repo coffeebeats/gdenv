@@ -2,6 +2,7 @@ package archive
 
 import (
 	"archive/zip"
+	"context"
 	"os"
 	"path/filepath"
 )
@@ -35,8 +36,8 @@ func (a Zip[T]) Name() string {
 // NOTE: This method does not detect insecure filepaths included in the archive.
 // Instead, ensure the binary is compiled with the GODEBUG option
 // 'zipinsecurepath=0' (see https://github.com/golang/go/issues/55356).
-func (a Zip[T]) extract(archiveFilepath, out string) error {
-	archive, err := zip.OpenReader(archiveFilepath)
+func (a Zip[T]) extract(ctx context.Context, path, out string) error {
+	archive, err := zip.OpenReader(path)
 	if err != nil {
 		return err
 	}
@@ -49,6 +50,10 @@ func (a Zip[T]) extract(archiveFilepath, out string) error {
 		out := filepath.Join(out, f.Name) //nolint:gosec
 
 		if f.FileInfo().IsDir() {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+
 			if err := os.MkdirAll(out, mode); err != nil {
 				return err
 			}
@@ -61,7 +66,7 @@ func (a Zip[T]) extract(archiveFilepath, out string) error {
 			return err
 		}
 
-		if err := copyFile(src, mode, out); err != nil {
+		if err := copyFile(ctx, src, mode, out); err != nil {
 			return err
 		}
 	}

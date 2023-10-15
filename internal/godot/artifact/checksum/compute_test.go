@@ -1,6 +1,7 @@
 package checksum
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"os"
@@ -49,7 +50,7 @@ func TestCompute(t *testing.T) {
 				}
 			}
 
-			got, err := Compute(f)
+			got, err := Compute(context.Background(), f)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)

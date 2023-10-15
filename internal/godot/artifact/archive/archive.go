@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/ioutil"
 	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
 
@@ -25,7 +27,7 @@ type Local = artifact.Local[Archive]
 type Archive interface {
 	artifact.Artifact
 
-	extract(path, out string) error
+	extract(ctx context.Context, path, out string) error
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,7 +48,7 @@ type Archivable interface {
 
 // Given a downloaded 'Archive', extract the contents and return a local
 // 'Artifact' pointing to it.
-func Extract[T Archive](a artifact.Local[T], out string) error {
+func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) error {
 	// Validate that the artifact exists.
 	if !a.Exists() {
 		return fmt.Errorf("%w: '%s'", fs.ErrNotExist, a.Path)
@@ -64,7 +66,7 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 
 	// Create the required output directories if they don't exist.
 	if info == nil {
-		ancestorMode, err := pathutil.AncestorMode(out)
+		ancestorMode, err := pathutil.AncestorMode(ctx, out)
 		if err != nil {
 			return err
 		}
@@ -75,14 +77,14 @@ func Extract[T Archive](a artifact.Local[T], out string) error {
 	}
 
 	// Extract the contents to the specified 'out' directory.
-	return a.Artifact.extract(a.Path, out)
+	return a.Artifact.extract(ctx, a.Path, out)
 }
 
 /* --------------------------- Function: copyFile --------------------------- */
 
 // A shared helper function which copies the contents of an 'io.Reader' to a new
 // file created with the specified 'os.FileMode'.
-func copyFile(f io.Reader, mode fs.FileMode, out string) error {
+func copyFile(ctx context.Context, f io.Reader, mode fs.FileMode, out string) error {
 	dst, err := os.OpenFile(out, copyFileWriteFlag, mode)
 	if err != nil {
 		return err
@@ -90,7 +92,7 @@ func copyFile(f io.Reader, mode fs.FileMode, out string) error {
 
 	defer dst.Close()
 
-	if _, err := io.Copy(dst, f); err != nil {
+	if _, err := io.Copy(dst, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
 		return err
 	}
 

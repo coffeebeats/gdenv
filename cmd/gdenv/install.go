@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"runtime"
@@ -39,19 +40,19 @@ func NewInstall() *cli.Command {
 			// Validate arguments
 			v, err := version.Parse(c.Args().First())
 			if err != nil {
-				return failWithUsage(c, err)
+				return UsageError{ctx: c, err: err}
 			}
 
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Define the host 'Platform'.
 			p, err := detectPlatform()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Define the target 'Executable'.
@@ -61,11 +62,7 @@ func NewInstall() *cli.Command {
 				return nil
 			}
 
-			if err := install(storePath, ex); err != nil {
-				return fail(err)
-			}
-
-			return nil
+			return install(c.Context, storePath, ex)
 		},
 	}
 }
@@ -73,7 +70,7 @@ func NewInstall() *cli.Command {
 /* ---------------------------- Function: install --------------------------- */
 
 // Downloads and caches a platform-specific version of Godot.
-func install(_ string, _ executable.Executable) error {
+func install(_ context.Context, _ string, _ executable.Executable) error {
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"os"
@@ -123,7 +124,7 @@ func TestExtract(t *testing.T) {
 
 			tc.setUpFileSystem(t, localArchive, dst)
 
-			err := Extract(localArchive, dst)
+			err := Extract(context.Background(), localArchive, dst)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
@@ -151,7 +152,7 @@ func (a MockArchive[T]) Name() string {
 
 /* ------------------------------ Impl: Archive ----------------------------- */
 
-func (a MockArchive[T]) extract(path, out string) error {
+func (a MockArchive[T]) extract(_ context.Context, path, out string) error {
 	return a.err
 }
 

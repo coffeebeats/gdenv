@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"log"
@@ -37,24 +38,24 @@ func NewWhich() *cli.Command {
 			// Determine 'path' option
 			path, err := resolvePath(c)
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			// Define the host 'Platform'.
 			platform, err := detectPlatform()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
-			toolPath, err := which(storePath, path, platform)
+			toolPath, err := which(c.Context, storePath, path, platform)
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			log.Println(toolPath)
@@ -64,8 +65,8 @@ func NewWhich() *cli.Command {
 	}
 }
 
-func which(storePath, pinPath string, p platform.Platform) (string, error) {
-	path, err := pin.Resolve(pinPath)
+func which(ctx context.Context, storePath, pinPath string, p platform.Platform) (string, error) {
+	path, err := pin.Resolve(ctx, pinPath)
 	if err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return "", err

@@ -1,6 +1,7 @@
 package checksum
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -68,7 +69,7 @@ func TestExtractExecutable(t *testing.T) {
 				}
 			}
 
-			got, err := Extract(c, tc.archive)
+			got, err := Extract(context.Background(), c, tc.archive)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)
@@ -134,7 +135,7 @@ func TestExtractSource(t *testing.T) {
 				}
 			}
 
-			got, err := Extract(c, tc.archive)
+			got, err := Extract(context.Background(), c, tc.archive)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)

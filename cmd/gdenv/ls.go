@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"strings"
@@ -21,16 +22,16 @@ func NewLs() *cli.Command {
 		Usage:     "print the path and version of all of the installed versions of Godot",
 		UsageText: "gdenv ls",
 
-		Action: func(_ *cli.Context) error {
+		Action: func(c *cli.Context) error {
 			// Ensure 'Store' layout
 			storePath, err := store.InitAtPath()
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
-			results, err := ls(storePath)
+			results, err := ls(c.Context, storePath)
 			if err != nil {
-				return fail(err)
+				return err
 			}
 
 			if wd, err := os.Getwd(); err == nil {
@@ -48,14 +49,19 @@ func NewLs() *cli.Command {
 
 /* ------------------------------ Function: ls ------------------------------ */
 
-func ls(storePath string) ([]string, error) {
-	executables, err := store.Executables(storePath)
+func ls(ctx context.Context, storePath string) ([]string, error) {
+	executables, err := store.Executables(ctx, storePath)
 	if err != nil {
 		return nil, err
 	}
 
 	out := make([]string, len(executables))
+
 	for i, ex := range executables {
+		if ctx.Err() != nil {
+			return out, ctx.Err()
+		}
+
 		out[i] = ex.String()
 	}
 

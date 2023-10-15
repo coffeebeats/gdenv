@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/urfave/cli/v2"
 )
@@ -41,23 +42,62 @@ func main() {
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+	// Call 'os.Exit' as the first-in/last-out defer; ensures an exit code is
+	// returned to the caller.
+	var exitCode int
+	defer func() {
+		os.Exit(exitCode)
+	}()
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// Ensure that the signal handler is removed after first interrupt.
+	go func() {
+		<-ctx.Done()
+		stop()
+	}()
+
+	if err := app.RunContext(ctx, os.Args); err != nil {
+		var usageErr UsageError
+		if errors.As(err, &usageErr) {
+			usageErr.PrintUsage()
+		}
+
+		log.Println(err)
+
+		exitCode = 1
 	}
 }
 
-// Convenience function which return an error that invokes 'os.Exit(1)'.
-func fail(err error) error {
-	return cli.Exit(err, 1)
+/* -------------------------------------------------------------------------- */
+/*                              Type: UsageError                              */
+/* -------------------------------------------------------------------------- */
+
+// UsageError is any error returned from a subcommand implementation that should
+// have subcommand usage instructions printed.
+type UsageError struct {
+	ctx *cli.Context
+	err error
 }
 
-func failWithUsage(c *cli.Context, err error) error {
-	if e := cli.ShowSubcommandHelp(c); e != nil {
-		err = errors.Join(err, e)
-	}
+/* -------------------------- Function: PrintUsage -------------------------- */
 
-	return cli.Exit(fmt.Errorf("command failed: %w", err), 1)
+// PrintUsage prints the usage associated with the subcommand that failed.
+func (e UsageError) PrintUsage() {
+	// NOTE: This never returns a meaningful error so ignore it.
+	cli.ShowSubcommandHelp(e.ctx) //nolint:errcheck
 }
+
+/* ------------------------------- Impl: Error ------------------------------ */
+
+func (e UsageError) Error() string {
+	return e.err.Error()
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Function: versionPrinter                          */
+/* -------------------------------------------------------------------------- */
 
 func versionPrinter(cCtx *cli.Context) {
 	log.Printf("gdenv %s\n", cCtx.App.Version)
