@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.0 (2023-10-16)
+
+## What's Changed
+* feat(pkg/artifact): implement a `Folder` artifact and update consumers by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/73
+* refactor(internal/godot/artifacts)!: simplify `artifacts` package; move `mirror` under `godot` package by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/76
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.8.0 to 2.9.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/75
+* feat(internal/godot/artifact): implement source and executable archive extraction by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/80
+* chore(deps): bump golang.org/x/mod from 0.12.0 to 0.13.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/77
+* chore(deps): bump golang.org/x/tools from 0.13.0 to 0.14.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/78
+* chore(deps): bump golang.org/x/net from 0.15.0 to 0.17.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/79
+* refactor(internal/godot/mirror): simplify `mirror` method `ExecutableArchive` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/81
+* fix: use correct `fs.FileMode` when writing files and directories by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/82
+* feat(internal/godot/mirror): implement a `mirror.Choose` function; utilize `context.Context` in `internal/client` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/83
+* feat: propagate `context.Context` throughout application; improve CLI exit handling by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/84
+* chore: increase cyclomatic complexity limit to `12` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/85
+* feat(internal/godot/platform): define a `platform.Detect` function for resolving the target install platform by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/86
+* feat(pkg/store): define new `ExecutePath`; correct `ToolPath` implementation by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/87
+* fix(internal/godot/artifact/executable): ensure macOS executable path includes OS-appropriate separators by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/88
+* feat(pkg/download): implement functions to download artifacts by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/89
+* feat(pkg/install): implement full installation functionality for source and executables by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/90
+* feat(cmd/gdenv-shim): implement the shim executable by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/92
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.9.1 to 2.10.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/91
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.3.3...v0.4.0
+
 ## 0.3.3 (2023-09-18)
 
 ## What's Changed
