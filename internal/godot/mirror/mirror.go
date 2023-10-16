@@ -3,6 +3,7 @@ package mirror
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
@@ -118,10 +119,11 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 			return m, nil
 		}
 
-		if out == nil {
-			out = m
-			continue
-		}
+		out = m
+	}
+
+	if out == nil {
+		return nil, fmt.Errorf("%w: version '%s'", ErrNotFound, v)
 	}
 
 	return out, eg.Wait()
