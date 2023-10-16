@@ -1,7 +1,6 @@
 package mirror
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -53,27 +52,6 @@ func NewTuxFamily() TuxFamily {
 }
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
-
-// Issues a request to see if the mirror host has the specific version.
-func (m TuxFamily) CheckIfExists(ctx context.Context, v version.Version) bool {
-	if !m.Supports(v) {
-		return false
-	}
-
-	// Rather than maintaining a separate source of truth, issue a HEAD request
-	// to test whether the version exists.
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return false
-	}
-
-	exists, err := m.client.Exists(ctx, urlVersionDir)
-	if err != nil {
-		return false
-	}
-
-	return exists
-}
 
 // Returns a new 'client.Client' for downloading artifacts from the mirror.
 func (m TuxFamily) Client() client.Client {

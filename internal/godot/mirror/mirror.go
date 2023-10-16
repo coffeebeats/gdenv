@@ -3,6 +3,7 @@ package mirror
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
@@ -34,9 +35,6 @@ type Mirror interface {
 	SourceArchive(version.Version) (artifact.Remote[source.Archive], error)
 	SourceArchiveChecksums(version.Version) (artifact.Remote[checksum.Source], error)
 
-	// Issues a request to see if the mirror host has the specific version.
-	CheckIfExists(context.Context, version.Version) bool
-
 	// Checks whether the version is broadly supported by the mirror. No network
 	// request is issued, but this does not guarantee the host has the version.
 	// To check whether the host has the version definitively via the network,
@@ -50,7 +48,11 @@ type Mirror interface {
 
 // Choose selects the best 'Mirror' for downloading assets for the specified
 // version of Godot.
-func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:funlen,ireturn
+func Choose( //nolint:cyclop,funlen,ireturn
+	ctx context.Context,
+	v version.Version,
+	p platform.Platform,
+) (Mirror, error) {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -71,7 +73,12 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 		}
 
 		m := NewGitHub()
-		if !m.CheckIfExists(ctx, v) {
+		ok, err := checkIfExists(ctx, m, v, p)
+		if err != nil {
+			return err
+		}
+
+		if !ok {
 			return nil
 		}
 
@@ -92,7 +99,12 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 		}
 
 		m := NewTuxFamily()
-		if !m.CheckIfExists(ctx, v) {
+		ok, err := checkIfExists(ctx, m, v, p)
+		if err != nil {
+			return err
+		}
+
+		if !ok {
 			return nil
 		}
 
@@ -118,11 +130,38 @@ func Choose(ctx context.Context, v version.Version) (Mirror, error) { //nolint:f
 			return m, nil
 		}
 
-		if out == nil {
-			out = m
-			continue
-		}
+		out = m
+	}
+
+	if out == nil {
+		return nil, fmt.Errorf("%w: version '%s'", ErrNotFound, v)
 	}
 
 	return out, eg.Wait()
+}
+
+/* ------------------------- Function: checkIfExists ------------------------ */
+
+// Issues a request to the mirror host to determine if the artifact exists.
+func checkIfExists(
+	ctx context.Context,
+	m Mirror,
+	v version.Version,
+	p platform.Platform,
+) (bool, error) {
+	if !m.Supports(v) {
+		return false, nil
+	}
+
+	remote, err := m.ExecutableArchive(v, p)
+	if err != nil {
+		return false, err
+	}
+
+	exists, err := m.Client().Exists(ctx, remote.URL.String())
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

@@ -206,13 +206,13 @@ func TestClientExists(t *testing.T) {
 		err  error
 	}{
 		// Invalid inputs
-		{url: "", err: ErrInvalidURL},
-		{url: "https://www.example.com", res: http.StatusMovedPermanently, err: ErrUnexpectedRedirect},
+		{url: "", err: ErrMissingURL},
+		{url: "https://www.example.com/", res: http.StatusMovedPermanently, err: ErrUnexpectedRedirect},
 
 		// Valid inputs
-		{url: "https://www.example.com", res: http.StatusOK, want: true},
-		{url: "https://www.example.com", res: http.StatusNotFound, want: false},
-		{url: "https://www.example.com", res: http.StatusBadGateway, want: false},
+		{url: "https://www.example.com/", res: http.StatusOK, want: true},
+		{url: "https://www.example.com/", res: http.StatusNotFound, want: false},
+		{url: "https://www.example.com/", res: http.StatusBadGateway, want: false},
 	}
 
 	for _, tc := range tests {

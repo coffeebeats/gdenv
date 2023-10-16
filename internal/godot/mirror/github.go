@@ -1,11 +1,9 @@
 package mirror
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
@@ -46,27 +44,6 @@ func NewGitHub() GitHub {
 }
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
-
-// Issues a request to see if the mirror host has the specific version.
-func (m GitHub) CheckIfExists(ctx context.Context, v version.Version) bool {
-	if !m.Supports(v) {
-		return false
-	}
-
-	// Rather than maintaining a separate source of truth, issue a HEAD request
-	// to test whether the version exists.
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return false
-	}
-
-	exists, err := m.client.Exists(ctx, strings.Replace(urlRelease, "download", "tag", 1))
-	if err != nil {
-		return false
-	}
-
-	return exists
-}
 
 // Returns a new 'client.Client' for downloading artifacts from the mirror.
 func (m GitHub) Client() client.Client {

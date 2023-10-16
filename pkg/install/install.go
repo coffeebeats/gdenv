@@ -8,6 +8,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/mirror"
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/download"
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
@@ -18,7 +19,7 @@ import (
 
 // Downloads and caches a platform-specific version of Godot.
 func Executable(ctx context.Context, storePath string, ex executable.Executable) error {
-	m, err := mirror.Choose(ctx, ex.Version())
+	m, err := mirror.Choose(ctx, ex.Version(), ex.Platform())
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,12 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 
 // Downloads and caches a specific version of Godot's source code.
 func Source(ctx context.Context, storePath string, s source.Source) error {
-	m, err := mirror.Choose(ctx, s.Version())
+	// TODO: Make this not rely on this (arbitrary) platform. It would be better
+	// if 'checkIfExists' could correctly determine existence of an arbitrary
+	// artifact. For now, select a platform that's definitely going to exist.
+	p := platform.Platform{Arch: platform.Amd64, OS: platform.Windows}
+
+	m, err := mirror.Choose(ctx, s.Version(), p)
 	if err != nil {
 		return err
 	}
