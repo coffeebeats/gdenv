@@ -76,7 +76,7 @@ func Resolve(ctx context.Context, path string) (string, error) {
 		}
 	}
 
-	return "", fs.ErrNotExist
+	return "", fmt.Errorf("%w: cannot find a pin file", fs.ErrNotExist)
 }
 
 /* ---------------------------- Function: Remove ---------------------------- */

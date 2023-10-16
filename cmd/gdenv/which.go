@@ -1,20 +1,12 @@
 package main
 
 import (
-	"context"
-	"errors"
-	"io/fs"
 	"log"
 
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
-	"github.com/coffeebeats/gdenv/pkg/pin"
+	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
-)
-
-var (
-	ErrGodotNotFound = errors.New("godot not found")
 )
 
 // A 'urfave/cli' command to print the path to the effective Godot binary.
@@ -53,7 +45,7 @@ func NewWhich() *cli.Command {
 				return err
 			}
 
-			toolPath, err := which(c.Context, storePath, path, platform)
+			toolPath, err := install.Which(c.Context, storePath, platform, path)
 			if err != nil {
 				return err
 			}
@@ -63,32 +55,4 @@ func NewWhich() *cli.Command {
 			return nil
 		},
 	}
-}
-
-func which(ctx context.Context, storePath, pinPath string, p platform.Platform) (string, error) {
-	path, err := pin.Resolve(ctx, pinPath)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return "", err
-		}
-	}
-
-	// No pin file was found yet, so check globally.
-	if path == "" {
-		path = storePath
-	}
-
-	v, err := pin.Read(path)
-	if err != nil {
-		return "", ErrGodotNotFound
-	}
-
-	// Define the target 'Executable'.
-	ex := executable.New(v, p)
-
-	if !store.Has(storePath, ex) {
-		return "", ErrGodotNotFound
-	}
-
-	return store.ToolPath(storePath, ex)
 }
