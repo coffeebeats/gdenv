@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
-	"os"
 	"sync"
 	"time"
 
@@ -56,15 +56,14 @@ func main() {
 				wg.Done()
 			}()
 		}
-
 	}
 
 	fmt.Println("Start")
 
 	p := tea.NewProgram(ui.NewUI(bars...))
+
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
+		log.Println(err)
 	}
 
 	fmt.Println("DONE")

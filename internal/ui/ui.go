@@ -72,6 +72,7 @@ func (m UI) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint:ireturn
 		switch msg.String() {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
+			m.progress = nil
 			return m, tea.Quit
 		}
 	}
