@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -35,6 +37,8 @@ func NewInstall() *cli.Command {
 				return UsageError{ctx: c, err: err}
 			}
 
+			log.Infof("installing version: %s", v)
+
 			return installExecutable(c.Context, v, c.Bool("force"))
 		},
 	}
@@ -50,6 +54,8 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return err
 	}
 
+	log.Debugf("using store at path: %s", storePath)
+
 	// Ensure the store's layout is correct.
 	if err := store.Touch(storePath); err != nil {
 		return err
@@ -61,6 +67,13 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return err
 	}
 
+	platformLabel, err := platform.Format(p, v)
+	if err != nil {
+		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
+	}
+
+	log.Debugf("installing for platform: %s", platformLabel)
+
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
@@ -70,8 +83,21 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 	}
 
 	if ok && !force {
+		log.Info("skipping installation; version already found")
+
 		return nil
 	}
 
-	return install.Executable(ctx, storePath, ex)
+	if err := install.Executable(ctx, storePath, ex); err != nil {
+		return err
+	}
+
+	toolPath, err := store.ToolPath(storePath, ex)
+	if err != nil {
+		return fmt.Errorf("%w: %w", store.ErrMissingPath, err)
+	}
+
+	log.Infof("successfully installed version: %s", toolPath)
+
+	return nil
 }
