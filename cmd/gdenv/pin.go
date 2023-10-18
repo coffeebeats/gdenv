@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -12,7 +11,9 @@ import (
 )
 
 var (
-	ErrOptionUsage = errors.New("gdenv: invalid option usage")
+	ErrMissingPin           = errors.New("missing version pin")
+	ErrUsageForceAndInstall = errors.New("cannot specify '-f/--force' without '-i/--install'")
+	ErrUsageGlobalAndPath   = errors.New("cannot specify both '-g/--global' and '-p/--path'")
 )
 
 /* ---------------------------- Function: NewPin ---------------------------- */
@@ -52,13 +53,11 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				err := fmt.Errorf("%w: cannot specify both '-g/--global' and '-p/--path'", ErrOptionUsage)
-				return UsageError{ctx: c, err: err}
+				return UsageError{ctx: c, err: ErrUsageGlobalAndPath}
 			}
 
 			if c.IsSet("force") && !c.IsSet("install") {
-				err := fmt.Errorf("%w: cannot specify '-f/--force' without '-i/--install'", ErrOptionUsage)
-				return UsageError{ctx: c, err: err}
+				return UsageError{ctx: c, err: ErrUsageForceAndInstall}
 			}
 
 			// Validate arguments

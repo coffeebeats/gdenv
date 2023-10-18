@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/store"
