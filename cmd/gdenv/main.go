@@ -3,16 +3,31 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
+	"math"
 	"os"
 	"os/signal"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 	"github.com/urfave/cli/v2"
 )
 
-func main() { //nolint:funlen
-	log.SetFlags(0)
+const (
+	envLogLevel = "GDENV_LOG"
 
+	lenLevelLabel = 5
+
+	colorCyanBright    = 14
+	colorGreenBright   = 10
+	colorMagentaBright = 13
+	colorRedBright     = 9
+	colorWhiteBright   = 15
+	colorYellowBright  = 11
+)
+
+var ErrUnrecognizedLevel = errors.New("unrecognized level")
+
+func main() { //nolint:funlen
 	cli.VersionPrinter = versionPrinter
 
 	app := &cli.App{
@@ -49,7 +64,7 @@ func main() { //nolint:funlen
 		if err := recover(); err != nil {
 			exitCode = 1
 
-			log.Println(err)
+			log.Error(err)
 		}
 
 		os.Exit(exitCode)
@@ -64,15 +79,15 @@ func main() { //nolint:funlen
 		stop()
 	}()
 
+	setUpLogger()
+
 	if err := app.RunContext(ctx, os.Args); err != nil {
 		var usageErr UsageError
 		if errors.As(err, &usageErr) {
 			usageErr.PrintUsage()
 		}
 
-		log.Println(err)
-
-		exitCode = 1
+		panic(err)
 	}
 }
 
@@ -102,9 +117,48 @@ func (e UsageError) Error() string {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                            Function: setUpLogger                           */
+/* -------------------------------------------------------------------------- */
+
+// setUpLogger configures the package-level charm.sh 'log' logger.
+func setUpLogger() {
+	// Configure the logging level based on an environment variable.
+	log.SetLevel(log.ParseLevel(os.Getenv(envLogLevel)))
+
+	// Configure timestamp reporting.
+	log.SetReportTimestamp(false)
+
+	// Configure styles
+	log.DebugLevelStyle = newStyleWithColor("debug", colorCyanBright)
+	log.InfoLevelStyle = newStyleWithColor("info", colorGreenBright)
+	log.WarnLevelStyle = newStyleWithColor("warn", colorYellowBright)
+	log.ErrorLevelStyle = newStyleWithColor("error", colorRedBright) //nolint:reassign
+	log.FatalLevelStyle = newStyleWithColor("fatal", colorMagentaBright)
+}
+
+/* ----------------------- Function: newStyleWithColor ---------------------- */
+
+// newStyleWithColor creates a new 'lipgloss.Style' for the given log level and
+// ANSI escape color.
+//
+// NOTE: This function assumes that the width of the level strings is '5'.
+func newStyleWithColor(name string, ansiColor int) lipgloss.Style {
+	if name == "" {
+		panic("missing style name")
+	}
+
+	return lipgloss.NewStyle().
+		SetString(name).
+		PaddingRight(int(math.Max(float64(lenLevelLabel-len(name)), 0))).
+		Bold(true).
+		Foreground(lipgloss.ANSIColor(ansiColor))
+}
+
+/* -------------------------------------------------------------------------- */
 /*                          Function: versionPrinter                          */
 /* -------------------------------------------------------------------------- */
 
+// versionPrinter prints a 'gdenv' version string to the terminal.
 func versionPrinter(cCtx *cli.Context) {
 	log.Printf("gdenv %s\n", cCtx.App.Version)
 }
