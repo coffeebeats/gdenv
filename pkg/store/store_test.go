@@ -1,10 +1,12 @@
 package store
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/fstest"
@@ -293,6 +295,169 @@ func TestExecutable(t *testing.T) {
 			// Then: The expected filepath is returned.
 			if got != tc.want {
 				t.Errorf("output: got %s, want: %v", got, tc.want)
+			}
+		})
+	}
+}
+
+/* ---------------------------- Test: Executables --------------------------- */
+
+func TestExecutables(t *testing.T) {
+	tests := []struct {
+		name  string
+		files []fstest.Writer
+
+		want []LocalEx
+		err  error
+	}{
+		{
+			name: "a nil slice is returned when store is empty",
+
+			want: nil,
+			err:  nil,
+		},
+
+		{
+			name: "an empty slice is returned when version/platform directories are empty",
+			files: []fstest.Writer{
+				fstest.Dir{Path: filepath.Join(storeName, storeDirEx, version.Godot3().String())},
+				fstest.Dir{Path: filepath.Join(storeName, storeDirEx, version.Godot4().String(), "linux.x86_64")},
+			},
+
+			want: []LocalEx{},
+		},
+
+		{
+			name: "non-executable files are ignored",
+			files: []fstest.Writer{
+				fstest.File{Path: filepath.Join(storeName, storeDirBin, "gdenv-cli")},
+				fstest.File{Path: filepath.Join(storeName, storeDirSrc, version.Godot3().String(), "godot")},
+				fstest.File{Path: filepath.Join(storeName, storeFileLayout)},
+				fstest.File{Path: filepath.Join(storeName, ".godot-version")},
+
+				fstest.Dir{Path: filepath.Join(storeName, storeDirEx)},
+			},
+
+			want: []LocalEx{},
+		},
+
+		{
+			name: "all executables are included if they exist",
+			files: []fstest.Writer{
+				fstest.File{Path: filepath.Join(storeName, storeDirBin, "gdenv-cli")},
+				fstest.File{Path: filepath.Join(storeName, storeDirSrc, version.Godot3().String(), "godot")},
+				fstest.File{Path: filepath.Join(storeName, storeFileLayout)},
+				fstest.File{Path: filepath.Join(storeName, ".godot-version")},
+
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v3.0-stable",
+						"x11.64",
+						"Godot_v3.0-stable_x11.64",
+					),
+				},
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v3.0-stable",
+						"win64",
+						"Godot_v3.0-stable_win64.exe",
+					),
+				},
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v4.0-stable",
+						"linux.x86_64",
+						"Godot_v4.0-stable_linux.x86_64",
+					),
+				},
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v4.0-stable",
+						"macos.universal",
+						"Godot.app/Contents/MacOS/Godot",
+					),
+				},
+			},
+
+			// NOTE: These results must be alphabetically sorted by path elements.
+			want: []LocalEx{
+				artifact.Local[executable.Executable]{
+					Artifact: executable.MustParse("Godot_v3.0-stable_win64.exe"),
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v3.0-stable",
+						"win64",
+						"Godot_v3.0-stable_win64.exe",
+					),
+				},
+				artifact.Local[executable.Executable]{
+					Artifact: executable.MustParse("Godot_v3.0-stable_x11.64"),
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v3.0-stable",
+						"x11.64",
+						"Godot_v3.0-stable_x11.64",
+					),
+				},
+				artifact.Local[executable.Executable]{
+					Artifact: executable.MustParse("Godot_v4.0-stable_linux.x86_64"),
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v4.0-stable",
+						"linux.x86_64",
+						"Godot_v4.0-stable_linux.x86_64",
+					),
+				},
+				artifact.Local[executable.Executable]{
+					Artifact: executable.MustParse("Godot_v4.0-stable_macos.universal"),
+					Path: filepath.Join(
+						storeName,
+						storeDirEx,
+						"v4.0-stable",
+						"macos.universal",
+						"Godot.app",
+					),
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tmp := t.TempDir()
+
+			// Given: The specified artifacts with their paths prefixed to the
+			// temporary testing directoy.
+			for i, a := range tc.want {
+				tc.want[i].Path = filepath.Join(tmp, a.Path)
+			}
+
+			// Given: The specified files exist on the file system.
+			for _, f := range tc.files {
+				f.Write(t, tmp)
+			}
+
+			// When: The cached artifacts in the store are listed.
+			// Then: The expected error value is returned.
+			got, err := Executables(context.Background(), filepath.Join(tmp, storeName))
+			if !errors.Is(err, tc.err) {
+				t.Errorf("got: %v, want: %v", err, tc.err)
+			}
+
+			// Then: The expected artifact references are returned.
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("count: got %v, want: %v", got, tc.want)
 			}
 		})
 	}

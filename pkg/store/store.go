@@ -128,7 +128,7 @@ func Executable(storePath string, ex executable.Executable) (string, error) {
 /* -------------------------------------------------------------------------- */
 
 // Executables returns the list of installed Godot executables.
-func Executables(ctx context.Context, storePath string) ([]LocalEx, error) { //nolint:cyclop
+func Executables(ctx context.Context, storePath string) ([]LocalEx, error) {
 	if storePath == "" {
 		return nil, ErrMissingStore
 	}
@@ -137,7 +137,11 @@ func Executables(ctx context.Context, storePath string) ([]LocalEx, error) { //n
 
 	entries, err := os.ReadDir(filepath.Join(storePath, storeDirEx))
 	if err != nil {
-		return nil, err
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+
+		return nil, nil
 	}
 
 	for _, versionDir := range entries {
@@ -151,40 +155,62 @@ func Executables(ctx context.Context, storePath string) ([]LocalEx, error) { //n
 			continue
 		}
 
-		entries, err := os.ReadDir(filepath.Join(storePath, storeDirEx, versionDir.Name()))
+		ee, err := collectExecutablesForVersion(ctx, storePath, v)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, platformDir := range entries {
-			if ctx.Err() != nil {
-				return nil, ctx.Err()
-			}
+		out = append(out, ee...)
+	}
 
-			p, err := platform.Parse(platformDir.Name())
-			if err != nil {
-				log.Println("Skipping directory", versionDir.Name())
-				continue
-			}
+	return out, nil
+}
 
-			ex := executable.New(v, p)
+// Returns all cached executables for the specified version.
+func collectExecutablesForVersion(
+	ctx context.Context,
+	storePath string,
+	v version.Version,
+) ([]LocalEx, error) {
+	out := make([]LocalEx, 0)
 
-			ok, err := Has(storePath, ex)
-			if err != nil {
-				return nil, err
-			}
-
-			if !ok {
-				continue
-			}
-
-			path, err := Executable(storePath, ex)
-			if err != nil {
-				return nil, err
-			}
-
-			out = append(out, LocalEx{Artifact: ex, Path: path})
+	entries, err := os.ReadDir(filepath.Join(storePath, storeDirEx, v.String()))
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
 		}
+
+		return nil, nil
+	}
+
+	for _, platformDir := range entries {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		p, err := platform.Parse(platformDir.Name())
+		if err != nil {
+			log.Println("Skipping directory", platformDir.Name())
+			continue
+		}
+
+		ex := executable.New(v, p)
+
+		ok, err := Has(storePath, ex)
+		if err != nil {
+			return nil, err
+		}
+
+		if !ok {
+			continue
+		}
+
+		path, err := artifactPath(storePath, ex)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, LocalEx{Artifact: ex, Path: path})
 	}
 
 	return out, nil
