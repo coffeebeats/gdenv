@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -28,9 +26,14 @@ func NewUninstall() *cli.Command {
 		},
 
 		Action: func(c *cli.Context) error {
-			// Ensure 'Store' layout
-			storePath, err := store.InitAtPath()
+			// Determine the store path.
+			storePath, err := store.Path()
 			if err != nil {
+				return err
+			}
+
+			// Ensure the store's layout is correct.
+			if err := store.Touch(storePath); err != nil {
 				return err
 			}
 
@@ -51,36 +54,11 @@ func NewUninstall() *cli.Command {
 				// Define the target 'Executable'.
 				ex := executable.New(v, p)
 
-				return uninstall(storePath, ex)
+				return store.Remove(storePath, ex)
 			}
 
 			// Uninstall all versions.
-			return uninstallAll(c.Context, storePath)
+			return store.Clear(storePath)
 		},
 	}
-}
-
-/* --------------------------- Function: uninstall -------------------------- */
-
-// Deletes a platform-specific version of Godot from the store.
-func uninstall(storePath string, ex executable.Executable) error {
-	return store.Remove(storePath, ex)
-}
-
-/* ------------------------- Function: uninstallAll ------------------------- */
-
-// Uninstalls all cached Godot executables, regardless of platform.
-func uninstallAll(ctx context.Context, storePath string) error {
-	executables, err := store.Executables(ctx, storePath)
-	if err != nil {
-		return err
-	}
-
-	for _, ex := range executables {
-		if err := uninstall(storePath, ex); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

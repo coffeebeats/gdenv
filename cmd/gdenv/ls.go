@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
-	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
@@ -23,47 +24,102 @@ func NewLs() *cli.Command {
 		UsageText: "gdenv ls",
 
 		Action: func(c *cli.Context) error {
-			// Ensure 'Store' layout
-			storePath, err := store.InitAtPath()
+			// Determine the store path.
+			storePath, err := store.Path()
 			if err != nil {
 				return err
 			}
 
-			results, err := ls(c.Context, storePath)
+			// Ensure the store's layout is correct.
+			if err := store.Touch(storePath); err != nil {
+				return err
+			}
+
+			executables, err := store.Executables(c.Context, storePath)
 			if err != nil {
 				return err
 			}
 
-			if wd, err := os.Getwd(); err == nil {
-				if version, err := pin.Read(wd); err == nil {
-					log.Printf("🤖 Currently active version: %s\n\n", version)
+			if len(executables) == 0 {
+				return nil
+			}
+
+			printedActive, err := printActiveVersion(c.Context, storePath)
+			if err != nil {
+				return err
+			}
+
+			printedGlobal, err := printGlobalVersion(c.Context, storePath)
+			if err != nil {
+				return err
+			}
+
+			if printedActive || printedGlobal {
+				log.Println()
+			}
+
+			log.Printf("Installed versions (%s):\n", storePath)
+
+			for _, ex := range executables {
+				platformLabel, err := platform.Format(ex.Artifact.Platform(), ex.Artifact.Version())
+				if err != nil {
+					return err
 				}
-			}
 
-			log.Printf("Installed versions:\n\n%s\n", strings.Join(results, "\n"))
+				log.Printf("  %s (%s)\n", ex.Artifact.Version(), platformLabel)
+			}
 
 			return nil
 		},
 	}
 }
 
-/* ------------------------------ Function: ls ------------------------------ */
+/* ---------------------- Function: printActiveVersion ---------------------- */
 
-func ls(ctx context.Context, storePath string) ([]string, error) {
-	executables, err := store.Executables(ctx, storePath)
+func printActiveVersion(ctx context.Context, storePath string) (bool, error) {
+	wd, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	out := make([]string, len(executables))
-
-	for i, ex := range executables {
-		if ctx.Err() != nil {
-			return out, ctx.Err()
+	v, err := pin.VersionAt(ctx, storePath, wd)
+	if err != nil {
+		if !errors.Is(err, pin.ErrMissingPin) {
+			return false, err
 		}
 
-		out[i] = ex.String()
+		return false, nil
 	}
 
-	return out, nil
+	// Define the host 'Platform'.
+	p, err := platform.Detect()
+	if err != nil {
+		return false, err
+	}
+
+	platformLabel, err := platform.Format(p, v)
+	if err != nil {
+		return false, err
+	}
+
+	log.Printf("🤖 Currently active version: %s (%s)", v, platformLabel)
+
+	return true, nil
+}
+
+/* ---------------------- Function: printGlobalVersion ---------------------- */
+
+func printGlobalVersion(ctx context.Context, storePath string) (bool, error) {
+	v, err := pin.VersionAt(ctx, storePath, storePath)
+	if err != nil {
+		if !errors.Is(err, pin.ErrMissingPin) {
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	log.Printf("🌎 Globally pinned version: %s", v)
+
+	return true, nil
 }

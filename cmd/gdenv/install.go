@@ -44,9 +44,14 @@ func NewInstall() *cli.Command {
 
 // Installs the specified executable version to the store, but only if needed.
 func installExecutable(ctx context.Context, v version.Version, force bool) error {
-	// Ensure 'Store' layout
-	storePath, err := store.InitAtPath()
+	// Determine the store path.
+	storePath, err := store.Path()
 	if err != nil {
+		return err
+	}
+
+	// Ensure the store's layout is correct.
+	if err := store.Touch(storePath); err != nil {
 		return err
 	}
 
@@ -59,7 +64,12 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
-	if store.Has(storePath, ex) && !force {
+	ok, err := store.Has(storePath, ex)
+	if err != nil {
+		return err
+	}
+
+	if ok && !force {
 		return nil
 	}
 

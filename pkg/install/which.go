@@ -3,6 +3,7 @@ package install
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/fs"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -11,7 +12,7 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
 
-var ErrGodotNotFound = errors.New("godot not found")
+var ErrNotInstalled = errors.New("version not installed")
 
 /* -------------------------------------------------------------------------- */
 /*                               Function: Which                              */
@@ -20,29 +21,23 @@ var ErrGodotNotFound = errors.New("godot not found")
 // Which returns the path to the cached Godot executable specified by the
 // locally or globally pinned version.
 func Which(ctx context.Context, storePath string, p platform.Platform, atPath string) (string, error) {
-	path, err := pin.Resolve(ctx, atPath)
+	v, err := pin.VersionAt(ctx, storePath, atPath)
 	if err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return "", err
 		}
 	}
 
-	// No pin file was found yet, so check globally.
-	if path == "" {
-		path = storePath
-	}
-
-	v, err := pin.Read(path)
-	if err != nil {
-		return "", ErrGodotNotFound
-	}
-
-	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
-	if !store.Has(storePath, ex) {
-		return "", ErrGodotNotFound
+	ok, err := store.Has(storePath, ex)
+	if err != nil {
+		return "", err
 	}
 
-	return store.ToolPath(storePath, ex)
+	if !ok {
+		return "", fmt.Errorf("%w: %s", ErrNotInstalled, v)
+	}
+
+	return store.Executable(storePath, ex)
 }
