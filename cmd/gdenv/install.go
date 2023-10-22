@@ -32,7 +32,7 @@ func NewInstall() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "global",
 				Aliases: []string{"g"},
-				Usage:   "pin the system version (cannot be used with '-p')",
+				Usage:   "pin the system version",
 			},
 		},
 
