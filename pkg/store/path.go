@@ -7,58 +7,32 @@ import (
 	"path/filepath"
 )
 
-const envVarStore = "GDENV_HOME"
+const envStore = "GDENV_HOME"
+const storeName = "gdenv"
 
 var (
+	ErrIllegalPath   = errors.New("illegal store path")
 	ErrInvalidPath   = errors.New("invalid file path")
-	ErrMissingEnvVar = fmt.Errorf("environment variable '%s' not defined", envVarStore)
-	ErrMissingPath   = errors.New("missing file path")
+	ErrMissingEnvVar = errors.New("missing environment variable")
 )
 
-/* ----------------------------- Function: Clean ---------------------------- */
-
-// Returns a "cleaned" version of the specified store path.
-func Clean(path string) (string, error) {
-	if path == "" {
-		return "", ErrMissingPath
-	}
-
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return "", errors.Join(ErrInvalidPath, err)
-	}
-
-	return path, nil
-}
-
-/* ---------------------------- Function: Exists ---------------------------- */
-
-// Returns whether the specified store path exists.
-func Exists(path string) bool {
-	path, err := Clean(path)
-	if err != nil {
-		return false
-	}
-
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return info.IsDir()
-}
-
-/* ----------------------------- Function: Path ----------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Function: Path                               */
+/* -------------------------------------------------------------------------- */
 
 // Returns the user-configured path to the 'gdenv' store.
 func Path() (string, error) {
-	path := os.Getenv(envVarStore)
+	path := os.Getenv(envStore)
 	if path == "" {
-		return "", ErrMissingEnvVar
+		return "", fmt.Errorf("%w: %s", ErrMissingEnvVar, envStore)
 	}
 
 	if !filepath.IsAbs(path) {
 		return "", fmt.Errorf("%w; expected absolute path: %s", ErrInvalidPath, path)
+	}
+
+	if base := filepath.Base(path); base != storeName && base != "."+storeName {
+		return "", fmt.Errorf("%w: '%s'", ErrIllegalPath, path)
 	}
 
 	return filepath.Clean(path), nil
