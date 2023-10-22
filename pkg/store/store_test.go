@@ -16,6 +16,8 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
+const storeName = "store"
+
 /* -------------------------------- Test: Add ------------------------------- */
 
 func TestAdd(t *testing.T) {
