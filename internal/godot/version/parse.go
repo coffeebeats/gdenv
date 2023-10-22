@@ -43,6 +43,7 @@ func Parse(input string) (Version, error) {
 	input, label, found := strings.Cut(input, SeparatorPreReleaseVersion)
 	if (found && label == "") || !semver.IsValid(input) {
 		err := fmt.Errorf("%w: '%s'", ErrInvalid, strings.TrimPrefix(input, Prefix))
+
 		return version, err
 	}
 

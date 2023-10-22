@@ -543,16 +543,18 @@ func TestRemove(t *testing.T) {
 			},
 		},
 		{
-			name:   "remove executable doesn't delete sibling artifact",
+			name:   "remove executable deletes sibling, not cousin artifacts",
 			remove: ex,
 			files: []fstest.Writer{
 				fstest.File{Path: filepath.Join(storePathToEx, ex.Path())},
 				fstest.File{Path: filepath.Join(storePathToEx, "sibling")},
+				fstest.File{Path: filepath.Join(filepath.Dir(storePathToEx), "parent-sibling", "cousin")},
 			},
 
 			want: []fstest.Asserter{
 				fstest.Absent{Path: filepath.Join(storePathToEx, ex.Path())},
-				fstest.File{Path: filepath.Join(storePathToEx, "sibling")},
+				fstest.Absent{Path: filepath.Join(storePathToEx, "sibling")},
+				fstest.File{Path: filepath.Join(filepath.Dir(storePathToEx), "parent-sibling", "cousin")},
 			},
 		},
 		{

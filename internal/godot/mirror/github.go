@@ -40,6 +40,7 @@ var _ Mirror = &GitHub{} //nolint:exhaustruct
 // redirect policies configured.
 func NewGitHub() GitHub {
 	c := client.NewWithRedirectDomains(gitHubContentDomain)
+
 	return GitHub{c}
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
@@ -100,6 +101,8 @@ func Source(
 		return localSourceArchive{}, err
 	}
 
+	log.Debugf("downloaded source: %s", out)
+
 	return localSourceArchive{
 		Artifact: remote.Artifact,
 		Path:     out,
@@ -131,6 +134,8 @@ func SourceChecksums(
 	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
 		return localSourceChecksums{}, err
 	}
+
+	log.Debugf("downloaded checksums file: %s", out)
 
 	return localSourceChecksums{
 		Artifact: remote.Artifact,

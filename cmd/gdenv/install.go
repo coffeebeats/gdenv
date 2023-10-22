@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/install"
+	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -26,6 +29,11 @@ func NewInstall() *cli.Command {
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry",
 			},
+			&cli.BoolFlag{
+				Name:    "global",
+				Aliases: []string{"g"},
+				Usage:   "pin the system version",
+			},
 		},
 
 		Action: func(c *cli.Context) error {
@@ -35,7 +43,27 @@ func NewInstall() *cli.Command {
 				return UsageError{ctx: c, err: err}
 			}
 
-			return installExecutable(c.Context, v, c.Bool("force"))
+			if err := installExecutable(c.Context, v, c.Bool("force")); err != nil {
+				return err
+			}
+
+			if !c.Bool("global") {
+				return nil
+			}
+
+			// Determine the store path.
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
+
+			if err := pin.Write(c.Context, v, storePath); err != nil {
+				return err
+			}
+
+			log.Infof("set system default version: %s", v)
+
+			return nil
 		},
 	}
 }
@@ -44,11 +72,15 @@ func NewInstall() *cli.Command {
 
 // Installs the specified executable version to the store, but only if needed.
 func installExecutable(ctx context.Context, v version.Version, force bool) error {
+	log.Infof("installing version: %s", v)
+
 	// Determine the store path.
 	storePath, err := store.Path()
 	if err != nil {
 		return err
 	}
+
+	log.Debugf("using store at path: %s", storePath)
 
 	// Ensure the store's layout is correct.
 	if err := store.Touch(storePath); err != nil {
@@ -61,6 +93,13 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return err
 	}
 
+	platformLabel, err := platform.Format(p, v)
+	if err != nil {
+		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
+	}
+
+	log.Debugf("installing for platform: %s", platformLabel)
+
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
@@ -70,8 +109,16 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 	}
 
 	if ok && !force {
+		log.Info("skipping installation; version already found")
+
 		return nil
 	}
 
-	return install.Executable(ctx, storePath, ex)
+	if err := install.Executable(ctx, storePath, ex); err != nil {
+		return err
+	}
+
+	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
+
+	return nil
 }

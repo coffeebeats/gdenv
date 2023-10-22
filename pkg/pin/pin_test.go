@@ -27,7 +27,7 @@ func TestRead(t *testing.T) {
 	}{
 		{"", true, v, nil},
 		{"a/b/c", true, v, nil},
-		{"", false, version.Version{}, fs.ErrNotExist},
+		{"", false, version.Version{}, ErrMissingPin},
 	}
 
 	for i, tc := range tests {

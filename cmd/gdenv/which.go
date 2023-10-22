@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -55,7 +54,9 @@ func NewWhich() *cli.Command {
 				return err
 			}
 
-			log.Println(path)
+			if path != "" {
+				log.Print(path)
+			}
 
 			return nil
 		},

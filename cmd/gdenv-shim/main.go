@@ -23,6 +23,7 @@ func main() {
 		os.Exit(exitCode)
 	}()
 
+	// Don't report timestamp in logs.
 	log.SetFlags(0)
 
 	if err := execute(context.Background()); err != nil {

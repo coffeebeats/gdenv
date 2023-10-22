@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -37,15 +40,9 @@ func NewUninstall() *cli.Command {
 				return err
 			}
 
-			// Define the host 'Platform'.
-			p, err := platform.Detect()
-			if err != nil {
-				return err
-			}
-
 			// Uninstall all versions.
 			if c.Bool("all") {
-				return store.Clear(storePath)
+				return uninstallAll(c.Context, storePath)
 			}
 
 			// Uninstall a specific version.
@@ -56,10 +53,50 @@ func NewUninstall() *cli.Command {
 				return UsageError{ctx: c, err: err}
 			}
 
-			// Define the target 'Executable'.
-			ex := executable.New(v, p)
-
-			return store.Remove(storePath, ex)
+			return uninstall(storePath, v)
 		},
 	}
+}
+
+/* ------------------------- Function: uninstallAll ------------------------- */
+
+func uninstallAll(ctx context.Context, storePath string) error {
+	ee, err := store.Executables(ctx, storePath)
+	if err != nil {
+		return err
+	}
+
+	if len(ee) == 0 {
+		return nil
+	}
+
+	log.Info("removing all installed versions")
+
+	return store.Clear(storePath)
+}
+
+/* --------------------------- Function: uninstall -------------------------- */
+
+func uninstall(storePath string, v version.Version) error {
+	// Define the host 'Platform'.
+	p, err := platform.Detect()
+	if err != nil {
+		return err
+	}
+
+	// Define the target 'Executable'.
+	ex := executable.New(v, p)
+
+	ok, err := store.Has(storePath, ex)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return nil
+	}
+
+	log.Infof("uninstalling version: %s", v)
+
+	return store.Remove(storePath, ex)
 }

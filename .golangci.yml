@@ -31,7 +31,6 @@ linters:
     # Not useful here
     - depguard
     - godox
-    - nlreturn
     - varnamelen
     - wrapcheck
 

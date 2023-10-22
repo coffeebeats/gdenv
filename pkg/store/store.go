@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
@@ -70,6 +70,8 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		if err := osutil.ForceRename(local.Path, path); err != nil {
 			return err
 		}
+
+		log.Debugf("added file to store: %s", path)
 	}
 
 	return nil
@@ -127,7 +129,6 @@ func Executables(ctx context.Context, storePath string) ([]LocalEx, error) {
 
 		v, err := version.Parse(versionDir.Name())
 		if err != nil {
-			log.Println("Skipping directory", versionDir.Name())
 			continue
 		}
 
@@ -166,7 +167,6 @@ func collectExecutablesForVersion(
 
 		p, err := platform.Parse(platformDir.Name())
 		if err != nil {
-			log.Println("Skipping directory", platformDir.Name())
 			continue
 		}
 
@@ -242,12 +242,20 @@ func Remove(storePath string, a artifact.Artifact) error {
 		return err
 	}
 
+	// For executables, the entire platform directory should be removed. This is
+	// because multiple files can be installed alongside the executable itself.
+	if _, ok := a.(executable.Executable); ok {
+		path = filepath.Dir(path)
+	}
+
 	// Remove the specific executable from the store.
-	if err := os.Remove(path); err != nil {
+	if err := os.RemoveAll(path); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
 	}
+
+	log.Debugf("removed directory from store: %s", path)
 
 	return removeUnusedCacheDirectories(storePath, path)
 }
@@ -309,6 +317,8 @@ func Touch(storePath string) error {
 			return err
 		}
 	}
+
+	log.Debugf("ensured store layout at path: %s", storePath)
 
 	return nil
 }

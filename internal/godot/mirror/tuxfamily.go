@@ -48,6 +48,7 @@ var _ Mirror = &TuxFamily{} //nolint:exhaustruct
 
 func NewTuxFamily() TuxFamily {
 	c := client.NewWithRedirectDomains(tuxfamilyDownloadsDomain)
+
 	return TuxFamily{c}
 }
 

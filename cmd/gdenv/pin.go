@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -12,7 +12,9 @@ import (
 )
 
 var (
-	ErrOptionUsage = errors.New("gdenv: invalid option usage")
+	ErrMissingPin           = errors.New("missing version pin")
+	ErrUsageForceAndInstall = errors.New("cannot specify '-f/--force' without '-i/--install'")
+	ErrUsageGlobalAndPath   = errors.New("cannot specify both '-g/--global' and '-p/--path'")
 )
 
 /* ---------------------------- Function: NewPin ---------------------------- */
@@ -52,13 +54,11 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				err := fmt.Errorf("%w: cannot specify both '-g/--global' and '-p/--path'", ErrOptionUsage)
-				return UsageError{ctx: c, err: err}
+				return UsageError{ctx: c, err: ErrUsageGlobalAndPath}
 			}
 
 			if c.IsSet("force") && !c.IsSet("install") {
-				err := fmt.Errorf("%w: cannot specify '-f/--force' without '-i/--install'", ErrOptionUsage)
-				return UsageError{ctx: c, err: err}
+				return UsageError{ctx: c, err: ErrUsageForceAndInstall}
 			}
 
 			// Validate arguments
@@ -75,6 +75,18 @@ func NewPin() *cli.Command { //nolint:funlen
 
 			if err := pin.Write(c.Context, v, pinPath); err != nil {
 				return err
+			}
+
+			// Determine the store path.
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
+
+			if pinPath == storePath {
+				log.Infof("set system default version: %s", v)
+			} else {
+				log.Infof("pinned '%s' to version: %s", pinPath, v)
 			}
 
 			if !c.Bool("install") {

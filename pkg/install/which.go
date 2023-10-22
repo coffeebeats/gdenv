@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
@@ -23,9 +22,11 @@ var ErrNotInstalled = errors.New("version not installed")
 func Which(ctx context.Context, storePath string, p platform.Platform, atPath string) (string, error) {
 	v, err := pin.VersionAt(ctx, storePath, atPath)
 	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
+		if !errors.Is(err, pin.ErrMissingPin) {
 			return "", err
 		}
+
+		return "", nil
 	}
 
 	ex := executable.New(v, p)
@@ -36,6 +37,7 @@ func Which(ctx context.Context, storePath string, p platform.Platform, atPath st
 	}
 
 	if !ok {
+		// TODO: Determine whether this should be an error.
 		return "", fmt.Errorf("%w: %s", ErrNotInstalled, v)
 	}
 
