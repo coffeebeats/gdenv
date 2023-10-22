@@ -29,17 +29,17 @@ var (
 // available for download via a mirror host.
 type Mirror interface {
 	Client() client.Client
-	ExecutableArchive(version.Version, platform.Platform) (artifact.Remote[executable.Archive], error)
-	ExecutableArchiveChecksums(version.Version) (artifact.Remote[checksum.Executable], error)
+	ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error)
+	ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error)
 
-	SourceArchive(version.Version) (artifact.Remote[source.Archive], error)
-	SourceArchiveChecksums(version.Version) (artifact.Remote[checksum.Source], error)
+	SourceArchive(v version.Version) (artifact.Remote[source.Archive], error)
+	SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error)
 
 	// Checks whether the version is broadly supported by the mirror. No network
 	// request is issued, but this does not guarantee the host has the version.
 	// To check whether the host has the version definitively via the network,
 	// use the 'Has' method.
-	Supports(version.Version) bool
+	Supports(v version.Version) bool
 }
 
 /* -------------------------------------------------------------------------- */

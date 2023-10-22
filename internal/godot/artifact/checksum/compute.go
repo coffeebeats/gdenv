@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"hash"
@@ -51,5 +52,5 @@ func Compute[T archive.Archive](ctx context.Context, d artifact.Local[T]) (strin
 		return "", fmt.Errorf("%w: '%T'", ErrUnsupportedArtifact, d.Artifact)
 	}
 
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
