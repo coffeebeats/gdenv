@@ -48,6 +48,7 @@ jobs:
 
           extra-files: |
             cmd/gdenv/main.go
+            scripts/install.sh
 
   publish:
     needs: ["release-please"]
