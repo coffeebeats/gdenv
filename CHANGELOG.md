@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1 (2023-10-22)
+
+## What's Changed
+* fix(internal/godot/mirror): return error if no `Mirror` found by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/93
+* refactor(pkg/store,pkg/pin): simplify API and improve test coverage by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/95
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.0...v0.4.1
+
 ## 0.4.0 (2023-10-16)
 
 ## What's Changed
