@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -43,6 +44,8 @@ func Compare[T archive.Archive, U Checksums[T]](
 	localArtifact artifact.Local[T],
 	localChecksums artifact.Local[U],
 ) error {
+	log.Info("verifying checksum of downloaded file")
+
 	eg, ctx := errgroup.WithContext(ctx)
 
 	got, want := make(chan string, 1), make(chan string, 1)
@@ -54,6 +57,8 @@ func Compare[T archive.Archive, U Checksums[T]](
 		if err != nil {
 			return err
 		}
+
+		log.Debugf("actual checksum: %s", value)
 
 		select {
 		case got <- value:
@@ -69,6 +74,8 @@ func Compare[T archive.Archive, U Checksums[T]](
 		if err != nil {
 			return err
 		}
+
+		log.Debugf("expected checksum: %s", value)
 
 		select {
 		case want <- value:
@@ -86,6 +93,8 @@ func Compare[T archive.Archive, U Checksums[T]](
 	if g, w := <-got, <-want; g != w {
 		return fmt.Errorf("%w: %s (got) != %s (want)", ErrChecksumMismatch, g, w)
 	}
+
+	log.Debug("checksum matched expected value")
 
 	return eg.Wait()
 }

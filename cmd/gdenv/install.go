@@ -9,6 +9,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/install"
+	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -28,6 +29,11 @@ func NewInstall() *cli.Command {
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry",
 			},
+			&cli.BoolFlag{
+				Name:    "global",
+				Aliases: []string{"g"},
+				Usage:   "pin the system version (cannot be used with '-p')",
+			},
 		},
 
 		Action: func(c *cli.Context) error {
@@ -37,9 +43,27 @@ func NewInstall() *cli.Command {
 				return UsageError{ctx: c, err: err}
 			}
 
-			log.Infof("installing version: %s", v)
+			if err := installExecutable(c.Context, v, c.Bool("force")); err != nil {
+				return err
+			}
 
-			return installExecutable(c.Context, v, c.Bool("force"))
+			if !c.Bool("global") {
+				return nil
+			}
+
+			// Determine the store path.
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
+
+			if err := pin.Write(c.Context, v, storePath); err != nil {
+				return err
+			}
+
+			log.Infof("set system default version: %s", v)
+
+			return nil
 		},
 	}
 }
@@ -48,6 +72,8 @@ func NewInstall() *cli.Command {
 
 // Installs the specified executable version to the store, but only if needed.
 func installExecutable(ctx context.Context, v version.Version, force bool) error {
+	log.Infof("installing version: %s", v)
+
 	// Determine the store path.
 	storePath, err := store.Path()
 	if err != nil {
@@ -92,12 +118,7 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return err
 	}
 
-	path, err := store.Executable(storePath, ex)
-	if err != nil {
-		return err
-	}
-
-	log.Infof("successfully installed version: %s", path)
+	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
 
 	return nil
 }

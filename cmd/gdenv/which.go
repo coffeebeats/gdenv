@@ -54,7 +54,9 @@ func NewWhich() *cli.Command {
 				return err
 			}
 
-			log.Print(path)
+			if path != "" {
+				log.Print(path)
+			}
 
 			return nil
 		},

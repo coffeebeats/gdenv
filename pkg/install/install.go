@@ -2,9 +2,12 @@ package install
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -26,6 +29,8 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 		return err
 	}
 
+	log.Infof("downloading from mirror: %s", strings.TrimPrefix(fmt.Sprintf("%T", m), "mirror."))
+
 	tmp, err := os.MkdirTemp("", "gdenv-*")
 	if err != nil {
 		return err
@@ -33,10 +38,14 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 
 	defer os.RemoveAll(tmp)
 
+	log.Debugf("using temporary directory: %s", tmp)
+
 	localExArchive, err := download.ExecutableWithChecksumValidation(ctx, m, ex, tmp)
 	if err != nil {
 		return err
 	}
+
+	log.Info("installing executable in gdenv store")
 
 	if err := archive.Extract[executable.Archive](ctx, localExArchive, tmp); err != nil {
 		return err
@@ -45,6 +54,8 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 	if err := os.Remove(localExArchive.Path); err != nil {
 		return err
 	}
+
+	log.Debug("extracted executable archive")
 
 	entries, err := os.ReadDir(tmp)
 	if err != nil {
@@ -78,6 +89,8 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 		return err
 	}
 
+	log.Infof("downloading from mirror: %s", strings.TrimPrefix(fmt.Sprintf("%T", m), "mirror."))
+
 	tmp, err := os.MkdirTemp("", "gdenv-*")
 	if err != nil {
 		return err
@@ -85,10 +98,14 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 
 	defer os.RemoveAll(tmp)
 
+	log.Debugf("using temporary directory: %s", tmp)
+
 	localSourceArchive, err := download.SourceWithChecksumValidation(ctx, m, src.Version(), tmp)
 	if err != nil {
 		return err
 	}
+
+	log.Info("installing source in gdenv store")
 
 	if err := archive.Extract[source.Archive](ctx, localSourceArchive, tmp); err != nil {
 		return err
@@ -97,6 +114,8 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 	if err := os.Remove(localSourceArchive.Path); err != nil {
 		return err
 	}
+
+	log.Debug("extracted source archive")
 
 	return store.Add(
 		storePath,

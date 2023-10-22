@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -12,8 +13,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type localExArchive = artifact.Local[executable.Archive]
-type localExChecksums = artifact.Local[checksum.Executable]
+type (
+	localExArchive   = artifact.Local[executable.Archive]
+	localExChecksums = artifact.Local[checksum.Executable]
+)
 
 /* -------------------------------------------------------------------------- */
 /*                 Function: ExecutableWithChecksumValidation                 */
@@ -29,10 +32,10 @@ func ExecutableWithChecksumValidation(
 	defer close(chArchive)
 	defer close(chChecksums)
 
-	eg, ctxEG := errgroup.WithContext(ctx)
+	eg, downloadCtx := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		result, err := Executable(ctxEG, m, ex, out)
+		result, err := Executable(downloadCtx, m, ex, out)
 		if err != nil {
 			return err
 		}
@@ -47,7 +50,7 @@ func ExecutableWithChecksumValidation(
 	})
 
 	eg.Go(func() error {
-		result, err := ExecutableChecksums(ctxEG, m, ex.Version(), out)
+		result, err := ExecutableChecksums(downloadCtx, m, ex.Version(), out)
 		if err != nil {
 			return err
 		}
@@ -100,6 +103,8 @@ func Executable(
 		return localExArchive{}, err
 	}
 
+	log.Debugf("downloaded executable: %s", out)
+
 	return localExArchive{
 		Artifact: remote.Artifact,
 		Path:     out,
@@ -131,6 +136,8 @@ func ExecutableChecksums(
 	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
 		return localExChecksums{}, err
 	}
+
+	log.Debugf("downloaded checksums file: %s", out)
 
 	return localExChecksums{
 		Artifact: remote.Artifact,

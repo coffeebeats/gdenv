@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -74,6 +75,18 @@ func NewPin() *cli.Command { //nolint:funlen
 
 			if err := pin.Write(c.Context, v, pinPath); err != nil {
 				return err
+			}
+
+			// Determine the store path.
+			storePath, err := store.Path()
+			if err != nil {
+				return err
+			}
+
+			if pinPath == storePath {
+				log.Infof("set system default version: %s", v)
+			} else {
+				log.Infof("pinned '%s' to version: %s", pinPath, v)
 			}
 
 			if !c.Bool("install") {

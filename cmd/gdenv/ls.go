@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -30,11 +30,6 @@ func NewLs() *cli.Command {
 				return err
 			}
 
-			// Ensure the store's layout is correct.
-			if err := store.Touch(storePath); err != nil {
-				return err
-			}
-
 			executables, err := store.Executables(c.Context, storePath)
 			if err != nil {
 				return err
@@ -55,7 +50,7 @@ func NewLs() *cli.Command {
 			}
 
 			if printedActive || printedGlobal {
-				log.Println()
+				log.Print("")
 			}
 
 			log.Printf("Installed versions (%s):\n", storePath)
@@ -119,7 +114,7 @@ func printGlobalVersion(ctx context.Context, storePath string) (bool, error) {
 		return false, nil
 	}
 
-	log.Printf("🌎 Globally pinned version: %s", v)
+	log.Printf("🌎 System default version: %s", v)
 
 	return true, nil
 }

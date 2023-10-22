@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
@@ -45,6 +46,17 @@ func NewUninstall() *cli.Command {
 
 			// Uninstall all versions.
 			if c.Bool("all") {
+				ee, err := store.Executables(c.Context, storePath)
+				if err != nil {
+					return err
+				}
+
+				if len(ee) == 0 {
+					return nil
+				}
+
+				log.Info("removing all installed versions")
+
 				return store.Clear(storePath)
 			}
 
@@ -58,6 +70,17 @@ func NewUninstall() *cli.Command {
 
 			// Define the target 'Executable'.
 			ex := executable.New(v, p)
+
+			ok, err := store.Has(storePath, ex)
+			if err != nil {
+				return err
+			}
+
+			if !ok {
+				return nil
+			}
+
+			log.Infof("uninstalling version: %s", v)
 
 			return store.Remove(storePath, ex)
 		},
