@@ -15,15 +15,18 @@ import (
 const modePinFile = 0664 // rw-rw-r--
 
 var (
+	ErrMissingPin     = errors.New("missing version pin")
 	ErrParseVersion   = errors.New("failed to parse version")
 	ErrUnexpectedFile = errors.New("unexpected file")
 )
 
-/* ----------------------------- Function: Read ----------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Function: Read                               */
+/* -------------------------------------------------------------------------- */
 
 // Parses a 'Version' from the specified pin file.
 func Read(path string) (version.Version, error) {
-	path, err := Clean(path)
+	path, err := clean(path)
 	if err != nil {
 		return version.Version{}, err
 	}
@@ -41,27 +44,53 @@ func Read(path string) (version.Version, error) {
 	return v, nil
 }
 
-/* ---------------------------- Function: Resolve --------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                              Function: Remove                              */
+/* -------------------------------------------------------------------------- */
 
-// Tries to locate a pin file in the current directory or any parent directories.
-func Resolve(ctx context.Context, path string) (string, error) {
+// Deletes the specified pin file if it exists.
+func Remove(path string) error {
+	path, err := clean(path)
+	if err != nil {
+		return err
+	}
+
+	if err := os.Remove(path); err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Function: VersionAt                            */
+/* -------------------------------------------------------------------------- */
+
+// Resolves a version for the specified directory. This function starts by
+// looking for a pin file in the specified directory or any ancestor
+// directories. If none are found then globally-pinned version is checked.
+func VersionAt(ctx context.Context, storePath, path string) (version.Version, error) {
+	path, err := clean(path)
+	if err != nil {
+		return version.Version{}, err
+	}
+
+	path = filepath.Dir(path)
+
 	// Check if the specified path (or any ancestors) has a pin
 	for path != "/" {
 		if ctx.Err() != nil {
-			return "", ctx.Err()
+			return version.Version{}, ctx.Err()
 		}
 
-		// Don't overwrite 'path' or you'll go into an infinite loop due to
-		// 'Clean()' appending filenames you're removing below.
-		pin, err := Clean(path)
-		if err != nil {
-			return "", err
-		}
+		pinPath := filepath.Join(path, pinFilename)
 
-		info, err := os.Stat(pin)
+		info, err := os.Stat(pinPath)
 		if err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
-				return "", err
+				return version.Version{}, err
 			}
 
 			path = filepath.Dir(path)
@@ -71,37 +100,38 @@ func Resolve(ctx context.Context, path string) (string, error) {
 
 		// Validate that the file is a regular file; this catches cases where
 		// there's a directory named after 'pinFilename'.
-		if info.Mode().IsRegular() {
-			return pin, nil
+		if !info.Mode().IsRegular() {
+			return version.Version{}, fmt.Errorf("%w: '%s'", fs.ErrInvalid, pinPath)
 		}
+
+		break
 	}
 
-	return "", fmt.Errorf("%w: cannot find a pin file", fs.ErrNotExist)
-}
+	// Try reading a global pin file if the specified directory and all
+	// ancestors were missing pin files.
+	if path == "/" {
+		path = storePath
+	}
 
-/* ---------------------------- Function: Remove ---------------------------- */
-
-// Deletes the specified pin file if it exists.
-func Remove(path string) error {
-	p, err := Clean(path)
+	v, err := Read(path)
 	if err != nil {
-		return err
-	}
-
-	if err := os.Remove(p); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
-			return err
+			return version.Version{}, err
 		}
+
+		return version.Version{}, ErrMissingPin
 	}
 
-	return nil
+	return v, nil
 }
 
-/* ----------------------------- Function: Write ---------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Function: Write                              */
+/* -------------------------------------------------------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
 func Write(ctx context.Context, v version.Version, path string) error {
-	path, err := Clean(path)
+	path, err := clean(path)
 	if err != nil {
 		return err
 	}

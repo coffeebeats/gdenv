@@ -34,6 +34,21 @@ func Godot4() Version {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                             Function: Validate                             */
+/* -------------------------------------------------------------------------- */
+
+// Validate verifies that a 'Version' is valid by checking that parsing its
+// stringified representation produces the identical 'Version' struct.
+func Validate(v Version) error {
+	_, err := Parse(v.String())
+	if err != nil {
+		return fmt.Errorf("invalid version: %w", err)
+	}
+
+	return nil
+}
+
+/* -------------------------------------------------------------------------- */
 /*                               Struct: Version                              */
 /* -------------------------------------------------------------------------- */
 

@@ -3,85 +3,60 @@ package store
 import (
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
-/* ------------------------------- Test: Clean ------------------------------ */
+/* ---------------------------- Test: Executable ---------------------------- */
 
-func TestClean(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("test setup: %v", err)
-		return
-	}
+func TestExecutable(t *testing.T) {
+	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
 
 	tests := []struct {
-		input string
-		want  string
-		err   error
+		store string
+		ex    executable.Executable
+
+		want string
+		err  error
 	}{
-		{"", "", ErrMissingPath},
-		{"a", filepath.Join(wd, "a"), nil},
-		{"a/b/c", filepath.Join(wd, "a/b/c"), nil},
+		{
+			store: "",
+			ex:    ex,
+
+			err: ErrMissingStore,
+		},
+
+		{
+			store: storeName,
+			ex:    ex,
+
+			want: filepath.Join(
+				storeName,
+				storeDirEx,
+				"v4.0-stable",
+				"linux.x86_64",
+				ex.Name(),
+			),
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.input, func(t *testing.T) {
-			got, err := Clean(tc.input)
+		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.ex.String()), func(t *testing.T) {
+			// When: The path to the cached executable is determined.
+			got, err := Executable(tc.store, tc.ex)
 
+			// Then: The expected error value is returned.
 			if !errors.Is(err, tc.err) {
-				t.Errorf("err: got %#v, want %#v", err, tc.err)
+				t.Errorf("err: got %s, want: %v", err, tc.err)
 			}
+
+			// Then: The expected filepath is returned.
 			if got != tc.want {
-				t.Errorf("output: got %#v, want %#v", got, tc.want)
-			}
-		})
-	}
-}
-
-/* ------------------------------ Test: Exists ------------------------------ */
-
-func TestExists(t *testing.T) {
-	tests := []struct {
-		path       string
-		isRelative bool // Is the path relative to 'tmp'
-		want       bool
-	}{
-		{"a", true, true},
-		{"a/b/c", true, true},
-		{"a", true, false},
-		{"a/b/c", true, false},
-
-		// Check the empty string
-		{"", false, false},
-	}
-
-	for i, tc := range tests {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			tmp := t.TempDir()
-
-			path := filepath.Join(tmp, tc.path)
-			if !tc.isRelative {
-				path = tc.path
-			}
-
-			// Create the pin file
-			if tc.want {
-				store, err := Clean(path)
-				if err != nil {
-					t.Fatalf("test setup: %v", err)
-				}
-
-				if err := os.MkdirAll(store, modeTestDir); err != nil {
-					t.Fatalf("test setup: %v", err)
-				}
-			}
-
-			got := Exists(path)
-			if got != tc.want {
-				t.Errorf("output: got %#v, want %#v", got, tc.want)
+				t.Errorf("output: got %s, want: %v", got, tc.want)
 			}
 		})
 	}
@@ -95,17 +70,23 @@ func TestPath(t *testing.T) {
 		want string
 		err  error
 	}{
-		{"", "", ErrMissingEnvVar},
-		{"a", "", ErrInvalidPath},
-		{"a/b/c", "", ErrInvalidPath},
-		{"/", "/", nil},
-		{"/a", "/a", nil},
-		{"/a/b/c", "/a/b/c", nil},
+		// Invalid inputs
+		{env: "", err: ErrMissingEnvVar},
+		{env: "a", err: ErrInvalidPath},
+		{env: "a/b/c", err: ErrInvalidPath},
+		{env: "/", err: ErrIllegalPath},
+		{env: "/a", err: ErrIllegalPath},
+
+		// Valid inputs
+		{env: "/" + storeName, want: "/" + storeName},
+		{env: "/." + storeName, want: "/." + storeName},
+		{env: "/a/b/" + storeName, want: "/a/b/" + storeName},
+		{env: "/a/b/." + storeName, want: "/a/b/." + storeName},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.env, func(t *testing.T) {
-			t.Setenv(envVarStore, tc.env)
+			t.Setenv(envStore, tc.env)
 
 			got, err := Path()
 
@@ -115,6 +96,56 @@ func TestPath(t *testing.T) {
 
 			if got != tc.want {
 				t.Errorf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
+
+/* ------------------------------ Test: Source ------------------------------ */
+
+func TestSource(t *testing.T) {
+	src := source.New(version.Godot4())
+
+	tests := []struct {
+		store string
+		src   source.Source
+
+		want string
+		err  error
+	}{
+		{
+			store: "",
+			src:   src,
+
+			err: ErrMissingStore,
+		},
+
+		{
+			store: storeName,
+			src:   src,
+
+			want: filepath.Join(
+				storeName,
+				storeDirSrc,
+				"v4.0-stable",
+				src.Name(),
+			),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.src.String()), func(t *testing.T) {
+			// When: The path to the cached source directory is determined.
+			got, err := Source(tc.store, tc.src)
+
+			// Then: The expected error value is returned.
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %s, want: %v", err, tc.err)
+			}
+
+			// Then: The expected filepath is returned.
+			if got != tc.want {
+				t.Errorf("output: got %s, want: %v", got, tc.want)
 			}
 		})
 	}

@@ -7,9 +7,13 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
 )
 
 const modeTestFile = 0600 // rw-------
+
+type MockArtifact = artifacttest.MockArtifact
 
 /* ------------------------------ Test: Extract ----------------------------- */
 
@@ -142,7 +146,7 @@ type MockArchive[T Archivable] struct {
 	err  error
 }
 
-var _ Archive = MockArchive[MockArtifact]{}
+var _ Archive = MockArchive[artifacttest.MockArtifact]{}
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
@@ -155,21 +159,3 @@ func (a MockArchive[T]) Name() string {
 func (a MockArchive[T]) extract(_ context.Context, path, out string) error {
 	return a.err
 }
-
-/* -------------------------------------------------------------------------- */
-/*                            Struct: MockArtifact                            */
-/* -------------------------------------------------------------------------- */
-
-type MockArtifact struct {
-	name string
-}
-
-/* ----------------------------- Impl: Artifact ----------------------------- */
-
-func (a MockArtifact) Name() string {
-	return a.name
-}
-
-/* ---------------------------- Impl: Archivable ---------------------------- */
-
-func (a MockArtifact) Archivable() {}

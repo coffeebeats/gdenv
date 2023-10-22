@@ -2,7 +2,6 @@ package pin
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 )
 
@@ -13,10 +12,12 @@ var (
 	ErrMissingPath = errors.New("missing file path")
 )
 
-/* ----------------------------- Function: Clean ---------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Function: clean                              */
+/* -------------------------------------------------------------------------- */
 
 // Returns a "cleaned" version of the specified pin file path.
-func Clean(path string) (string, error) {
+func clean(path string) (string, error) {
 	if path == "" {
 		return path, ErrMissingPath
 	}
@@ -31,21 +32,4 @@ func Clean(path string) (string, error) {
 	}
 
 	return path, nil
-}
-
-/* ---------------------------- Function: Exists ---------------------------- */
-
-// Returns whether the specified pin file exists.
-func Exists(path string) bool {
-	path, err := Clean(path)
-	if err != nil {
-		return false
-	}
-
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return info.Mode().IsRegular()
 }

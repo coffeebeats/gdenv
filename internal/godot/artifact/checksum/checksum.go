@@ -28,7 +28,7 @@ type Checksums[T artifact.Artifact] interface {
 	// NOTE: This dummy method is defined in order to (i) restrict outside
 	// implementers and (ii) ensure the correct 'Artifact' types are used during
 	// checksum extraction.
-	supports(T)
+	supports(a T)
 }
 
 /* -------------------------------------------------------------------------- */

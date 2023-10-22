@@ -28,29 +28,34 @@ func NewWhich() *cli.Command {
 
 		Action: func(c *cli.Context) error {
 			// Determine 'path' option
-			path, err := resolvePath(c)
+			pinPath, err := resolvePath(c)
 			if err != nil {
 				return err
 			}
 
-			// Ensure 'Store' layout
-			storePath, err := store.InitAtPath()
+			// Determine the store path.
+			storePath, err := store.Path()
 			if err != nil {
+				return err
+			}
+
+			// Ensure the store's layout is correct.
+			if err := store.Touch(storePath); err != nil {
 				return err
 			}
 
 			// Define the host 'Platform'.
-			platform, err := platform.Detect()
+			p, err := platform.Detect()
 			if err != nil {
 				return err
 			}
 
-			toolPath, err := install.Which(c.Context, storePath, platform, path)
+			path, err := install.Which(c.Context, storePath, p, pinPath)
 			if err != nil {
 				return err
 			}
 
-			log.Println(toolPath)
+			log.Println(path)
 
 			return nil
 		},
