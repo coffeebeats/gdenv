@@ -33,7 +33,11 @@ func Read(path string) (version.Version, error) {
 
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		return version.Version{}, err
+		if !errors.Is(err, fs.ErrNotExist) {
+			return version.Version{}, err
+		}
+
+		return version.Version{}, fmt.Errorf("%w: '%s'", ErrMissingPin, path)
 	}
 
 	v, err := version.Parse(string(bytes))
@@ -113,16 +117,7 @@ func VersionAt(ctx context.Context, storePath, path string) (version.Version, er
 		path = storePath
 	}
 
-	v, err := Read(path)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return version.Version{}, err
-		}
-
-		return version.Version{}, ErrMissingPin
-	}
-
-	return v, nil
+	return Read(path)
 }
 
 /* -------------------------------------------------------------------------- */
