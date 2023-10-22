@@ -3,6 +3,8 @@ module github.com/coffeebeats/gdenv
 go 1.21
 
 require (
+	github.com/charmbracelet/lipgloss v0.8.0
+	github.com/charmbracelet/log v0.2.5
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/ulikunitz/xz v0.5.11
@@ -14,8 +16,6 @@ require (
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/lipgloss v0.8.0 // indirect
-	github.com/charmbracelet/log v0.2.5 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
