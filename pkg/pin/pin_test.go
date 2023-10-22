@@ -35,7 +35,7 @@ func TestRead(t *testing.T) {
 			tmp := t.TempDir()
 			path := filepath.Join(tmp, tc.path)
 
-			pin, err := Clean(path)
+			pin, err := clean(path)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
@@ -64,19 +64,22 @@ func TestRead(t *testing.T) {
 
 }
 
-/* ------------------------------ Test: Resolve ----------------------------- */
+/* ----------------------------- Test: VersionAt ---------------------------- */
 
-func TestResolve(t *testing.T) {
+func TestVersionAt(t *testing.T) {
 	tests := []struct {
 		pin  string // where the pin file exists
 		path string // where to query
-		want string // result of the query
+
+		want version.Version // result of the query
 		err  error
 	}{
-		{"", "", pinFilename, nil},
-		{"", "a/b/c", pinFilename, nil},
-		{"a", "", "", fs.ErrNotExist},
-		{"a/b", "c/d", "", fs.ErrNotExist},
+		{pin: "a", path: "", err: ErrMissingPin},
+		{pin: "a/b", path: "c/d", err: ErrMissingPin},
+
+		{pin: "", path: "", want: version.Godot3()},
+		{pin: "", path: "a/b/c", want: version.Godot3()},
+		{pin: ".gdenv", path: "a/b/c", want: version.Godot3()}, // uses global pin
 	}
 
 	for i, tc := range tests {
@@ -85,7 +88,7 @@ func TestResolve(t *testing.T) {
 
 			path, pin := filepath.Join(tmp, tc.path), filepath.Join(tmp, tc.pin)
 
-			pin, err := Clean(pin)
+			pin, err := clean(pin)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
@@ -95,18 +98,14 @@ func TestResolve(t *testing.T) {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			if err := os.WriteFile(pin, []byte(""), modePinFile); err != nil {
+			if err := os.WriteFile(pin, []byte(tc.want.String()), modePinFile); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
-			got, err := Resolve(context.Background(), path)
+			storePath := filepath.Join(tmp, ".gdenv")
+			got, err := VersionAt(context.Background(), storePath, path)
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
-			}
-
-			got, err = filepath.Rel(tmp, got)
-			if got != "" && err != nil {
-				t.Fatalf("test setup: %v", err)
 			}
 
 			if got != tc.want {
@@ -134,7 +133,7 @@ func TestRemove(t *testing.T) {
 			tmp := t.TempDir()
 			path := filepath.Join(tmp, tc.path)
 
-			pin, err := Clean(path)
+			pin, err := clean(path)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
@@ -193,7 +192,7 @@ func TestWrite(t *testing.T) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
 
-			p, err = Clean(p)
+			p, err = clean(p)
 			if err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
