@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/go-resty/resty/v2"
 )
@@ -99,7 +99,7 @@ func New() Client {
 
 	// Add logging when a retry occurs.
 	restyClient.AddRetryHook(func(r *resty.Response, err error) {
-		log.Println("Retrying due to:", err, fmt.Sprintf("(%s)", r.Status()))
+		log.Warn("Retrying request due to error:", err, fmt.Sprintf("(%s)", r.Status()))
 	})
 
 	// Disable internal resty client logging.
