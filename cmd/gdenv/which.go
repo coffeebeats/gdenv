@@ -54,7 +54,7 @@ func NewWhich() *cli.Command {
 				return err
 			}
 
-			log.Println(path)
+			log.Print(path)
 
 			return nil
 		},

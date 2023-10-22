@@ -92,12 +92,12 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return err
 	}
 
-	toolPath, err := store.ToolPath(storePath, ex)
+	path, err := store.Executable(storePath, ex)
 	if err != nil {
-		return fmt.Errorf("%w: %w", store.ErrMissingPath, err)
+		return err
 	}
 
-	log.Infof("successfully installed version: %s", toolPath)
+	log.Infof("successfully installed version: %s", path)
 
 	return nil
 }
