@@ -43,22 +43,23 @@ func NewUninstall() *cli.Command {
 				return err
 			}
 
-			// Uninstall a specific version.
-			if !c.Bool("all") {
-				// Validate arguments
-				v, err := version.Parse(c.Args().First())
-				if err != nil && !c.Bool("all") {
-					return UsageError{ctx: c, err: err}
-				}
-
-				// Define the target 'Executable'.
-				ex := executable.New(v, p)
-
-				return store.Remove(storePath, ex)
+			// Uninstall all versions.
+			if c.Bool("all") {
+				return store.Clear(storePath)
 			}
 
-			// Uninstall all versions.
-			return store.Clear(storePath)
+			// Uninstall a specific version.
+
+			// Validate arguments
+			v, err := version.Parse(c.Args().First())
+			if err != nil && !c.Bool("all") {
+				return UsageError{ctx: c, err: err}
+			}
+
+			// Define the target 'Executable'.
+			ex := executable.New(v, p)
+
+			return store.Remove(storePath, ex)
 		},
 	}
 }

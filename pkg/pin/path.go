@@ -12,7 +12,9 @@ var (
 	ErrMissingPath = errors.New("missing file path")
 )
 
-/* ----------------------------- Function: clean ---------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Function: clean                              */
+/* -------------------------------------------------------------------------- */
 
 // Returns a "cleaned" version of the specified pin file path.
 func clean(path string) (string, error) {

@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"path/filepath"
 	"reflect"
@@ -244,57 +243,6 @@ func TestClear(t *testing.T) {
 			// Then: The expected files exist on the file system.
 			for _, f := range tc.want {
 				f.Assert(t, tmp)
-			}
-		})
-	}
-}
-
-/* ---------------------------- Test: Executable ---------------------------- */
-
-func TestExecutable(t *testing.T) {
-	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
-
-	tests := []struct {
-		store string
-		ex    executable.Executable
-
-		want string
-		err  error
-	}{
-		{
-			store: "",
-			ex:    ex,
-
-			err: ErrMissingStore,
-		},
-
-		{
-			store: storeName,
-			ex:    ex,
-
-			want: filepath.Join(
-				storeName,
-				storeDirEx,
-				"v4.0-stable",
-				"linux.x86_64",
-				ex.Name(),
-			),
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.ex.String()), func(t *testing.T) {
-			// When: The path to the cached executable is determined.
-			got, err := Executable(tc.store, tc.ex)
-
-			// Then: The expected error value is returned.
-			if !errors.Is(err, tc.err) {
-				t.Errorf("err: got %s, want: %v", err, tc.err)
-			}
-
-			// Then: The expected filepath is returned.
-			if got != tc.want {
-				t.Errorf("output: got %s, want: %v", got, tc.want)
 			}
 		})
 	}
@@ -665,56 +613,6 @@ func TestRemove(t *testing.T) {
 			// Then: The expected files exist on the file system.
 			for _, f := range tc.want {
 				f.Assert(t, tmp)
-			}
-		})
-	}
-}
-
-/* ------------------------------ Test: Source ------------------------------ */
-
-func TestSource(t *testing.T) {
-	src := source.New(version.Godot4())
-
-	tests := []struct {
-		store string
-		src   source.Source
-
-		want string
-		err  error
-	}{
-		{
-			store: "",
-			src:   src,
-
-			err: ErrMissingStore,
-		},
-
-		{
-			store: storeName,
-			src:   src,
-
-			want: filepath.Join(
-				storeName,
-				storeDirSrc,
-				"v4.0-stable",
-				src.Name(),
-			),
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.src.String()), func(t *testing.T) {
-			// When: The path to the cached source directory is determined.
-			got, err := Source(tc.store, tc.src)
-
-			// Then: The expected error value is returned.
-			if !errors.Is(err, tc.err) {
-				t.Errorf("err: got %s, want: %v", err, tc.err)
-			}
-
-			// Then: The expected filepath is returned.
-			if got != tc.want {
-				t.Errorf("output: got %s, want: %v", got, tc.want)
 			}
 		})
 	}

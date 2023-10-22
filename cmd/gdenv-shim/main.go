@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 	"syscall"
@@ -11,8 +10,6 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
-
-var ErrMissingGodot = errors.New("godot not found")
 
 func main() {
 	var exitCode int
