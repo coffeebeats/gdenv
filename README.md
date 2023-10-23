@@ -28,15 +28,15 @@ The easiest way to install `gdenv` is by using the pre-built binaries. These can
 
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
-#### **Linux/MacOS — bash (recommended)**
+#### **Linux/MacOS — `sh` (recommended)**
 
 > ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use these instructions instead of [Windows (powershell)](#windows--powershell-recommended).
 
 ```sh
-curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.sh | bash
+curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | sh
 ```
 
-#### **Windows — powershell (recommended)**
+#### **Windows — `powershell` (recommended)**
 
 > ❕ **NOTE:** In order to run scripts in PowerShell, the [execution policy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) must _not_ be `Restricted`. Consider running the following command
 > if you encounter `UnauthorizedAccess` errors when following these instructions. See [Set-ExecutionPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy) documentation for details.
@@ -48,7 +48,7 @@ curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.sh | bash
 ```sh
 Invoke-WebRequest `
     -UseBasicParsing `
-    -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.ps1" `
+    -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
     -OutFile "./install-gdenv.ps1"; `
     &"./install-gdenv.ps1"
 ```

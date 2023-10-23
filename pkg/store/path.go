@@ -15,10 +15,8 @@ import (
 )
 
 const envStore = "GDENV_HOME"
-const storeName = "gdenv"
 
 var (
-	ErrIllegalPath   = errors.New("illegal store path")
 	ErrInvalidPath   = errors.New("invalid file path")
 	ErrMissingEnvVar = errors.New("missing environment variable")
 )
@@ -57,10 +55,6 @@ func Path() (string, error) {
 
 	if !filepath.IsAbs(path) {
 		return "", fmt.Errorf("%w; expected absolute path: %s", ErrInvalidPath, path)
-	}
-
-	if base := filepath.Base(path); base != storeName && base != "."+storeName {
-		return "", fmt.Errorf("%w: '%s'", ErrIllegalPath, path)
 	}
 
 	return filepath.Clean(path), nil

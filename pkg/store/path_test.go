@@ -74,8 +74,6 @@ func TestPath(t *testing.T) {
 		{env: "", err: ErrMissingEnvVar},
 		{env: "a", err: ErrInvalidPath},
 		{env: "a/b/c", err: ErrInvalidPath},
-		{env: "/", err: ErrIllegalPath},
-		{env: "/a", err: ErrIllegalPath},
 
 		// Valid inputs
 		{env: "/" + storeName, want: "/" + storeName},
