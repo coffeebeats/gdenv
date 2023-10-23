@@ -33,7 +33,7 @@ The easiest way to install `gdenv` is by using the pre-built binaries. These can
 > ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use these instructions instead of [Windows (powershell)](#windows--powershell-recommended).
 
 ```sh
-curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.sh | bash
+curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | bash
 ```
 
 #### **Windows — powershell (recommended)**
@@ -48,7 +48,7 @@ curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.sh | bash
 ```sh
 Invoke-WebRequest `
     -UseBasicParsing `
-    -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/install.ps1" `
+    -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
     -OutFile "./install-gdenv.ps1"; `
     &"./install-gdenv.ps1"
 ```
