@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3 (2023-10-23)
+
+## What's Changed
+* chore(deps): bump github.com/charmbracelet/lipgloss from 0.8.0 to 0.9.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/99
+* fix(cmd/gdenv-shim,scripts): add Windows `bash` support to install script and `gdenv-shim` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/101
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.2...v0.4.3
+
 ## 0.4.2 (2023-10-23)
 
 ## What's Changed
