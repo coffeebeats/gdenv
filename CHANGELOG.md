@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.2 (2023-10-23)
+
+## What's Changed
+* feat: add logging throughout the application by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/96
+* feat(scripts): add an `sh`-compatible install script by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/98
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.1...v0.4.2
+
 ## 0.4.1 (2023-10-22)
 
 ## What's Changed
