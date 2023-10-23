@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.4 (2023-10-23)
+
+## What's Changed
+* fix: name the `gdenv-shim` binary `godot` to simplify installation by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/102
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.3...v0.4.4
+
 ## 0.4.3 (2023-10-23)
 
 ## What's Changed
