@@ -45,19 +45,20 @@ unsupported_platform() {
 
 usage() {
     cat <<EOF
-Installs 'gdenv' for managing multiple versions of the Godot editor.
+gdenv-install: Installs 'gdenv' for managing multiple versions of the Godot editor.
 
-Usage: $(basename ${0}) [OPTIONS]
+Usage: gdenv-install [OPTIONS]
 
 NOTE: The following dependencies are required:
     - curl OR wget
-    - tar
+    - grep
+    - sha256sum OR shasum
+    - tar/unzip
     - uname
 
 Available options:
     -h, --help          Print this help and exit
     -v, --verbose       Print script debug info (default=false)
-    -y, --yes           Accept all prompts and use default settings (default=false)
     --no-modify-path    Do not modify the \$PATH environment variable
 EOF
     exit
@@ -85,7 +86,7 @@ parse_params() {
 
         --no-modify-path) MODIFY_PATH=0 ;;
 
-        -?*) die "Unknown option: $1" ;;
+        -?*) fatal "Unknown option: $1" ;;
         "") break ;;
         esac
         shift
