@@ -229,18 +229,12 @@ windows)
 
     mkdir -p "$GDENV_HOME/bin"
     unzip -u "$GDENV_CLI_ARCHIVE" -d "$GDENV_HOME/bin"
-
-    # Rename the shim so that 'godot' is found on path.
-    mv "$GDENV_HOME/bin/gdenv-shim.exe" "$GDENV_HOME/bin/godot.exe"
     ;;
 *)
     need_cmd tar
 
     mkdir -p "$GDENV_HOME/bin"
     tar -C "$GDENV_HOME/bin" --no-same-owner -xzf "$GDENV_CLI_ARCHIVE"
-
-    # Rename the shim so that 'godot' is found on path.
-    mv "$GDENV_HOME/bin/gdenv-shim" "$GDENV_HOME/bin/godot"
     ;;
 esac
 
