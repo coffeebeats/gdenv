@@ -258,6 +258,11 @@ zsh) OUT="$HOME/.zshenv" ;;
 esac
 
 if [ "${OUT}" != "" ]; then
+    if [ -f "${OUT}" ] && $(cat $OUT | grep -q 'export GDENV_HOME'); then
+        info "Found 'GDENV_HOME' export in shell Rc file; skipping modification."
+        exit 0
+    fi
+
     if [ -f "${OUT}" ] && [ "$(tail -n 1 "$OUT")" != "" ]; then
         echo "" >>"$OUT"
     fi
