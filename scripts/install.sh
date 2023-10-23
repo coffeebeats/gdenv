@@ -1,6 +1,17 @@
 #!/bin/sh
 set -e
 
+# This script installs 'gdenv' by downloading prebuilt binaries from the
+# project's GitHub releases page. By default the latest version is installed,
+# but a different release can be used instead by setting $GDENV_VERSION.
+#
+# The script will set up a 'gdenv' cache at '$HOME/.gdenv'. This behavior can
+# be customized by setting '$GDENV_HOME' prior to running the script. Existing
+# Godot artifacts cached in a 'gdenv' store won't be lost, but this script will
+# overwrite any 'gdenv' binary artifacts in '$GDENV_HOME/bin'.
+
+# ------------------------------ Define: Cleanup ----------------------------- #
+
 trap cleanup EXIT
 
 cleanup() {
@@ -35,10 +46,9 @@ fatal() {
 }
 
 unsupported_platform() {
-    msg="$1\n"
-    msg="${msg}See https://github.com/coffeebeats/gdenv#compile-from-source-not-recommended for instructions on compiling from source."
-
-    fatal "$msg"
+    error "$1"
+    echo "See https://github.com/coffeebeats/gdenv#compile-from-source-not-recommended for instructions on compiling from source."
+    exit 1
 }
 
 # ------------------------------- Define: Usage ------------------------------ #
@@ -54,6 +64,7 @@ NOTE: The following dependencies are required:
     - grep
     - sha256sum OR shasum
     - tar/unzip
+    - tr
     - uname
 
 Available options:
@@ -104,43 +115,47 @@ GDENV_VERSION="v${GDENV_VERSION#v}"
 
 # ----------------------------- Define: Platform ----------------------------- #
 
+need_cmd tr
 need_cmd uname
 
-GDENV_CLI_OS="$(echo ${GDENV_CLI_OS=$(uname -s)} | tr '[:upper:]' '[:lower:]')"
-case $GDENV_CLI_OS in
-darwin | mac | macos | osx) GDENV_CLI_OS="macos" ;;
-linux) GDENV_CLI_OS="linux" ;;
-win | windows) GDENV_CLI_OS="windows" ;;
+GDENV_CLI_OS="$(echo "${GDENV_CLI_OS=$(uname -s)}" | tr '[:upper:]' '[:lower:]')"
+case "$GDENV_CLI_OS" in
+darwin*) GDENV_CLI_OS="macos" ;;
+linux*) GDENV_CLI_OS="linux" ;;
+mac | macos | osx) GDENV_CLI_OS="macos" ;;
+cygwin*) GDENV_CLI_OS="windows" ;;
+msys* | mingw64*) GDENV_CLI_OS="windows" ;;
+uwin* | win*) GDENV_CLI_OS="windows" ;;
 *) unsupported_platform "no prebuilt binaries available for operating system: $GDENV_CLI_OS" ;;
 esac
 
 GDENV_CLI_ARCH="$(echo ${GDENV_CLI_ARCH=$(uname -m)} | tr '[:upper:]' '[:lower:]')"
-case $GDENV_CLI_ARCH in
+case "$GDENV_CLI_ARCH" in
 aarch64 | arm64)
     GDENV_CLI_ARCH="arm64"
     if [ "$GDENV_CLI_OS" != "macos" ]; then
-        fatal "no prebuilt '${GDENV_CLI_ARCH}' binaries available for operating system: $GDENV_CLI_OS"
+        fatal "no prebuilt '$GDENV_CLI_ARCH' binaries available for operating system: $GDENV_CLI_OS"
     fi
 
     ;;
-x86_64) GDENV_CLI_ARCH="x86_64" ;;
+amd64 | x86_64) GDENV_CLI_ARCH="x86_64" ;;
 *) unsupported_platform "no prebuilt binaries available for CPU architecture: $GDENV_CLI_ARCH" ;;
 esac
 
 GDENV_CLI_ARCHIVE_EXT=""
-case $GDENV_CLI_OS in
+case "$GDENV_CLI_OS" in
 windows) GDENV_CLI_ARCHIVE_EXT="zip" ;;
 *) GDENV_CLI_ARCHIVE_EXT="tar.gz" ;;
 esac
 
-GDENV_CLI_ARCHIVE="gdenv-${GDENV_VERSION}-${GDENV_CLI_OS}-${GDENV_CLI_ARCH}.${GDENV_CLI_ARCHIVE_EXT}"
+GDENV_CLI_ARCHIVE="gdenv-$GDENV_VERSION-$GDENV_CLI_OS-$GDENV_CLI_ARCH.$GDENV_CLI_ARCHIVE_EXT"
 
 # ------------------------------- Define: Store ------------------------------ #
 
 GDENV_HOME_PREV="${GDENV_HOME_PREV=}" # save for later in script
 
 GDENV_HOME="${GDENV_HOME=}"
-if [ "${GDENV_HOME}" = "" ]; then
+if [ "$GDENV_HOME" = "" ]; then
     if [ "${HOME=}" = "" ]; then
         fatal "both '\$GDENV_HOME' and '\$HOME' unset; one must be specified to determine 'gdenv' installation path"
     fi
@@ -156,9 +171,9 @@ need_cmd grep
 need_cmd mktemp
 
 GDENV_TMP=$(mktemp -d --tmpdir gdenv-XXXXXXXXXX)
-cd $GDENV_TMP
+cd "$GDENV_TMP"
 
-GDENV_RELEASE_URL="https://github.com/coffeebeats/gdenv/releases/download/${GDENV_VERSION}"
+GDENV_RELEASE_URL="https://github.com/coffeebeats/gdenv/releases/download/$GDENV_VERSION"
 
 download_with_curl() {
     curl \
@@ -169,15 +184,15 @@ download_with_curl() {
         --retry-delay 1 \
         --show-error \
         --silent \
-        -o "${GDENV_CLI_ARCHIVE}" \
-        "${GDENV_RELEASE_URL}/${GDENV_CLI_ARCHIVE}" \
+        -o "$GDENV_CLI_ARCHIVE" \
+        "$GDENV_RELEASE_URL/$GDENV_CLI_ARCHIVE" \
         -o "checksums.txt" \
-        "${GDENV_RELEASE_URL}/checksums.txt"
+        "$GDENV_RELEASE_URL/checksums.txt"
 }
 
 download_with_wget() {
-    wget -q -t 4 -O "${GDENV_CLI_ARCHIVE}" "${GDENV_RELEASE_URL}/${GDENV_CLI_ARCHIVE}" 2>&1
-    wget -q -t 4 -O "checksums.txt" "${GDENV_RELEASE_URL}/checksums.txt" 2>&1
+    wget -q -t 4 -O "$GDENV_CLI_ARCHIVE" "$GDENV_RELEASE_URL/$GDENV_CLI_ARCHIVE" 2>&1
+    wget -q -t 4 -O "checksums.txt" "$GDENV_RELEASE_URL/checksums.txt" 2>&1
 }
 
 if check_cmd curl; then
@@ -191,11 +206,11 @@ fi
 # -------------------------- Define: Verify checksum ------------------------- #
 
 verify_with_sha256sum() {
-    cat "checksums.txt" | grep "${GDENV_CLI_ARCHIVE}" | sha256sum --check --status
+    cat "checksums.txt" | grep "$GDENV_CLI_ARCHIVE" | sha256sum --check --status
 }
 
 verify_with_shasum() {
-    cat "checksums.txt" | grep "${GDENV_CLI_ARCHIVE}" | shasum -a 256 -p --check --status
+    cat "checksums.txt" | grep "$GDENV_CLI_ARCHIVE" | shasum -a 256 -p --check --status
 }
 
 if check_cmd sha256sum; then
@@ -208,43 +223,47 @@ fi
 
 # ------------------------------ Define: Extract ----------------------------- #
 
-case "${GDENV_CLI_OS}" in
+case "$GDENV_CLI_OS" in
 windows)
     need_cmd unzip
 
-    mkdir -p $GDENV_HOME/bin
-    unzip
+    mkdir -p "$GDENV_HOME/bin"
+    unzip -u "$GDENV_CLI_ARCHIVE" -d "$GDENV_HOME/bin"
+
+    # Rename the shim so that 'godot' is found on path.
+    mv "$GDENV_HOME/bin/gdenv-shim.exe" "$GDENV_HOME/bin/godot.exe"
     ;;
 *)
     need_cmd tar
 
-    mkdir -p $GDENV_HOME/bin
-    tar -C "${GDENV_HOME}/bin" --no-same-owner -xzf "${GDENV_CLI_ARCHIVE}"
+    mkdir -p "$GDENV_HOME/bin"
+    tar -C "$GDENV_HOME/bin" --no-same-owner -xzf "$GDENV_CLI_ARCHIVE"
+
+    # Rename the shim so that 'godot' is found on path.
+    mv "$GDENV_HOME/bin/gdenv-shim" "$GDENV_HOME/bin/godot"
     ;;
 esac
 
-mv "$GDENV_HOME/bin/gdenv-shim" "$GDENV_HOME/bin/godot"
-
-info "Successfully installed 'gdenv@${GDENV_VERSION}' to '${GDENV_HOME}/bin'."
+info "Successfully installed 'gdenv@$GDENV_VERSION' to '$GDENV_HOME/bin'."
 
 if [ $MODIFY_PATH -eq 0 ]; then
     exit 0
 fi
 
 # The $PATH modification and $GDENV_HOME export is already done.
-if check_cmd gdenv && [ "${GDENV_HOME_PREV}" != "" ]; then
+if check_cmd gdenv && [ "$GDENV_HOME_PREV" != "" ]; then
     exit 0
 fi
 
 # Simplify the exported $GDENV_HOME if possible.
-if [ "${HOME}" != "" ]; then
-    case "${GDENV_HOME}" in
+if [ "$HOME" != "" ]; then
+    case "$GDENV_HOME" in
     $HOME*) GDENV_HOME="\$HOME${GDENV_HOME#$HOME}" ;;
     esac
 fi
 
-CMD_EXPORT_HOME="export GDENV_HOME=\"${GDENV_HOME}\""
-CMD_MODIFY_PATH="PATH=\"\$GDENV_HOME/bin:\$PATH\""
+CMD_EXPORT_HOME="export GDENV_HOME=\"$GDENV_HOME\""
+CMD_MODIFY_PATH="export PATH=\"\$GDENV_HOME/bin:\$PATH\""
 
 case $(basename $SHELL) in
 sh) OUT="$HOME/.profile" ;;
@@ -253,24 +272,24 @@ zsh) OUT="$HOME/.zshenv" ;;
 *)
     echo ""
     echo "Add the following to your shell profile script:"
-    echo "    ${CMD_EXPORT_HOME}"
-    echo "    ${CMD_MODIFY_PATH}"
+    echo "    $CMD_EXPORT_HOME"
+    echo "    $CMD_MODIFY_PATH"
     ;;
 esac
 
-if [ "${OUT}" != "" ]; then
-    if [ -f "${OUT}" ] && $(cat $OUT | grep -q 'export GDENV_HOME'); then
+if [ "$OUT" != "" ]; then
+    if [ -f "$OUT" ] && $(cat "$OUT" | grep -q 'export GDENV_HOME'); then
         info "Found 'GDENV_HOME' export in shell Rc file; skipping modification."
         exit 0
     fi
 
-    if [ -f "${OUT}" ] && [ "$(tail -n 1 "$OUT")" != "" ]; then
+    if [ -f "$OUT" ] && [ "$(tail -n 1 "$OUT")" != "" ]; then
         echo "" >>"$OUT"
     fi
 
     echo "# Added by 'gdenv' install script." >>"$OUT"
-    echo "${CMD_EXPORT_HOME}" >>"$OUT"
-    echo "${CMD_MODIFY_PATH}" >>"$OUT"
+    echo "$CMD_EXPORT_HOME" >>"$OUT"
+    echo "$CMD_MODIFY_PATH" >>"$OUT"
 
-    info "Updated shell Rc file: ${OUT}\n      Open a new terminal to start using 'gdenv'."
+    info "Updated shell Rc file: $OUT\n      Open a new terminal to start using 'gdenv'."
 fi

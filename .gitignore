@@ -22,3 +22,6 @@ go.work
 
 # goreleaser artifacts
 dist
+
+# gdenv-related ignores
+.gdenv

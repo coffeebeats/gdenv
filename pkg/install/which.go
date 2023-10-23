@@ -22,11 +22,7 @@ var ErrNotInstalled = errors.New("version not installed")
 func Which(ctx context.Context, storePath string, p platform.Platform, atPath string) (string, error) {
 	v, err := pin.VersionAt(ctx, storePath, atPath)
 	if err != nil {
-		if !errors.Is(err, pin.ErrMissingPin) {
-			return "", err
-		}
-
-		return "", nil
+		return "", err
 	}
 
 	ex := executable.New(v, p)

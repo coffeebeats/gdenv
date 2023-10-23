@@ -5,12 +5,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug 'gdenv'",
+      "name": "cmd/gdenv",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/gdenv",
       "args": [],
+      "env": {
+        "GDENV_HOME": "${workspaceFolder}/.gdenv"
+      }
+    },
+    {
+      "name": "cmd/gdenv-shim",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/gdenv-shim",
+      "args": ["--version"],
       "env": {
         "GDENV_HOME": "${workspaceFolder}/.gdenv"
       }

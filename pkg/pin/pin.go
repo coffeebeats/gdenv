@@ -82,9 +82,10 @@ func VersionAt(ctx context.Context, storePath, path string) (version.Version, er
 	}
 
 	path = filepath.Dir(path)
+	root := filepath.VolumeName(path) + string(os.PathSeparator)
 
 	// Check if the specified path (or any ancestors) has a pin
-	for path != "/" {
+	for path != root {
 		if ctx.Err() != nil {
 			return version.Version{}, ctx.Err()
 		}
@@ -113,7 +114,7 @@ func VersionAt(ctx context.Context, storePath, path string) (version.Version, er
 
 	// Try reading a global pin file if the specified directory and all
 	// ancestors were missing pin files.
-	if path == "/" {
+	if path == root {
 		path = storePath
 	}
 
