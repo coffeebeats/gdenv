@@ -74,7 +74,12 @@ func execute(ctx context.Context) error {
 
 	switch p.OS {
 	case platform.Windows:
-		return exec.Command(binary, os.Args[1:]...).Run()
+		cmd := exec.Command(binary, os.Args[1:]...)
+
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		return cmd.Run()
 	default:
 		return syscall.Exec(
 			binary,
