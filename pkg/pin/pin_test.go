@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/coffeebeats/gdenv/internal/fstest"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -164,44 +165,48 @@ func TestRemove(t *testing.T) {
 func TestWrite(t *testing.T) {
 	tests := []struct {
 		version string
-		path    string
-		want    string
-		err     error
+		path    func(tempDir string) string
+
+		want fstest.Asserter // will have 'tempDir' prefixed.
+		err  error
 	}{
-		{"v4", "", "v4.0-stable", nil},
-		{"v4", pinFilename, "v4.0-stable", nil},
-		{"v4.1-rc1", "a/b/c", "v4.1-rc1", nil},
-		{"v4.1-rc1", "a/b/c/" + pinFilename, "v4.1-rc1", nil},
+		{
+			version: "v4",
+			path:    func(_ string) string { return "" },
+
+			err: ErrMissingPath,
+		},
+		{
+			version: "v4",
+			path: func(tmp string) string {
+				return filepath.Join(tmp, "does/not/exist", pinFilename)
+			},
+
+			err: fs.ErrNotExist,
+		},
+		{
+			version: "v4",
+			path: func(tmp string) string {
+				return filepath.Join(tmp, pinFilename)
+			},
+
+			want: fstest.File{Path: pinFilename, Contents: "v4.0-stable"},
+		},
 	}
 
-	for i, tc := range tests {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
+	for _, tc := range tests {
+		t.Run(tc.version, func(t *testing.T) {
 			tmp := t.TempDir()
 
-			v, err := version.Parse(tc.version)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
+			// When: The pin file is written are cleared from the store.
+			// Then: The expected error value is returned.
+			if err := Write(version.MustParse(tc.version), tc.path(tmp)); !errors.Is(err, tc.err) {
+				t.Errorf("got: %v, want: %v", err, tc.err)
 			}
 
-			p := filepath.Join(tmp, tc.path)
-
-			err = Write(v, p)
-			if !errors.Is(err, tc.err) {
-				t.Errorf("err: got %v, want %v", err, tc.err)
-			}
-
-			p, err = clean(p)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
-			}
-
-			contents, err := os.ReadFile(p)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
-			}
-
-			if c := string((contents)); c != tc.want {
-				t.Errorf("contents: got %v, want %v", c, tc.want)
+			// Then: The expected files exist on the file system.
+			if tc.want != nil {
+				tc.want.Assert(t, tmp)
 			}
 		})
 	}
