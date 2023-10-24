@@ -13,8 +13,6 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 )
 
-const modeTestFile = 0600 // rw-------
-
 /* ---------------------------- Test: TestCompute --------------------------- */
 
 func TestCompute(t *testing.T) {
@@ -45,7 +43,7 @@ func TestCompute(t *testing.T) {
 			f.Path = filepath.Join(t.TempDir(), "archive.zip")
 
 			if tc.exists {
-				if err := os.WriteFile(f.Path, []byte(tc.contents+"\n"), modeTestFile); err != nil {
+				if err := os.WriteFile(f.Path, []byte(tc.contents+"\n"), 0600); err != nil {
 					t.Fatalf("test setup: %#v", err)
 				}
 			}

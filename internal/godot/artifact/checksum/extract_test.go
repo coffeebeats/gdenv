@@ -64,7 +64,7 @@ func TestExtractExecutable(t *testing.T) {
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")
 
 			if tc.exists {
-				if err := os.WriteFile(c.Path, []byte(tc.contents+"\n"), modeTestFile); err != nil {
+				if err := os.WriteFile(c.Path, []byte(tc.contents+"\n"), 0600); err != nil {
 					t.Fatalf("test setup: %#v", err)
 				}
 			}
@@ -130,7 +130,7 @@ func TestExtractSource(t *testing.T) {
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")
 
 			if tc.exists {
-				if err := os.WriteFile(c.Path, []byte(tc.contents+"\n"), modeTestFile); err != nil {
+				if err := os.WriteFile(c.Path, []byte(tc.contents+"\n"), 0600); err != nil {
 					t.Fatalf("test setup: %#v", err)
 				}
 			}
