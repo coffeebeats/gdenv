@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/osutil"
 )
 
 var (
@@ -131,5 +132,5 @@ func Write(v version.Version, path string) error {
 		return err
 	}
 
-	return os.WriteFile(path, []byte(v.String()), 0600)
+	return os.WriteFile(path, []byte(v.String()), osutil.ModeUserRW)
 }

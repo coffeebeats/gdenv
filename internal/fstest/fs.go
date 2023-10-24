@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/coffeebeats/gdenv/internal/osutil"
 )
 
 /* -------------------------------------------------------------------------- */
@@ -111,11 +113,11 @@ func (f File) Write(t *testing.T, tempDir string) {
 		path = filepath.Join(tempDir, path)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), osutil.ModeUserRWX); err != nil {
 		t.Fatalf("%s: failed to write directory: %s", err, path)
 	}
 
-	if err := os.WriteFile(path, []byte(f.Contents), 0600); err != nil {
+	if err := os.WriteFile(path, []byte(f.Contents), osutil.ModeUserRW); err != nil {
 		t.Fatalf("%s: failed to write file: %s", err, path)
 	}
 }
@@ -162,7 +164,7 @@ func (d Dir) Write(t *testing.T, tempDir string) {
 		path = filepath.Join(tempDir, path)
 	}
 
-	if err := os.MkdirAll(path, 0700); err != nil {
+	if err := os.MkdirAll(path, osutil.ModeUserRWX); err != nil {
 		t.Fatalf("%s: failed to write directory: %s", err, path)
 	}
 }
