@@ -111,6 +111,11 @@ func resolvePath(c *cli.Context) (string, error) {
 			return "", err
 		}
 
+		// Ensure the store exists.
+		if err := store.Touch(p); err != nil {
+			return "", err
+		}
+
 		return p, nil
 	default:
 		p, err := os.Getwd()

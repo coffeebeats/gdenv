@@ -82,7 +82,7 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 
 	log.Debugf("using store at path: %s", storePath)
 
-	// Ensure the store's layout is correct.
+	// Ensure the store exists.
 	if err := store.Touch(storePath); err != nil {
 		return err
 	}
