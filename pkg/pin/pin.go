@@ -9,10 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
-
-const modePinFile = 0664 // rw-rw-r--
 
 var (
 	ErrMissingPin     = errors.New("missing version pin")
@@ -126,22 +123,13 @@ func VersionAt(ctx context.Context, storePath, path string) (version.Version, er
 /* -------------------------------------------------------------------------- */
 
 // Writes a 'Version' to the specified pin file path.
-func Write(ctx context.Context, v version.Version, path string) error {
+//
+// NOTE: This function will fail if any directories along the path do not exist.
+func Write(v version.Version, path string) error {
 	path, err := clean(path)
 	if err != nil {
 		return err
 	}
 
-	// Determine the permissions of the nearest ancestor directory.
-	mode, err := pathutil.AncestorMode(ctx, path)
-	if err != nil {
-		return fmt.Errorf("cannot determine permissions: %w", err)
-	}
-
-	// Make the parent directories if needed.
-	if err := os.MkdirAll(filepath.Dir(path), mode); err != nil {
-		return err
-	}
-
-	return os.WriteFile(path, []byte(v.String()), modePinFile)
+	return os.WriteFile(path, []byte(v.String()), 0600)
 }

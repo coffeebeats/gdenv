@@ -10,7 +10,6 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/ioutil"
-	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
 
 // Only write to 'out'; create a new file/overwrite an existing.
@@ -66,12 +65,7 @@ func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) er
 
 	// Create the required output directories if they don't exist.
 	if info == nil {
-		ancestorMode, err := pathutil.AncestorMode(ctx, out)
-		if err != nil {
-			return err
-		}
-
-		if err := os.MkdirAll(out, ancestorMode); err != nil {
+		if err := os.MkdirAll(out, 0700); err != nil {
 			return err
 		}
 	}

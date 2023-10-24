@@ -57,7 +57,7 @@ func NewInstall() *cli.Command {
 				return err
 			}
 
-			if err := pin.Write(c.Context, v, storePath); err != nil {
+			if err := pin.Write(v, storePath); err != nil {
 				return err
 			}
 

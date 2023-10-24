@@ -73,7 +73,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				return err
 			}
 
-			if err := pin.Write(c.Context, v, pinPath); err != nil {
+			if err := pin.Write(v, pinPath); err != nil {
 				return err
 			}
 
