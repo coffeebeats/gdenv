@@ -2,7 +2,6 @@ package archive
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/ioutil"
-	"github.com/coffeebeats/gdenv/internal/pathutil"
 )
 
 // Only write to 'out'; create a new file/overwrite an existing.
@@ -56,24 +54,12 @@ func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) er
 
 	// Validate that the 'out' parameter either doesn't exist or is a directory.
 	info, err := os.Stat(out)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+	if err != nil {
 		return err
 	}
 
-	if info != nil && !info.IsDir() {
+	if !info.IsDir() {
 		return fmt.Errorf("%w: expected a directory", fs.ErrInvalid)
-	}
-
-	// Create the required output directories if they don't exist.
-	if info == nil {
-		ancestorMode, err := pathutil.AncestorMode(ctx, out)
-		if err != nil {
-			return err
-		}
-
-		if err := os.MkdirAll(out, ancestorMode); err != nil {
-			return err
-		}
 	}
 
 	// Extract the contents to the specified 'out' directory.

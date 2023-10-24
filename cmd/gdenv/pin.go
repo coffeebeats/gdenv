@@ -73,7 +73,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				return err
 			}
 
-			if err := pin.Write(c.Context, v, pinPath); err != nil {
+			if err := pin.Write(v, pinPath); err != nil {
 				return err
 			}
 
@@ -108,6 +108,11 @@ func resolvePath(c *cli.Context) (string, error) {
 	case c.Bool("global"):
 		p, err := store.Path()
 		if err != nil {
+			return "", err
+		}
+
+		// Ensure the store exists.
+		if err := store.Touch(p); err != nil {
 			return "", err
 		}
 

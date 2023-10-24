@@ -57,7 +57,7 @@ func NewInstall() *cli.Command {
 				return err
 			}
 
-			if err := pin.Write(c.Context, v, storePath); err != nil {
+			if err := pin.Write(v, storePath); err != nil {
 				return err
 			}
 
@@ -82,7 +82,7 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 
 	log.Debugf("using store at path: %s", storePath)
 
-	// Ensure the store's layout is correct.
+	// Ensure the store exists.
 	if err := store.Touch(storePath); err != nil {
 		return err
 	}

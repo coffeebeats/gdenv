@@ -16,9 +16,6 @@ import (
 )
 
 const (
-	modeStoreDir    = 0755 // rwxr-xr-x
-	modeStoreLayout = 0644 // rw-r--r--
-
 	storeDirBin     = "bin"
 	storeDirSrc     = "src"
 	storeDirEx      = "editor"
@@ -62,7 +59,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		pathArtifactDir := filepath.Dir(pathArtifact)
 
 		// Create the required directories, if needed.
-		if err := os.MkdirAll(pathArtifactDir, modeStoreDir); err != nil {
+		if err := os.MkdirAll(pathArtifactDir, osutil.ModeUserRWX); err != nil {
 			return err
 		}
 
@@ -298,14 +295,14 @@ func Touch(storePath string) error {
 	}
 
 	// Create the 'Store' directory, if needed.
-	if err := os.MkdirAll(storePath, modeStoreDir); err != nil {
+	if err := os.MkdirAll(storePath, osutil.ModeUserRWX); err != nil {
 		return err
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirSrc, storeDirEx} {
 		path := filepath.Join(storePath, d)
-		if err := os.MkdirAll(path, modeStoreDir); err != nil {
+		if err := os.MkdirAll(path, osutil.ModeUserRWX); err != nil {
 			return err
 		}
 	}
@@ -313,7 +310,7 @@ func Touch(storePath string) error {
 	// Create the required files, if needed.
 	for _, f := range []string{storeFileLayout} {
 		path := filepath.Join(storePath, f)
-		if err := os.WriteFile(path, nil, modeStoreLayout); err != nil {
+		if err := os.WriteFile(path, nil, osutil.ModeUserRW); err != nil {
 			return err
 		}
 	}

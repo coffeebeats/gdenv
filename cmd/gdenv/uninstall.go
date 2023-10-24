@@ -35,7 +35,7 @@ func NewUninstall() *cli.Command {
 				return err
 			}
 
-			// Ensure the store's layout is correct.
+			// Ensure the store exists.
 			if err := store.Touch(storePath); err != nil {
 				return err
 			}

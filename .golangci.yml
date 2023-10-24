@@ -48,6 +48,11 @@ linters-settings:
       - "^github.com/urfave/cli/v2.Command$"
       - "^github.com/urfave/cli/v2.StringFlag$"
 
+  gomnd:
+    ignored-numbers:
+      - "0700"
+      - "0600"
+
   varnamelen:
     ignore-decls:
       - c *cli.Context
