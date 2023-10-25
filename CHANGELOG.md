@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.5 (2023-10-25)
+
+## What's Changed
+* fix: reduce file permissions; require directory to exist for `pin.Write` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/104
+* fix(cmd/gdenv-shim): ensure first argument is binary name on mac/linux by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/106
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.4...v0.4.5
+
 ## 0.4.4 (2023-10-23)
 
 ## What's Changed
