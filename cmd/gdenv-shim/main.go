@@ -83,7 +83,7 @@ func execute(ctx context.Context) error {
 	default:
 		return syscall.Exec(
 			binary,
-			os.Args[1:],
+			append([]string{binary}, os.Args[1:]...),
 			os.Environ(),
 		)
 	}
