@@ -31,7 +31,7 @@ var (
 )
 
 type LocalEx = artifact.Local[executable.Executable]
-type LocalSrc = artifact.Local[source.Source]
+type LocalSrc = artifact.Local[source.Archive]
 
 /* -------------------------------------------------------------------------- */
 /*                                Function: Add                               */
@@ -332,7 +332,10 @@ func Sources(ctx context.Context, storePath string) ([]LocalSrc, error) {
 			return nil, err
 		}
 
-		out = append(out, LocalSrc{Artifact: src, Path: path})
+		out = append(
+			out,
+			LocalSrc{Artifact: source.Archive{Artifact: src}, Path: path},
+		)
 	}
 
 	return out, nil
