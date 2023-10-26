@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -52,7 +53,7 @@ func NewInstall() *cli.Command {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 
-			v, err := resolveVersionFromArgOrPathFlag(c)
+			v, err := resolveVersionFromArgOrPath(c)
 			if err != nil {
 				return err
 			}
@@ -131,27 +132,38 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 	return nil
 }
 
-/* ---------------- Function: resolveVersionFromArgOrPathFlag --------------- */
+/* ------------------ Function: resolveVersionFromArgOrPath ----------------- */
 
-func resolveVersionFromArgOrPathFlag(c *cli.Context) (version.Version, error) {
-	v, err := version.Parse(c.Args().First())
-	if err != nil {
-		if !c.IsSet("path") {
-			return version.Version{}, UsageError{ctx: c, err: err}
-		}
+func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
+	versionArg := c.Args().First()
 
-		path := c.String("path")
+	v, err := version.Parse(versionArg)
+	if err != nil && versionArg != "" {
+		return version.Version{}, UsageError{ctx: c, err: err}
+	}
 
-		// NOTE: Don't pass the store path to avoid resolving the global
-		// pin version.
-		v, err = pin.VersionAt(c.Context, "", path) // update 'v' reference
+	if err == nil {
+		return v, nil
+	}
+
+	path := c.String("path")
+	if path == "" {
+		path, err = os.Getwd() // Update 'path' value.
 		if err != nil {
-			if errors.Is(err, pin.ErrMissingPath) {
-				return version.Version{}, fmt.Errorf("%w: %s", pin.ErrMissingPin, path)
-			}
-
 			return version.Version{}, err
 		}
+	}
+
+	// NOTE: Omit store path to avoid resolving the global pin version.
+	v, err = pin.VersionAt(c.Context, "", path) // Update 'v' value.
+	if err != nil {
+		// Return an error that communicates the root problem and hides the
+		// storePath="" hack from above.
+		if errors.Is(err, pin.ErrMissingPath) {
+			return version.Version{}, fmt.Errorf("%w: %s", pin.ErrMissingPin, path)
+		}
+
+		return version.Version{}, err
 	}
 
 	return v, nil
