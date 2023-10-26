@@ -80,8 +80,8 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 // Downloads and caches a specific version of Godot's source code.
 func Source(ctx context.Context, storePath string, src source.Source) error {
 	// TODO: Make this not rely on this (arbitrary) platform. It would be better
-	// if 'checkIfExists' could correctly determine existence of an arbitrary
-	// artifact. For now, select a platform that's definitely going to exist.
+	// if 'mirror.checkIfExists' could correctly determine existence of an
+	// arbitrary artifact. For now, select a platform that will certainly exist.
 	p := platform.Platform{Arch: platform.Amd64, OS: platform.Windows}
 
 	m, err := mirror.Choose(ctx, src.Version(), p)
@@ -107,21 +107,11 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 
 	log.Info("installing source in gdenv store")
 
-	if err := archive.Extract[source.Archive](ctx, localSourceArchive, tmp); err != nil {
-		return err
-	}
-
-	if err := os.Remove(localSourceArchive.Path); err != nil {
-		return err
-	}
-
-	log.Debug("extracted source archive")
-
 	return store.Add(
 		storePath,
 		artifact.Local[artifact.Artifact]{
-			Artifact: src,
-			Path:     filepath.Join(tmp, src.Name()),
+			Artifact: localSourceArchive.Artifact,
+			Path:     localSourceArchive.Path,
 		},
 	)
 }
