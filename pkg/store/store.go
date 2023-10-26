@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/osutil"
@@ -30,6 +31,7 @@ var (
 )
 
 type LocalEx = artifact.Local[executable.Executable]
+type LocalSrc = artifact.Local[source.Source]
 
 /* -------------------------------------------------------------------------- */
 /*                                Function: Add                               */
@@ -281,6 +283,59 @@ func removeUnusedCacheDirectories(storePath, path string) error {
 			return err
 		}
 	}
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              Function: Sources                             */
+/* -------------------------------------------------------------------------- */
+
+// Sources returns the list of installed Godot source code versions.
+func Sources(ctx context.Context, storePath string) ([]LocalSrc, error) {
+	if storePath == "" {
+		return nil, ErrMissingStore
+	}
+
+	out := make([]LocalSrc, 0)
+
+	entries, err := os.ReadDir(filepath.Join(storePath, storeDirSrc))
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+
+	for _, versionDir := range entries {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		v, err := version.Parse(versionDir.Name())
+		if err != nil {
+			continue
+		}
+
+		src := source.New(v)
+
+		ok, err := Has(storePath, src)
+		if err != nil {
+			return nil, err
+		}
+
+		if !ok {
+			continue
+		}
+
+		path, err := artifactPath(storePath, src)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, LocalSrc{Artifact: src, Path: path})
+	}
+
+	return out, nil
 }
 
 /* -------------------------------------------------------------------------- */
