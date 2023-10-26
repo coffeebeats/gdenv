@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/charmbracelet/log"
@@ -14,6 +15,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var ErrInstallUsageGlobalAndPath = errors.New("cannot specify both '-g/--global' and '-p/--path'")
+
 // A 'urfave/cli' command to download and cache a specific version of Godot.
 func NewInstall() *cli.Command {
 	return &cli.Command{
@@ -23,7 +26,7 @@ func NewInstall() *cli.Command {
 		Aliases: []string{"i"},
 
 		Usage:     "download and cache a specific version of Godot",
-		UsageText: "gdenv install [OPTIONS] <VERSION>",
+		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -36,13 +39,22 @@ func NewInstall() *cli.Command {
 				Aliases: []string{"g"},
 				Usage:   "pin the system version",
 			},
+			&cli.StringFlag{
+				Name:    "path",
+				Aliases: []string{"p"},
+				Usage:   "determine the version from the pinned `PATH` (cannot be used  with '-g')",
+			},
 		},
 
 		Action: func(c *cli.Context) error {
-			// Validate arguments
-			v, err := version.Parse(c.Args().First())
+			// Validate flag options.
+			if c.IsSet("global") && c.IsSet("path") {
+				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
+			}
+
+			v, err := resolveVersionFromArgOrPathFlag(c)
 			if err != nil {
-				return UsageError{ctx: c, err: err}
+				return err
 			}
 
 			if err := installExecutable(c.Context, v, c.Bool("force")); err != nil {
@@ -59,13 +71,7 @@ func NewInstall() *cli.Command {
 				return err
 			}
 
-			if err := pin.Write(v, storePath); err != nil {
-				return err
-			}
-
-			log.Infof("set system default version: %s", v)
-
-			return nil
+			return writePin(storePath, v)
 		},
 	}
 }
@@ -123,4 +129,30 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
 
 	return nil
+}
+
+/* ---------------- Function: resolveVersionFromArgOrPathFlag --------------- */
+
+func resolveVersionFromArgOrPathFlag(c *cli.Context) (version.Version, error) {
+	v, err := version.Parse(c.Args().First())
+	if err != nil {
+		if !c.IsSet("path") {
+			return version.Version{}, UsageError{ctx: c, err: err}
+		}
+
+		path := c.String("path")
+
+		// NOTE: Don't pass the store path to avoid resolving the global
+		// pin version.
+		v, err = pin.VersionAt(c.Context, "", path) // update 'v' reference
+		if err != nil {
+			if errors.Is(err, pin.ErrMissingPath) {
+				return version.Version{}, fmt.Errorf("%w: %s", pin.ErrMissingPin, path)
+			}
+
+			return version.Version{}, err
+		}
+	}
+
+	return v, nil
 }
