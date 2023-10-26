@@ -20,23 +20,29 @@ func NewLs() *cli.Command {
 		Name:     "ls",
 		Category: "Utilities",
 
+		Aliases: []string{"list"},
+
 		Usage:     "print the path and version of all of the installed versions of Godot",
 		UsageText: "gdenv ls",
+
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "all",
+				Aliases: []string{"a"},
+				Usage:   "list executable and source code versions",
+			},
+			&cli.BoolFlag{
+				Name:    "source",
+				Aliases: []string{"s", "src"},
+				Usage:   "list source code versions",
+			},
+		},
 
 		Action: func(c *cli.Context) error {
 			// Determine the store path.
 			storePath, err := store.Path()
 			if err != nil {
 				return err
-			}
-
-			executables, err := store.Executables(c.Context, storePath)
-			if err != nil {
-				return err
-			}
-
-			if len(executables) == 0 {
-				return nil
 			}
 
 			printedActive, err := printActiveVersion(c.Context, storePath)
@@ -53,15 +59,18 @@ func NewLs() *cli.Command {
 				log.Print("")
 			}
 
-			log.Printf("Installed versions (%s):\n", storePath)
+			src, all := c.Bool("source"), c.Bool("all")
 
-			for _, ex := range executables {
-				platformLabel, err := platform.Format(ex.Artifact.Platform(), ex.Artifact.Version())
-				if err != nil {
+			if src || all {
+				if err := printSources(c.Context, storePath); err != nil {
 					return err
 				}
+			}
 
-				log.Printf("  %s (%s)\n", ex.Artifact.Version(), platformLabel)
+			if !src || all {
+				if err := printExecutables(c.Context, storePath); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -117,4 +126,51 @@ func printGlobalVersion(ctx context.Context, storePath string) (bool, error) {
 	log.Printf("🌎 System default version: %s", v)
 
 	return true, nil
+}
+
+/* ----------------------- Function: PrintExecutables ----------------------- */
+
+func printExecutables(ctx context.Context, storePath string) error {
+	executables, err := store.Executables(ctx, storePath)
+	if err != nil {
+		return err
+	}
+
+	if len(executables) == 0 {
+		return nil
+	}
+
+	log.Printf("Installed executable versions (%s):", storePath)
+
+	for _, ex := range executables {
+		platformLabel, err := platform.Format(ex.Artifact.Platform(), ex.Artifact.Version())
+		if err != nil {
+			return err
+		}
+
+		log.Printf("\n  %s (%s)", ex.Artifact.Version(), platformLabel)
+	}
+
+	return nil
+}
+
+/* ------------------------- Function: PrintSources ------------------------- */
+
+func printSources(ctx context.Context, storePath string) error {
+	sources, err := store.Sources(ctx, storePath)
+	if err != nil {
+		return err
+	}
+
+	if len(sources) == 0 {
+		return nil
+	}
+
+	log.Printf("Installed source code versions (%s):", storePath)
+
+	for _, src := range sources {
+		log.Printf("\n  %s", src.Artifact.Artifact.Version())
+	}
+
+	return nil
 }
