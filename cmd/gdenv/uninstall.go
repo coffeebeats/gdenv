@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -24,7 +25,12 @@ func NewUninstall() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "all",
 				Aliases: []string{"a"},
-				Usage:   "uninstall all versions of Godot in the cache",
+				Usage:   "uninstall all versions of Godot (ignores source code without '-s')",
+			},
+			&cli.BoolFlag{
+				Name:    "source",
+				Aliases: []string{"s", "src"},
+				Usage:   "uninstall source code versions",
 			},
 		},
 
@@ -40,9 +46,14 @@ func NewUninstall() *cli.Command {
 				return err
 			}
 
+			src, all := c.Bool("source"), c.Bool("all")
+
 			// Uninstall all versions.
-			if c.Bool("all") {
-				return uninstallAll(c.Context, storePath)
+			switch {
+			case src && all:
+				return uninstallAllSources(c.Context, storePath)
+			case !src && all:
+				return uninstallAllExecutables(c.Context, storePath)
 			}
 
 			// Uninstall a specific version.
@@ -53,14 +64,21 @@ func NewUninstall() *cli.Command {
 				return UsageError{ctx: c, err: err}
 			}
 
-			return uninstall(storePath, v)
+			log.Infof("uninstalling version: %s", v)
+
+			switch {
+			case src:
+				return store.Remove(storePath, source.New(v))
+			default:
+				return uninstallExecutable(storePath, v)
+			}
 		},
 	}
 }
 
-/* ------------------------- Function: uninstallAll ------------------------- */
+/* -------------------- Function: uninstallAllExecutables ------------------- */
 
-func uninstallAll(ctx context.Context, storePath string) error {
+func uninstallAllExecutables(ctx context.Context, storePath string) error {
 	ee, err := store.Executables(ctx, storePath)
 	if err != nil {
 		return err
@@ -70,14 +88,31 @@ func uninstallAll(ctx context.Context, storePath string) error {
 		return nil
 	}
 
-	log.Info("removing all installed versions")
+	log.Info("removing all installed executable versions")
 
 	return store.Clear(storePath)
 }
 
-/* --------------------------- Function: uninstall -------------------------- */
+/* ---------------------- Function: uninstallAllSources --------------------- */
 
-func uninstall(storePath string, v version.Version) error {
+func uninstallAllSources(ctx context.Context, storePath string) error {
+	ss, err := store.Sources(ctx, storePath)
+	if err != nil {
+		return err
+	}
+
+	if len(ss) == 0 {
+		return nil
+	}
+
+	log.Info("removing all installed source code versions")
+
+	return store.Clear(storePath)
+}
+
+/* ---------------------- Function: uninstallExecutable --------------------- */
+
+func uninstallExecutable(storePath string, v version.Version) error {
 	// Define the host 'Platform'.
 	p, err := platform.Detect()
 	if err != nil {
@@ -86,17 +121,6 @@ func uninstall(storePath string, v version.Version) error {
 
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
-
-	ok, err := store.Has(storePath, ex)
-	if err != nil {
-		return err
-	}
-
-	if !ok {
-		return nil
-	}
-
-	log.Infof("uninstalling version: %s", v)
 
 	return store.Remove(storePath, ex)
 }
