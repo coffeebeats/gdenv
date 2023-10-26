@@ -20,6 +20,8 @@ func NewInstall() *cli.Command {
 		Name:     "install",
 		Category: "Install",
 
+		Aliases: []string{"i"},
+
 		Usage:     "download and cache a specific version of Godot",
 		UsageText: "gdenv install [OPTIONS] <VERSION>",
 
