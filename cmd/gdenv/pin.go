@@ -12,9 +12,8 @@ import (
 )
 
 var (
-	ErrMissingPin           = errors.New("missing version pin")
-	ErrUsageForceAndInstall = errors.New("cannot specify '-f/--force' without '-i/--install'")
-	ErrUsageGlobalAndPath   = errors.New("cannot specify both '-g/--global' and '-p/--path'")
+	ErrPinUsageForceAndInstall = errors.New("cannot specify '-f/--force' without '-i/--install'")
+	ErrPinUsageGlobalAndPath   = errors.New("cannot specify both '-g/--global' and '-p/--path'")
 )
 
 /* ---------------------------- Function: NewPin ---------------------------- */
@@ -54,11 +53,11 @@ func NewPin() *cli.Command { //nolint:funlen
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				return UsageError{ctx: c, err: ErrUsageGlobalAndPath}
+				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 
 			if c.IsSet("force") && !c.IsSet("install") {
-				return UsageError{ctx: c, err: ErrUsageForceAndInstall}
+				return UsageError{ctx: c, err: ErrPinUsageForceAndInstall}
 			}
 
 			// Validate arguments
@@ -73,20 +72,8 @@ func NewPin() *cli.Command { //nolint:funlen
 				return err
 			}
 
-			if err := pin.Write(v, pinPath); err != nil {
+			if err := writePin(pinPath, v); err != nil {
 				return err
-			}
-
-			// Determine the store path.
-			storePath, err := store.Path()
-			if err != nil {
-				return err
-			}
-
-			if pinPath == storePath {
-				log.Infof("set system default version: %s", v)
-			} else {
-				log.Infof("pinned '%s' to version: %s", pinPath, v)
 			}
 
 			if !c.Bool("install") {
@@ -125,4 +112,27 @@ func resolvePath(c *cli.Context) (string, error) {
 
 		return p, nil
 	}
+}
+
+/* --------------------------- Function: writePin --------------------------- */
+
+// Writes the specified version to a pin file.
+func writePin(pinPath string, v version.Version) error {
+	// Determine the store path.
+	storePath, err := store.Path()
+	if err != nil {
+		return err
+	}
+
+	if err := pin.Write(v, pinPath); err != nil {
+		return err
+	}
+
+	if pinPath == storePath {
+		log.Infof("set system default version: %s", v)
+	} else {
+		log.Infof("pinned '%s' to version: %s", pinPath, v)
+	}
+
+	return nil
 }
