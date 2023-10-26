@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/charmbracelet/log"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/internal/godot/platform"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/install"
-	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -19,10 +18,10 @@ import (
 func NewVendor() *cli.Command {
 	return &cli.Command{
 		Name:     "vendor",
-		Category: "Vendor",
+		Category: "Install",
 
 		Usage:     "download and cache a specific version of Godot source code",
-		UsageText: "gdenv install [OPTIONS] <VERSION>",
+		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -30,26 +29,22 @@ func NewVendor() *cli.Command {
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry",
 			},
-			&cli.BoolFlag{
-				Name:    "global",
-				Aliases: []string{"g"},
-				Usage:   "pin the system version",
+			&cli.StringFlag{
+				Name:    "out",
+				Aliases: []string{"o"},
+				Usage:   "download the source code into `OUT` (overwrites conflicting files; defaults to './godot')",
+			},
+			&cli.StringFlag{
+				Name:    "path",
+				Aliases: []string{"p"},
+				Usage:   "determine the version from the pinned `PATH` (ignores the global pin)",
 			},
 		},
 
 		Action: func(c *cli.Context) error {
-			// Validate arguments
-			v, err := version.Parse(c.Args().First())
+			v, err := resolveVersionFromArgOrPath(c)
 			if err != nil {
-				return UsageError{ctx: c, err: err}
-			}
-
-			if err := installExecutable(c.Context, v, c.Bool("force")); err != nil {
 				return err
-			}
-
-			if !c.Bool("global") {
-				return nil
 			}
 
 			// Determine the store path.
@@ -58,53 +53,42 @@ func NewVendor() *cli.Command {
 				return err
 			}
 
-			if err := pin.Write(v, storePath); err != nil {
+			log.Debugf("using store at path: %s", storePath)
+
+			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
 				return err
 			}
 
-			log.Infof("set system default version: %s", v)
+			if !c.IsSet("path") {
+				return nil
+			}
 
-			return nil
+			out := c.String("out")
+			if out == "" {
+				out = "./godot"
+			}
+
+			return vendor(c.Context, v, storePath, out)
 		},
 	}
 }
 
-/* ----------------------- Function: installExecutable ---------------------- */
+/* ------------------------- Function: installSource ------------------------ */
 
-// Installs the specified executable version to the store, but only if needed.
-func installExecutable(ctx context.Context, v version.Version, force bool) error {
+// Installs the specified version of the source code  to the store, but only if
+// needed.
+func installSource(ctx context.Context, storePath string, v version.Version, force bool) error {
 	log.Infof("installing version: %s", v)
-
-	// Determine the store path.
-	storePath, err := store.Path()
-	if err != nil {
-		return err
-	}
-
-	log.Debugf("using store at path: %s", storePath)
 
 	// Ensure the store exists.
 	if err := store.Touch(storePath); err != nil {
 		return err
 	}
 
-	// Define the host 'Platform'.
-	p, err := platform.Detect()
-	if err != nil {
-		return err
-	}
+	// Define the target 'Source'.
+	src := source.New(v)
 
-	platformLabel, err := platform.Format(p, v)
-	if err != nil {
-		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
-	}
-
-	log.Debugf("installing for platform: %s", platformLabel)
-
-	// Define the target 'Executable'.
-	ex := executable.New(v, p)
-
-	ok, err := store.Has(storePath, ex)
+	ok, err := store.Has(storePath, src)
 	if err != nil {
 		return err
 	}
@@ -115,11 +99,32 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return nil
 	}
 
-	if err := install.Executable(ctx, storePath, ex); err != nil {
+	if err := install.Source(ctx, storePath, src); err != nil {
 		return err
 	}
 
-	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
+	log.Infof("successfully installed version: %s", src.Version())
+
+	return nil
+}
+
+/* ---------------------------- Function: vendor ---------------------------- */
+
+// Extracts the cached source code folder into the specified 'out' path.
+func vendor(ctx context.Context, v version.Version, storePath, out string) error {
+	src := source.Archive{Artifact: source.New(v)}
+
+	srcPath, err := store.Source(storePath, src.Artifact)
+	if err != nil {
+		return err
+	}
+
+	localSrcArchive := artifact.Local[source.Archive]{Artifact: src, Path: srcPath}
+	if err := archive.Extract(ctx, localSrcArchive, out); err != nil {
+		return err
+	}
+
+	log.Infof("successfully vendored version %s: %s", v, srcPath)
 
 	return nil
 }

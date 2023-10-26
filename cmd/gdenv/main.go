@@ -48,6 +48,7 @@ func main() { //nolint:funlen
 
 			NewInstall(),
 			NewUninstall(),
+			NewVendor(),
 
 			/* --------------------------------- Utility -------------------------------- */
 
