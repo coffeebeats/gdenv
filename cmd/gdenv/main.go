@@ -149,7 +149,7 @@ func newStyleWithColor(name string, ansiColor int) lipgloss.Style {
 	}
 
 	return lipgloss.NewStyle().
-		SetString(name).
+		SetString(name + ":").
 		PaddingRight(int(math.Max(float64(lenLevelLabel-len(name)), 0))).
 		Bold(true).
 		Foreground(lipgloss.ANSIColor(ansiColor))
