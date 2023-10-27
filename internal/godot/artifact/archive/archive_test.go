@@ -87,7 +87,7 @@ func TestExtract(t *testing.T) {
 				}
 
 				// Given: The output path exists and is a directory.
-				if err := os.MkdirAll(out, osutil.ModeUserRWX); err != nil { // owner r+w
+				if err := os.MkdirAll(out, osutil.ModeUserRWXGroupRX); err != nil { // owner r+w
 					t.Fatal(err)
 				}
 			},

@@ -61,7 +61,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		pathArtifactDir := filepath.Dir(pathArtifact)
 
 		// Create the required directories, if needed.
-		if err := os.MkdirAll(pathArtifactDir, osutil.ModeUserRWX); err != nil {
+		if err := os.MkdirAll(pathArtifactDir, osutil.ModeUserRWXGroupRX); err != nil {
 			return err
 		}
 
@@ -353,14 +353,14 @@ func Touch(storePath string) error {
 	}
 
 	// Create the 'Store' directory, if needed.
-	if err := os.MkdirAll(storePath, osutil.ModeUserRWX); err != nil {
+	if err := os.MkdirAll(storePath, osutil.ModeUserRWXGroupRX); err != nil {
 		return err
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirSrc, storeDirEx} {
 		path := filepath.Join(storePath, d)
-		if err := os.MkdirAll(path, osutil.ModeUserRWX); err != nil {
+		if err := os.MkdirAll(path, osutil.ModeUserRWXGroupRX); err != nil {
 			return err
 		}
 	}
