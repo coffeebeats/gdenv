@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -10,6 +13,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -33,7 +37,7 @@ func NewVendor() *cli.Command {
 			&cli.StringFlag{
 				Name:    "out",
 				Aliases: []string{"o"},
-				Usage:   "download the source code into `OUT` (overwrites conflicting files; defaults to './godot')",
+				Usage:   "download the source code into `OUT` (will overwrite conflicting files)",
 			},
 			&cli.StringFlag{
 				Name:    "path",
@@ -57,9 +61,7 @@ func NewVendor() *cli.Command {
 				return err
 			}
 
-			out := filepath.Clean(c.String("out"))
-
-			return vendor(c.Context, v, storePath, out)
+			return vendor(c.Context, v, storePath, c.String("out"))
 		},
 	}
 }
@@ -82,6 +84,23 @@ func vendor(ctx context.Context, v version.Version, storePath, out string) error
 		}
 
 		out = filepath.Join(wd, src.Artifact.Name())
+	}
+
+	out = filepath.Clean(out)
+
+	info, err := os.Stat(out)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return err
+		}
+
+		if err := os.MkdirAll(out, osutil.ModeUserRWXGroupRX); err != nil {
+			return err
+		}
+	}
+
+	if info != nil && !info.IsDir() {
+		return fmt.Errorf("%w: %s", fs.ErrExist, out)
 	}
 
 	localSrcArchive := artifact.Local[source.Archive]{Artifact: src, Path: srcPath}
