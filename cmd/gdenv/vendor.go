@@ -19,7 +19,7 @@ import (
 )
 
 // A 'urfave/cli' command to download and cache a specific version of the Godot
-// source code.
+// source code and extract it into the specified directory.
 func NewVendor() *cli.Command {
 	return &cli.Command{
 		Name:     "vendor",

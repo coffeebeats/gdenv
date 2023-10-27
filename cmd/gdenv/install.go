@@ -140,7 +140,7 @@ func installExecutable(
 
 /* ------------------------- Function: installSource ------------------------ */
 
-// Installs the specified version of the source code  to the store, but only if
+// Installs the specified version of the source code to the store, but only if
 // needed.
 func installSource(
 	ctx context.Context,
@@ -180,6 +180,8 @@ func installSource(
 
 /* ------------------ Function: resolveVersionFromArgOrPath ----------------- */
 
+// Parses command arguments and reads pin files to determine the correct version
+// of Godot to use.
 func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
 	versionArg := c.Args().First()
 
