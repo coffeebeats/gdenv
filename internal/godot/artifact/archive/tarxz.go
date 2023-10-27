@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ulikunitz/xz"
 )
@@ -47,6 +48,8 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 
 	defer f.Close()
 
+	prefix := strings.TrimSuffix(filepath.Base(path), extensionTarXZ)
+
 	decompressed, err := xz.NewReader(f)
 	if err != nil {
 		return err
@@ -65,8 +68,12 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 			return err
 		}
 
+		// Remove the name of the tar-file from the filepath; this is to
+		// facilitate extracting contents directly into the 'out' path.
+		name := strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator))
+
 		mode := hdr.FileInfo().Mode()
-		out := filepath.Join(out, hdr.Name) //nolint:gosec
+		out := filepath.Join(out, name)
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
