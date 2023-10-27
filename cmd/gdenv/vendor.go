@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
-	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
@@ -47,65 +48,20 @@ func NewVendor() *cli.Command {
 				return err
 			}
 
-			// Determine the store path.
-			storePath, err := store.Path()
+			storePath, err := touchStore()
 			if err != nil {
 				return err
 			}
-
-			log.Debugf("using store at path: %s", storePath)
 
 			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
 				return err
 			}
 
-			if !c.IsSet("path") {
-				return nil
-			}
-
-			out := c.String("out")
-			if out == "" {
-				out = "./godot"
-			}
+			out := filepath.Clean(c.String("out"))
 
 			return vendor(c.Context, v, storePath, out)
 		},
 	}
-}
-
-/* ------------------------- Function: installSource ------------------------ */
-
-// Installs the specified version of the source code  to the store, but only if
-// needed.
-func installSource(ctx context.Context, storePath string, v version.Version, force bool) error {
-	log.Infof("installing version: %s", v)
-
-	// Ensure the store exists.
-	if err := store.Touch(storePath); err != nil {
-		return err
-	}
-
-	// Define the target 'Source'.
-	src := source.New(v)
-
-	ok, err := store.Has(storePath, src)
-	if err != nil {
-		return err
-	}
-
-	if ok && !force {
-		log.Info("skipping installation; version already found")
-
-		return nil
-	}
-
-	if err := install.Source(ctx, storePath, src); err != nil {
-		return err
-	}
-
-	log.Infof("successfully installed version: %s", src.Version())
-
-	return nil
 }
 
 /* ---------------------------- Function: vendor ---------------------------- */
@@ -117,6 +73,15 @@ func vendor(ctx context.Context, v version.Version, storePath, out string) error
 	srcPath, err := store.Source(storePath, src.Artifact)
 	if err != nil {
 		return err
+	}
+
+	if out == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		out = filepath.Join(wd, src.Artifact.Name())
 	}
 
 	localSrcArchive := artifact.Local[source.Archive]{Artifact: src, Path: srcPath}

@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/install"
@@ -16,10 +18,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var ErrInstallUsageGlobalAndPath = errors.New("cannot specify both '-g/--global' and '-p/--path'")
+var (
+	ErrInstallUsageGlobalAndPath   = errors.New("cannot specify both '-g/--global' and '-p/--path'")
+	ErrInstallUsageGlobalAndSource = errors.New("cannot specify both '-g/--global' and '-s/--source'")
+)
 
 // A 'urfave/cli' command to download and cache a specific version of Godot.
-func NewInstall() *cli.Command {
+func NewInstall() *cli.Command { //nolint:funlen
 	return &cli.Command{
 		Name:     "install",
 		Category: "Install",
@@ -43,7 +48,12 @@ func NewInstall() *cli.Command {
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "determine the version from the pinned `PATH` (cannot be used  with '-g')",
+				Usage:   "determine the version from the pinned `PATH` (cannot be used with '-g')",
+			},
+			&cli.BoolFlag{
+				Name:    "source",
+				Aliases: []string{"s", "src"},
+				Usage:   "install source code instead of an executable (cannot be used with '-g')",
 			},
 		},
 
@@ -52,13 +62,25 @@ func NewInstall() *cli.Command {
 			if c.IsSet("global") && c.IsSet("path") {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
+			if c.IsSet("global") && c.IsSet("source") {
+				return UsageError{ctx: c, err: ErrInstallUsageGlobalAndSource}
+			}
 
 			v, err := resolveVersionFromArgOrPath(c)
 			if err != nil {
 				return err
 			}
 
-			if err := installExecutable(c.Context, v, c.Bool("force")); err != nil {
+			storePath, err := touchStore()
+			if err != nil {
+				return err
+			}
+
+			if c.Bool("source") {
+				return installSource(c.Context, storePath, v, c.Bool("force"))
+			}
+
+			if err := installExecutable(c.Context, storePath, v, c.Bool("force")); err != nil {
 				return err
 			}
 
@@ -66,13 +88,7 @@ func NewInstall() *cli.Command {
 				return nil
 			}
 
-			// Determine the store path.
-			storePath, err := store.Path()
-			if err != nil {
-				return err
-			}
-
-			return writePin(storePath, v)
+			return writePin(storePath, storePath, v)
 		},
 	}
 }
@@ -80,34 +96,17 @@ func NewInstall() *cli.Command {
 /* ----------------------- Function: installExecutable ---------------------- */
 
 // Installs the specified executable version to the store, but only if needed.
-func installExecutable(ctx context.Context, v version.Version, force bool) error {
-	log.Infof("installing version: %s", v)
-
-	// Determine the store path.
-	storePath, err := store.Path()
-	if err != nil {
-		return err
-	}
-
-	log.Debugf("using store at path: %s", storePath)
-
-	// Ensure the store exists.
-	if err := store.Touch(storePath); err != nil {
-		return err
-	}
-
+func installExecutable(
+	ctx context.Context,
+	storePath string,
+	v version.Version,
+	force bool,
+) error {
 	// Define the host 'Platform'.
 	p, err := platform.Detect()
 	if err != nil {
 		return err
 	}
-
-	platformLabel, err := platform.Format(p, v)
-	if err != nil {
-		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
-	}
-
-	log.Debugf("installing for platform: %s", platformLabel)
 
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
@@ -123,11 +122,58 @@ func installExecutable(ctx context.Context, v version.Version, force bool) error
 		return nil
 	}
 
+	platformLabel, err := platform.Format(p, v)
+	if err != nil {
+		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
+	}
+
+	log.Infof("installing version: %s (%s)", v, platformLabel)
+
 	if err := install.Executable(ctx, storePath, ex); err != nil {
 		return err
 	}
 
 	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
+
+	return nil
+}
+
+/* ------------------------- Function: installSource ------------------------ */
+
+// Installs the specified version of the source code  to the store, but only if
+// needed.
+func installSource(
+	ctx context.Context,
+	storePath string,
+	v version.Version,
+	force bool,
+) error {
+	// Ensure the store exists.
+	if err := store.Touch(storePath); err != nil {
+		return err
+	}
+
+	// Define the target 'Source'.
+	src := source.New(v)
+
+	ok, err := store.Has(storePath, src)
+	if err != nil {
+		return err
+	}
+
+	if ok && !force {
+		log.Info("skipping installation; version already found")
+
+		return nil
+	}
+
+	log.Infof("installing version: %s", v)
+
+	if err := install.Source(ctx, storePath, src); err != nil {
+		return err
+	}
+
+	log.Infof("successfully installed version: %s", src.Version())
 
 	return nil
 }
@@ -146,7 +192,7 @@ func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
 		return v, nil
 	}
 
-	path := c.String("path")
+	path := filepath.Clean(c.String("path"))
 	if path == "" {
 		path, err = os.Getwd() // Update 'path' value.
 		if err != nil {
@@ -167,4 +213,24 @@ func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
 	}
 
 	return v, nil
+}
+
+/* -------------------------- Function: touchStore -------------------------- */
+
+// touchStore determines the store path and ensures it has the expected layout.
+func touchStore() (string, error) {
+	// Determine the store path.
+	storePath, err := store.Path()
+	if err != nil {
+		return "", err
+	}
+
+	log.Debugf("using store at path: %s", storePath)
+
+	// Ensure the store exists.
+	if err := store.Touch(storePath); err != nil {
+		return "", err
+	}
+
+	return storePath, nil
 }
