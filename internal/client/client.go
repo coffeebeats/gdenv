@@ -195,15 +195,19 @@ func (c Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...st
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers. Reports progress to a 'progress.Progress' set on the
 // provided context.
-func (c Client) Download(ctx context.Context, u *url.URL, writers ...io.Writer) error {
-	w := writers
-
-	// Report progress if set on the context.
-	if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
-		w = append(w, progress.NewWriter(p))
-	}
-
+func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error {
 	return c.get(ctx, u, func(r *resty.Response) error {
+		if r.RawResponse.ContentLength > 0 { // No progress to report if '0'.
+			// Report progress if set on the context.
+			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
+				if err := p.Total(uint64(r.RawResponse.ContentLength)); err != nil {
+					return err
+				}
+
+				w = append(w, progress.NewWriter(p))
+			}
+		}
+
 		// Copy the asset contents into provided writers.
 		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
@@ -224,10 +228,17 @@ func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	defer f.Close()
 
 	return c.get(ctx, u, func(r *resty.Response) error {
-		// Report progress if set on the context.
 		var w io.Writer = f
-		if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
-			w = io.MultiWriter(f, progress.NewWriter(p))
+
+		if r.RawResponse.ContentLength > 0 { // No progress to report if '0'.
+			// Report progress if set on the context.
+			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
+				if err := p.Total(uint64(r.RawResponse.ContentLength)); err != nil {
+					return err
+				}
+
+				w = io.MultiWriter(f, progress.NewWriter(p))
+			}
 		}
 
 		// Copy the response contents into the writer.
