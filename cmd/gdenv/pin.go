@@ -3,11 +3,11 @@ package main
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
-	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -66,13 +66,18 @@ func NewPin() *cli.Command { //nolint:funlen
 				return UsageError{ctx: c, err: err}
 			}
 
+			storePath, err := touchStore()
+			if err != nil {
+				return err
+			}
+
 			// Determine 'path' option
 			pinPath, err := resolvePath(c)
 			if err != nil {
 				return err
 			}
 
-			if err := writePin(pinPath, v); err != nil {
+			if err := writePin(storePath, pinPath, v); err != nil {
 				return err
 			}
 
@@ -80,7 +85,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				return nil
 			}
 
-			return installExecutable(c.Context, v, c.Bool("force"))
+			return installExecutable(c.Context, storePath, v, c.Bool("force"))
 		},
 	}
 }
@@ -91,19 +96,9 @@ func NewPin() *cli.Command { //nolint:funlen
 func resolvePath(c *cli.Context) (string, error) {
 	switch {
 	case c.IsSet("path"):
-		return c.String("path"), nil
+		return filepath.Clean(c.String("path")), nil
 	case c.Bool("global"):
-		p, err := store.Path()
-		if err != nil {
-			return "", err
-		}
-
-		// Ensure the store exists.
-		if err := store.Touch(p); err != nil {
-			return "", err
-		}
-
-		return p, nil
+		return touchStore()
 	default:
 		p, err := os.Getwd()
 		if err != nil {
@@ -117,13 +112,7 @@ func resolvePath(c *cli.Context) (string, error) {
 /* --------------------------- Function: writePin --------------------------- */
 
 // Writes the specified version to a pin file.
-func writePin(pinPath string, v version.Version) error {
-	// Determine the store path.
-	storePath, err := store.Path()
-	if err != nil {
-		return err
-	}
-
+func writePin(storePath, pinPath string, v version.Version) error {
 	if err := pin.Write(v, pinPath); err != nil {
 		return err
 	}

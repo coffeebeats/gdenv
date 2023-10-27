@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/log"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
@@ -39,27 +40,23 @@ func NewLs() *cli.Command {
 		},
 
 		Action: func(c *cli.Context) error {
-			// Determine the store path.
-			storePath, err := store.Path()
+			storePath, err := touchStore()
 			if err != nil {
 				return err
-			}
-
-			printedActive, err := printActiveVersion(c.Context, storePath)
-			if err != nil {
-				return err
-			}
-
-			printedGlobal, err := printGlobalVersion(c.Context, storePath)
-			if err != nil {
-				return err
-			}
-
-			if printedActive || printedGlobal {
-				log.Print("")
 			}
 
 			src, all := c.Bool("source"), c.Bool("all")
+
+			if !src {
+				ok, err := printGlobalVersion(c.Context, storePath)
+				if err != nil {
+					return err
+				}
+
+				if ok {
+					log.Print("")
+				}
+			}
 
 			if src || all {
 				if err := printSources(c.Context, storePath); err != nil {
@@ -78,9 +75,9 @@ func NewLs() *cli.Command {
 	}
 }
 
-/* ---------------------- Function: printActiveVersion ---------------------- */
+/* ---------------------- Function: printGlobalVersion ---------------------- */
 
-func printActiveVersion(ctx context.Context, storePath string) (bool, error) {
+func printGlobalVersion(ctx context.Context, storePath string) (bool, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return false, err
@@ -106,24 +103,16 @@ func printActiveVersion(ctx context.Context, storePath string) (bool, error) {
 		return false, err
 	}
 
-	log.Printf("🤖 Currently active version: %s (%s)", v, platformLabel)
+	log.Printf("🌎 System default version: %s (%s)", v, platformLabel)
 
-	return true, nil
-}
-
-/* ---------------------- Function: printGlobalVersion ---------------------- */
-
-func printGlobalVersion(ctx context.Context, storePath string) (bool, error) {
-	v, err := pin.VersionAt(ctx, storePath, storePath)
+	ok, err := store.Has(storePath, executable.New(v, p))
 	if err != nil {
-		if !errors.Is(err, pin.ErrMissingPin) {
-			return false, err
-		}
-
-		return false, nil
+		return false, err
 	}
 
-	log.Printf("🌎 System default version: %s", v)
+	if !ok {
+		log.Warn("system default version not installed")
+	}
 
 	return true, nil
 }
@@ -148,7 +137,7 @@ func printExecutables(ctx context.Context, storePath string) error {
 			return err
 		}
 
-		log.Printf("\n  %s (%s)", ex.Artifact.Version(), platformLabel)
+		log.Printf("  %s (%s)", ex.Artifact.Version(), platformLabel)
 	}
 
 	return nil
@@ -169,7 +158,7 @@ func printSources(ctx context.Context, storePath string) error {
 	log.Printf("Installed source code versions (%s):", storePath)
 
 	for _, src := range sources {
-		log.Printf("\n  %s", src.Artifact.Artifact.Version())
+		log.Printf("  %s", src.Artifact.Artifact.Version())
 	}
 
 	return nil

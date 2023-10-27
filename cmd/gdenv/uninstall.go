@@ -35,14 +35,8 @@ func NewUninstall() *cli.Command {
 		},
 
 		Action: func(c *cli.Context) error {
-			// Determine the store path.
-			storePath, err := store.Path()
+			storePath, err := touchStore()
 			if err != nil {
-				return err
-			}
-
-			// Ensure the store exists.
-			if err := store.Touch(storePath); err != nil {
 				return err
 			}
 
