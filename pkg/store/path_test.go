@@ -102,39 +102,39 @@ func TestPath(t *testing.T) {
 /* ------------------------------ Test: Source ------------------------------ */
 
 func TestSource(t *testing.T) {
-	src := source.New(version.Godot4())
+	srcArchive := source.Archive{Artifact: source.New(version.Godot4())}
 
 	tests := []struct {
 		store string
-		src   source.Source
+		src   source.Archive
 
 		want string
 		err  error
 	}{
 		{
 			store: "",
-			src:   src,
+			src:   srcArchive,
 
 			err: ErrMissingStore,
 		},
 
 		{
 			store: storeName,
-			src:   src,
+			src:   srcArchive,
 
 			want: filepath.Join(
 				storeName,
 				storeDirSrc,
 				"v4.0-stable",
-				src.Name(),
+				srcArchive.Name(),
 			),
 		},
 	}
 
 	for _, tc := range tests {
-		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.src.String()), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.src.Name()), func(t *testing.T) {
 			// When: The path to the cached source directory is determined.
-			got, err := Source(tc.store, tc.src)
+			got, err := Source(tc.store, tc.src.Artifact)
 
 			// Then: The expected error value is returned.
 			if !errors.Is(err, tc.err) {

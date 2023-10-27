@@ -98,13 +98,20 @@ func artifactPath(storePath string, a artifact.Artifact) (string, error) {
 		}
 
 		return filepath.Join(path, pathExParts[0]), nil
-	case source.Source:
-		pathSourceDir, err := sourceDir(storePath, a)
+	case source.Archive:
+		pathSourceDir, err := sourceDir(storePath, a.Artifact.Version())
 		if err != nil {
 			return "", err
 		}
 
 		return filepath.Join(pathSourceDir, a.Name()), nil
+	case source.Source:
+		pathSourceDir, err := sourceDir(storePath, a.Version())
+		if err != nil {
+			return "", err
+		}
+
+		return filepath.Join(pathSourceDir, source.Archive{Artifact: a}.Name()), nil
 	}
 
 	return "", fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
@@ -134,12 +141,12 @@ func executableDir(storePath string, ex executable.Executable) (string, error) {
 
 /* --------------------------- Function: sourceDir -------------------------- */
 
-func sourceDir(storePath string, src source.Source) (string, error) {
-	if err := version.Validate(src.Version()); err != nil {
+func sourceDir(storePath string, v version.Version) (string, error) {
+	if err := version.Validate(v); err != nil {
 		return "", err
 	}
 
-	path := filepath.Join(storePath, storeDirSrc, src.Version().String())
+	path := filepath.Join(storePath, storeDirSrc, v.String())
 
 	return path, nil
 }

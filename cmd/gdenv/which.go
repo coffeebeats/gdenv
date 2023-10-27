@@ -1,13 +1,9 @@
 package main
 
 import (
-	"errors"
-
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
-	"github.com/coffeebeats/gdenv/pkg/pin"
-	"github.com/coffeebeats/gdenv/pkg/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -36,13 +32,8 @@ func NewWhich() *cli.Command {
 			}
 
 			// Determine the store path.
-			storePath, err := store.Path()
+			storePath, err := touchStore()
 			if err != nil {
-				return err
-			}
-
-			// Ensure the store exists.
-			if err := store.Touch(storePath); err != nil {
 				return err
 			}
 
@@ -54,9 +45,7 @@ func NewWhich() *cli.Command {
 
 			path, err := install.Which(c.Context, storePath, p, pinPath)
 			if err != nil {
-				if !errors.Is(err, pin.ErrMissingPin) {
-					return err
-				}
+				return err
 			}
 
 			if path != "" {

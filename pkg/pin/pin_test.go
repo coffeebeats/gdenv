@@ -42,7 +42,7 @@ func TestRead(t *testing.T) {
 
 			if tc.existing {
 				// Create the pin file
-				if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWX); err != nil {
+				if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWXGroupRX); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 
@@ -94,7 +94,7 @@ func TestVersionAt(t *testing.T) {
 			}
 
 			// Create the pin file
-			if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWX); err != nil {
+			if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWXGroupRX); err != nil {
 				t.Fatalf("test setup: %v", err)
 			}
 
@@ -139,7 +139,7 @@ func TestRemove(t *testing.T) {
 			}
 
 			if tc.existing {
-				if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWX); err != nil {
+				if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWXGroupRX); err != nil {
 					t.Fatalf("test setup: %v", err)
 				}
 

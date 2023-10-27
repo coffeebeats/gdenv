@@ -168,7 +168,7 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'CheckIfExists' method.
+// use the 'checkIfExists' method.
 func (m TuxFamily) Supports(v version.Version) bool {
 	// TuxFamily seems to contain all published releases.
 	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0

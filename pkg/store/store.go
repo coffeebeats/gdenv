@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/platform"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/osutil"
@@ -30,6 +31,7 @@ var (
 )
 
 type LocalEx = artifact.Local[executable.Executable]
+type LocalSrc = artifact.Local[source.Archive]
 
 /* -------------------------------------------------------------------------- */
 /*                                Function: Add                               */
@@ -59,7 +61,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		pathArtifactDir := filepath.Dir(pathArtifact)
 
 		// Create the required directories, if needed.
-		if err := os.MkdirAll(pathArtifactDir, osutil.ModeUserRWX); err != nil {
+		if err := os.MkdirAll(pathArtifactDir, osutil.ModeUserRWXGroupRX); err != nil {
 			return err
 		}
 
@@ -284,6 +286,62 @@ func removeUnusedCacheDirectories(storePath, path string) error {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                              Function: Sources                             */
+/* -------------------------------------------------------------------------- */
+
+// Sources returns the list of installed Godot source code versions.
+func Sources(ctx context.Context, storePath string) ([]LocalSrc, error) {
+	if storePath == "" {
+		return nil, ErrMissingStore
+	}
+
+	out := make([]LocalSrc, 0)
+
+	entries, err := os.ReadDir(filepath.Join(storePath, storeDirSrc))
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+
+	for _, versionDir := range entries {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		v, err := version.Parse(versionDir.Name())
+		if err != nil {
+			continue
+		}
+
+		src := source.New(v)
+
+		ok, err := Has(storePath, src)
+		if err != nil {
+			return nil, err
+		}
+
+		if !ok {
+			continue
+		}
+
+		path, err := artifactPath(storePath, src)
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(
+			out,
+			LocalSrc{Artifact: source.Archive{Artifact: src}, Path: path},
+		)
+	}
+
+	return out, nil
+}
+
+/* -------------------------------------------------------------------------- */
 /*                               Function: Touch                              */
 /* -------------------------------------------------------------------------- */
 
@@ -295,14 +353,14 @@ func Touch(storePath string) error {
 	}
 
 	// Create the 'Store' directory, if needed.
-	if err := os.MkdirAll(storePath, osutil.ModeUserRWX); err != nil {
+	if err := os.MkdirAll(storePath, osutil.ModeUserRWXGroupRX); err != nil {
 		return err
 	}
 
 	// Create the required subdirectories, if needed.
 	for _, d := range []string{storeDirBin, storeDirSrc, storeDirEx} {
 		path := filepath.Join(storePath, d)
-		if err := os.MkdirAll(path, osutil.ModeUserRWX); err != nil {
+		if err := os.MkdirAll(path, osutil.ModeUserRWXGroupRX); err != nil {
 			return err
 		}
 	}
@@ -314,8 +372,6 @@ func Touch(storePath string) error {
 			return err
 		}
 	}
-
-	log.Debugf("ensured store layout at path: %s", storePath)
 
 	return nil
 }

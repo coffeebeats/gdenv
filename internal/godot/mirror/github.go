@@ -157,7 +157,7 @@ func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[check
 // Checks whether the version is broadly supported by the mirror. No network
 // request is issued, but this does not guarantee the host has the version.
 // To check whether the host has the version definitively via the network,
-// use the 'CheckIfExists' method.
+// use the 'checkIfExists' method.
 func (m GitHub) Supports(v version.Version) bool {
 	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
 	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0

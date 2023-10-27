@@ -113,7 +113,7 @@ func (f File) Write(t *testing.T, tempDir string) {
 		path = filepath.Join(tempDir, path)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), osutil.ModeUserRWX); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), osutil.ModeUserRWXGroupRX); err != nil {
 		t.Fatalf("%s: failed to write directory: %s", err, path)
 	}
 
@@ -164,7 +164,7 @@ func (d Dir) Write(t *testing.T, tempDir string) {
 		path = filepath.Join(tempDir, path)
 	}
 
-	if err := os.MkdirAll(path, osutil.ModeUserRWX); err != nil {
+	if err := os.MkdirAll(path, osutil.ModeUserRWXGroupRX); err != nil {
 		t.Fatalf("%s: failed to write directory: %s", err, path)
 	}
 }

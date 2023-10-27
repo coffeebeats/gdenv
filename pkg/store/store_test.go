@@ -339,7 +339,7 @@ func TestExecutables(t *testing.T) {
 
 			// NOTE: These results must be alphabetically sorted by path elements.
 			want: []LocalEx{
-				artifact.Local[executable.Executable]{
+				{
 					Artifact: executable.MustParse("Godot_v3.0-stable_win64.exe"),
 					Path: filepath.Join(
 						storeName,
@@ -349,7 +349,7 @@ func TestExecutables(t *testing.T) {
 						"Godot_v3.0-stable_win64.exe",
 					),
 				},
-				artifact.Local[executable.Executable]{
+				{
 					Artifact: executable.MustParse("Godot_v3.0-stable_x11.64"),
 					Path: filepath.Join(
 						storeName,
@@ -359,7 +359,7 @@ func TestExecutables(t *testing.T) {
 						"Godot_v3.0-stable_x11.64",
 					),
 				},
-				artifact.Local[executable.Executable]{
+				{
 					Artifact: executable.MustParse("Godot_v4.0-stable_linux.x86_64"),
 					Path: filepath.Join(
 						storeName,
@@ -369,7 +369,7 @@ func TestExecutables(t *testing.T) {
 						"Godot_v4.0-stable_linux.x86_64",
 					),
 				},
-				artifact.Local[executable.Executable]{
+				{
 					Artifact: executable.MustParse("Godot_v4.0-stable_macos.universal"),
 					Path: filepath.Join(
 						storeName,
@@ -417,7 +417,7 @@ func TestExecutables(t *testing.T) {
 
 func TestHas(t *testing.T) {
 	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
-	src := source.New(ex.Version())
+	srcArchive := source.Archive{Artifact: source.New(ex.Version())}
 
 	storePathToEx := filepath.Join(storeName, storeDirEx, "v4.0-stable/linux.x86_64")
 	storePathToSrc := filepath.Join(storeName, storeDirSrc, "v4.0-stable")
@@ -453,15 +453,30 @@ func TestHas(t *testing.T) {
 		},
 		{
 			name:     "missing source returns false",
-			artifact: src,
+			artifact: srcArchive.Artifact,
 
 			want: false,
 		},
 		{
 			name:     "present source returns true",
-			artifact: src,
+			artifact: srcArchive.Artifact,
 			files: []fstest.Writer{
-				fstest.File{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
+			},
+
+			want: true,
+		},
+		{
+			name:     "missing source archive returns false",
+			artifact: srcArchive,
+
+			want: false,
+		},
+		{
+			name:     "present source archive returns true",
+			artifact: srcArchive,
+			files: []fstest.Writer{
+				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
 
 			want: true,
@@ -496,7 +511,7 @@ func TestHas(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
-	src := source.New(ex.Version())
+	srcArchive := source.Archive{Artifact: source.New(ex.Version())}
 
 	storePathToEx := filepath.Join(storeName, storeDirEx, "v4.0-stable/linux.x86_64")
 	storePathToSrc := filepath.Join(storeName, storeDirSrc, "v4.0-stable")
@@ -535,13 +550,13 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source deletes artifact",
-			remove: src,
+			remove: srcArchive.Artifact,
 			files: []fstest.Writer{
-				fstest.File{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
 
 			want: []fstest.Asserter{
-				fstest.Absent{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.Absent{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
 		},
 		{
@@ -561,14 +576,14 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source doesn't delete sibling artifact",
-			remove: src,
+			remove: srcArchive.Artifact,
 			files: []fstest.Writer{
-				fstest.File{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 				fstest.File{Path: filepath.Join(storePathToSrc, "sibling")},
 			},
 
 			want: []fstest.Asserter{
-				fstest.Absent{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.Absent{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 				fstest.File{Path: filepath.Join(storePathToSrc, "sibling")},
 			},
 		},
@@ -586,14 +601,14 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source cleans up empty directory",
-			remove: src,
+			remove: srcArchive.Artifact,
 			files: []fstest.Writer{
-				fstest.File{Path: filepath.Join(storePathToSrc, src.Name())},
+				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
 
 			want: []fstest.Asserter{
 				fstest.Dir{Path: filepath.Join(storeName, storeDirSrc)},
-				fstest.Absent{Path: filepath.Join(storeName, storeDirSrc, src.Version().String())},
+				fstest.Absent{Path: filepath.Join(storeName, storeDirSrc, srcArchive.Artifact.Version().String())},
 			},
 		},
 	}
@@ -617,6 +632,126 @@ func TestRemove(t *testing.T) {
 			// Then: The expected files exist on the file system.
 			for _, f := range tc.want {
 				f.Assert(t, tmp)
+			}
+		})
+	}
+}
+
+/* ------------------------------ Test: Sources ----------------------------- */
+
+func TestSources(t *testing.T) {
+	tests := []struct {
+		name  string
+		files []fstest.Writer
+
+		want []LocalSrc
+		err  error
+	}{
+		{
+			name: "a nil slice is returned when store is empty",
+
+			want: nil,
+			err:  nil,
+		},
+
+		{
+			name: "an empty slice is returned when version directories are empty",
+			files: []fstest.Writer{
+				fstest.Dir{Path: filepath.Join(storeName, storeDirSrc, version.Godot3().String())},
+			},
+
+			want: []LocalSrc{},
+		},
+
+		{
+			name: "non-source code folders are ignored",
+			files: []fstest.Writer{
+				fstest.File{Path: filepath.Join(storeName, storeDirBin, "gdenv-cli")},
+				fstest.File{Path: filepath.Join(storeName, storeDirEx, version.Godot3().String(), "godot")},
+				fstest.File{Path: filepath.Join(storeName, storeFileLayout)},
+				fstest.File{Path: filepath.Join(storeName, ".godot-version")},
+
+				fstest.Dir{Path: filepath.Join(storeName, storeDirSrc)},
+			},
+
+			want: []LocalSrc{},
+		},
+
+		{
+			name: "all source code versions are included if they exist",
+			files: []fstest.Writer{
+				fstest.File{Path: filepath.Join(storeName, storeDirBin, "gdenv-cli")},
+				fstest.File{Path: filepath.Join(storeName, storeDirEx, version.Godot3().String(), "godot")},
+				fstest.File{Path: filepath.Join(storeName, storeFileLayout)},
+				fstest.File{Path: filepath.Join(storeName, ".godot-version")},
+
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirSrc,
+						"v3.0-stable",
+						"godot-3.0-stable.tar.xz",
+					),
+				},
+				fstest.File{
+					Path: filepath.Join(
+						storeName,
+						storeDirSrc,
+						"v3.1-stable",
+						"godot-3.1-stable.tar.xz",
+					),
+				},
+			},
+
+			// NOTE: These results must be alphabetically sorted by path elements.
+			want: []LocalSrc{
+				{
+					Artifact: source.Archive{Artifact: source.New(version.Godot3())},
+					Path: filepath.Join(
+						storeName,
+						storeDirSrc,
+						"v3.0-stable",
+						"godot-3.0-stable.tar.xz",
+					),
+				},
+				{
+					Artifact: source.Archive{Artifact: source.New(version.MustParse("v3.1"))},
+					Path: filepath.Join(
+						storeName,
+						storeDirSrc,
+						"v3.1-stable",
+						"godot-3.1-stable.tar.xz",
+					),
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tmp := t.TempDir()
+
+			// Given: The specified artifacts with their paths prefixed to the
+			// temporary testing directoy.
+			for i, a := range tc.want {
+				tc.want[i].Path = filepath.Join(tmp, a.Path)
+			}
+
+			// Given: The specified files exist on the file system.
+			for _, f := range tc.files {
+				f.Write(t, tmp)
+			}
+
+			// When: The cached artifacts in the store are listed.
+			// Then: The expected error value is returned.
+			got, err := Sources(context.Background(), filepath.Join(tmp, storeName))
+			if !errors.Is(err, tc.err) {
+				t.Errorf("got: %v, want: %v", err, tc.err)
+			}
+
+			// Then: The expected artifact references are returned.
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("count: got %v, want: %v", got, tc.want)
 			}
 		})
 	}

@@ -24,6 +24,10 @@ var (
 
 // Parses a 'Version' from the specified pin file.
 func Read(path string) (version.Version, error) {
+	if path == "" {
+		return version.Version{}, ErrMissingPath
+	}
+
 	path, err := clean(path)
 	if err != nil {
 		return version.Version{}, err

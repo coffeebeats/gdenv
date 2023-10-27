@@ -34,7 +34,7 @@ func NewUnpin() *cli.Command {
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
 			if c.IsSet("global") && c.IsSet("path") {
-				return UsageError{ctx: c, err: ErrUsageGlobalAndPath}
+				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 
 			// Determine 'path' option
