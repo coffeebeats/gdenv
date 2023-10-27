@@ -373,7 +373,5 @@ func Touch(storePath string) error {
 		}
 	}
 
-	log.Debugf("ensured store layout at path: %s", storePath)
-
 	return nil
 }
