@@ -3,6 +3,34 @@ package progress
 import "io"
 
 /* -------------------------------------------------------------------------- */
+/*                            Struct: ManualWriter                            */
+/* -------------------------------------------------------------------------- */
+
+// A thread-safe 'io.Writer' implementation that allows for manual tracking of
+// a percentage of progress made against a total.
+type ManualWriter struct {
+	progress *Progress
+}
+
+/* --------------------------- Function: NewWriter -------------------------- */
+
+// Creates a new 'ManualWriter' with the specified 'Progress' reporter.
+//
+// NOTE: It's the caller's responsibility to ensure that the initial 'Progress'
+// provided is correctly configured so that the calculated progress is accurate.
+func NewManualWriter(p *Progress) *ManualWriter {
+	return &ManualWriter{p}
+}
+
+/* ------------------------------- Method: Add ------------------------------ */
+
+// Adds the specified amount to the current progress and returns the new
+// 'current' value.
+func (w *ManualWriter) Add(n uint64) uint64 {
+	return w.progress.add(n)
+}
+
+/* -------------------------------------------------------------------------- */
 /*                               Struct: Writer                               */
 /* -------------------------------------------------------------------------- */
 
@@ -21,8 +49,8 @@ var _ io.Writer = &Writer{} //nolint:exhaustruct
 //
 // NOTE: It's the caller's responsibility to ensure that the initial 'Progress'
 // provided is correctly configured so that the calculated progress is accurate.
-func NewWriter(p *Progress) Writer {
-	return Writer{p}
+func NewWriter(p *Progress) *Writer {
+	return &Writer{p}
 }
 
 /* ----------------------------- Impl: io.Writer ---------------------------- */
