@@ -80,16 +80,25 @@ func TestClientDownload(t *testing.T) {
 	// Given: A default 'Client' instance.
 	c := New()
 
+	// Given: A pointer to write progress to.
+	p, err := progress.New(uint64(len([]byte(name))))
+	if err != nil {
+		t.Fatalf("test setup: %#v", err)
+	}
+
+	// Given: A 'context.Context' with the specified progress reporter.
+	ctx := WithProgress(context.Background(), p)
+
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.restyClient.GetClient())
 	defer httpmock.DeactivateAndReset()
 
 	want := name
 	httpmock.RegisterResponder(resty.MethodGet, u.String(),
-		httpmock.NewStringResponder(200, want))
+		httpmock.NewStringResponder(200, want).SetContentLength())
 
 	// When: The file is downloaded.
-	if err := c.Download(context.Background(), u, f); err != nil {
+	if err := c.Download(ctx, u, f); err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 	}
 
@@ -99,6 +108,11 @@ func TestClientDownload(t *testing.T) {
 		t.Fatalf("test setup: %#v", err)
 	}
 	if string(got) != want {
+		t.Errorf("output: got %#v, want %#v", got, want)
+	}
+
+	// Then: The progress value should be 100%.
+	if got, want := p.Percentage(), 1.0; got != want {
 		t.Errorf("output: got %#v, want %#v", got, want)
 	}
 }
@@ -133,7 +147,7 @@ func TestClientDownloadTo(t *testing.T) {
 
 	want := name
 	httpmock.RegisterResponder(resty.MethodGet, u.String(),
-		httpmock.NewStringResponder(200, want))
+		httpmock.NewStringResponder(200, want).SetContentLength())
 
 	// Given: A 'context.Context' with the specified progress reporter.
 	ctx := WithProgress(context.Background(), p)
