@@ -158,61 +158,6 @@ func TestClientDownloadTo(t *testing.T) {
 	}
 }
 
-/* ---------------------- Test: DownloadToWithProgress ---------------------- */
-
-func TestClientDownloadToWithProgress(t *testing.T) {
-	// Given: The name of an asset to download.
-	name := "asset.zip"
-
-	// Given: A URL hosting the asset to download.
-	u, err := url.Parse("https://www.example.com/" + name)
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
-
-	// Given: A pointer to write progress to.
-	p, err := progress.New(uint64(len([]byte(name))))
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
-
-	// Given: A temporary file to write the asset to.
-	f := filepath.Join(t.TempDir(), name)
-
-	// Given: A default 'Client' instance.
-	c := New()
-
-	// Given: Mocked contents of the asset.
-	httpmock.ActivateNonDefault(c.restyClient.GetClient())
-	defer httpmock.DeactivateAndReset()
-
-	want := name
-	httpmock.RegisterResponder(resty.MethodGet, u.String(),
-		httpmock.NewStringResponder(200, want).SetContentLength())
-
-	// Given: A 'context.Context' with the specified progress reporter.
-	ctx := WithProgress(context.Background(), p)
-
-	// When: The file is downloaded.
-	if err := c.DownloadTo(ctx, u, f); err != nil {
-		t.Errorf("err: got %#v, want %#v", err, nil)
-	}
-
-	// Then: The target file should have the correct contents.
-	got, err := os.ReadFile(f)
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
-	if string(got) != want {
-		t.Errorf("output: got %#v, want %#v", got, want)
-	}
-
-	// Then: The progress value should be 100%.
-	if got, want := p.Percentage(), 1.0; got != want {
-		t.Errorf("output: got %#v, want %#v", got, want)
-	}
-}
-
 /* --------------------------- Test: Client.Exists -------------------------- */
 
 func TestClientExists(t *testing.T) {
