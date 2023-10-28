@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.6 (2023-10-28)
+
+## What's Changed
+* feat(cmd/gdenv): support installing source versions; add `vendor` command by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/107
+* feat: add code coverage to pull requests via CodeCov by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/109
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.5...v0.4.6
+
 ## 0.4.5 (2023-10-25)
 
 ## What's Changed
