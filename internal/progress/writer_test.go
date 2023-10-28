@@ -1,22 +1,23 @@
 package progress
 
 import (
-	"fmt"
 	"testing"
 )
 
 /* ------------------------------ Test: Writer ------------------------------ */
 
 func TestWriter(t *testing.T) {
+	total := uint64(64)
+
 	// Given: A 'Progress' struct to report progress through.
-	p, err := New(4)
+	p, err := New(total)
 	if err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 
 	}
 
 	// Given: Channels to communicate write signals through.
-	write, wrote, errs := make(chan struct{}), make(chan struct{}), make(chan error)
+	write, wrote := make(chan struct{}), make(chan struct{})
 
 	// Given: A goroutine that writes a single byte to a 'Writer' when signaled.
 	go func(p *Progress) {
@@ -26,12 +27,17 @@ func TestWriter(t *testing.T) {
 		for {
 			select {
 			case <-write:
+				// When: '1' byte is written to the reporter.
 				n, err := w.Write([]byte{1})
+
+				// Then: There's no error writing to the progress reporter.
 				if err != nil {
-					errs <- err
+					t.Errorf("err: got %#v, want %#v", err, nil)
 				}
+
+				// Then: The returned number of bytes written is correct.
 				if n != 1 {
-					errs <- fmt.Errorf("output: got %#v, want %#v", n, 1)
+					t.Errorf("output: got %d, want %d", n, 1)
 				}
 
 				wrote <- struct{}{}
@@ -42,23 +48,81 @@ func TestWriter(t *testing.T) {
 		}
 	}(p)
 
-	for i := range [4]int{} {
+	for i := range make([]struct{}, total) {
 		// Given: The correct initial progress value.
-		if got, want := p.Percentage(), float64(i)/float64(4); got != want {
+		if got, want := p.Percentage(), float64(i)/float64(total); got != want {
 			t.Errorf("output: got %#v, want %#v", got, want)
 		}
 
 		// When: A single byte is written in another thread.
 		write <- struct{}{}
 
-		select {
-		case <-wrote:
-			// Then: The 'Progress' value in this thread updates accordingly.
-			if got, want := p.Percentage(), float64(i+1)/float64(4); got != want {
-				t.Errorf("output: got %#v, want %#v", got, want)
+		<-wrote // Wait for the other thread to write.
+
+		// Then: The 'Progress' value in this thread updates accordingly.
+		if got, want := p.Percentage(), float64(i+1)/float64(total); got != want {
+			t.Errorf("output: got %#v, want %#v", got, want)
+		}
+	}
+
+	close(write)
+}
+
+/* --------------------------- Test: ManualWriter --------------------------- */
+
+func TestManualWriter(t *testing.T) {
+	total := uint64(64)
+
+	// Given: A 'Progress' struct to report progress through.
+	p, err := New(total)
+	if err != nil {
+		t.Errorf("err: got %#v, want %#v", err, nil)
+
+	}
+
+	// Given: Channels to communicate write signals through.
+	write, wrote := make(chan uint64), make(chan struct{})
+
+	// Given: A goroutine that writes progress to a 'ManualWriter' when signaled.
+	go func(p *Progress) {
+		// Given: A new 'Writer' reporting progress via the 'Progress' struct.
+		w := NewManualWriter(p)
+
+		var sum uint64
+
+		for {
+			select {
+			case size := <-write:
+				s := w.Add(size)
+				sum += size
+
+				// Then: The returned total matches actual progress.
+				if s != sum {
+					t.Errorf("output: got %#v, want %#v", s, sum)
+				}
+
+				wrote <- struct{}{}
+			default: // channel 'write' closed
+				close(wrote)
+				return
 			}
-		case err := <-errs:
-			t.Errorf("err: got %#v, want %#v", err, nil)
+		}
+	}(p)
+
+	for i := range make([]struct{}, total) {
+		// Given: The correct initial progress value.
+		if got, want := p.Percentage(), float64(i)/float64(total); got != want {
+			t.Errorf("output: got %#v, want %#v", got, want)
+		}
+
+		// When: A single byte is written in another thread.
+		write <- 1
+
+		<-wrote // Wait for the other thread to write.
+
+		// Then: The 'Progress' value in this thread updates accordingly.
+		if got, want := p.Percentage(), float64(i+1)/float64(total); got != want {
+			t.Errorf("output: got %#v, want %#v", got, want)
 		}
 	}
 
