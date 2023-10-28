@@ -20,10 +20,10 @@ type Progress struct {
 	current, total atomic.Uint64
 }
 
-/* ------------------------------ Function: New ----------------------------- */
+/* ------------------------- Function: NewWithTotal ------------------------- */
 
 // Creates a new 'Progress' struct with the specified 'total' size.
-func New(total uint64) (*Progress, error) {
+func NewWithTotal(total uint64) (*Progress, error) {
 	var progress Progress
 
 	if err := progress.Total(total); err != nil {
@@ -37,8 +37,15 @@ func New(total uint64) (*Progress, error) {
 
 // Retrieves the current progress as a decimal fraction. This method is
 // thread-safe.
+//
+// NOTE: This method returns '0.0' if the underlying total is unset.
 func (p *Progress) Percentage() float64 {
-	return float64(p.current.Load()) / float64(p.total.Load())
+	total := p.total.Load()
+	if total == 0 {
+		return 0
+	}
+
+	return float64(p.current.Load()) / float64(total)
 }
 
 /* --------------------------- Method: Reset --------------------------- */

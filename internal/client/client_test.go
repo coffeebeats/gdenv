@@ -81,13 +81,10 @@ func TestClientDownload(t *testing.T) {
 	c := New()
 
 	// Given: A pointer to write progress to.
-	p, err := progress.New(uint64(len([]byte(name))))
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
+	p := progress.Progress{}
 
 	// Given: A 'context.Context' with the specified progress reporter.
-	ctx := WithProgress(context.Background(), p)
+	ctx := WithProgress(context.Background(), &p)
 
 	// Given: Mocked contents of the asset.
 	httpmock.ActivateNonDefault(c.restyClient.GetClient())
@@ -130,10 +127,7 @@ func TestClientDownloadTo(t *testing.T) {
 	}
 
 	// Given: A pointer to write progress to.
-	p, err := progress.New(uint64(len([]byte(name))))
-	if err != nil {
-		t.Fatalf("test setup: %#v", err)
-	}
+	p := progress.Progress{}
 
 	// Given: A temporary file to write the asset to.
 	f := filepath.Join(t.TempDir(), name)
@@ -150,7 +144,7 @@ func TestClientDownloadTo(t *testing.T) {
 		httpmock.NewStringResponder(200, want).SetContentLength())
 
 	// Given: A 'context.Context' with the specified progress reporter.
-	ctx := WithProgress(context.Background(), p)
+	ctx := WithProgress(context.Background(), &p)
 
 	// When: The file is downloaded.
 	if err := c.DownloadTo(ctx, u, f); err != nil {

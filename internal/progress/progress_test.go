@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-/* -------------------------------- Test: New ------------------------------- */
+/* ------------------------- Test: TestNewWithTotal ------------------------- */
 
-func TestNew(t *testing.T) {
+func TestNewWithTotal(t *testing.T) {
 	tests := []struct {
 		size uint64
 		want *Progress
@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 			}
 
 			// When: A new 'Progress' struct is created with the specified size.
-			got, err := New(tc.size)
+			got, err := NewWithTotal(tc.size)
 
 			// Then: It matches the expected value.
 			if !errors.Is(err, tc.err) {
@@ -64,7 +64,7 @@ func TestProgressPercentage(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
-			p, err := New(tc.size)
+			p, err := NewWithTotal(tc.size)
 			if !errors.Is(err, nil) {
 				t.Errorf("err: got %#v, want %#v", err, nil)
 
@@ -182,7 +182,7 @@ func TestProgressAdd(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
-			p, err := New(tc.size)
+			p, err := NewWithTotal(tc.size)
 			if !errors.Is(err, nil) {
 				t.Errorf("err: got %#v, want %#v", err, nil)
 

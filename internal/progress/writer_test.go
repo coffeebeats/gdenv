@@ -10,7 +10,7 @@ func TestWriter(t *testing.T) {
 	total := uint64(64)
 
 	// Given: A 'Progress' struct to report progress through.
-	p, err := New(total)
+	p, err := NewWithTotal(total)
 	if err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 
@@ -74,7 +74,7 @@ func TestManualWriter(t *testing.T) {
 	total := uint64(64)
 
 	// Given: A 'Progress' struct to report progress through.
-	p, err := New(total)
+	p, err := NewWithTotal(total)
 	if err != nil {
 		t.Errorf("err: got %#v, want %#v", err, nil)
 
