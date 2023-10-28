@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/ulikunitz/xz"
 )
 
@@ -48,14 +50,24 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 
 	defer f.Close()
 
-	prefix := strings.TrimSuffix(filepath.Base(path), extensionTarXZ)
+	var reader io.Reader
 
-	decompressed, err := xz.NewReader(f)
+	reader, err = xz.NewReader(f)
 	if err != nil {
 		return err
 	}
 
-	archive := tar.NewReader(decompressed)
+	progressWriter, err := newTarProgressWriter(ctx, path)
+	if err != nil {
+		return err
+	}
+
+	if progressWriter != nil {
+		reader = io.TeeReader(reader, progressWriter)
+	}
+
+	archive := tar.NewReader(reader)
+	prefix := strings.TrimSuffix(filepath.Base(path), extensionTarXZ)
 
 	// Extract all files within the archive.
 	for {
@@ -70,27 +82,59 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 
 		// Remove the name of the tar-file from the filepath; this is to
 		// facilitate extracting contents directly into the 'out' path.
-		name := strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator))
+		out := filepath.Join(out, strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator)))
 
-		mode := hdr.FileInfo().Mode()
-		out := filepath.Join(out, name)
-
-		switch hdr.Typeflag {
-		case tar.TypeDir:
-			if ctx.Err() != nil {
-				return ctx.Err()
-			}
-
-			if err := os.MkdirAll(out, mode); err != nil {
-				return err
-			}
-
-		case tar.TypeReg:
-			if err := copyFile(ctx, archive, mode, out); err != nil {
-				return err
-			}
+		if err := extractFile(ctx, archive, hdr, out); err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+/* -------------------------- Function: extractFile ------------------------- */
+
+// extractFile handles the extraction logic for each file in the Tar archive.
+func extractFile(ctx context.Context, archive *tar.Reader, hdr *tar.Header, out string) error {
+	mode := hdr.FileInfo().Mode()
+
+	switch hdr.Typeflag {
+	case tar.TypeDir:
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		if err := os.MkdirAll(out, mode); err != nil {
+			return err
+		}
+
+	case tar.TypeReg:
+		if err := copyFile(ctx, archive, mode, out); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/* --------------------- Function: newTarProgressWriter --------------------- */
+
+// newTarProgressWriter configures the 'progress.Progress' instance's
+// 'total' bytes if one is found on the context.
+func newTarProgressWriter(ctx context.Context, path string) (*progress.Writer, error) {
+	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
+	if !ok || p == nil {
+		return nil, nil //nolint:nilnil
+	}
+
+	sum, err := osutil.SizeOf(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.Total(sum); err != nil {
+		return nil, err
+	}
+
+	return progress.NewWriter(p), nil
 }

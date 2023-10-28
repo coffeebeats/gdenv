@@ -9,10 +9,24 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/ioutil"
+	"github.com/coffeebeats/gdenv/internal/progress"
 )
 
 // Only write to 'out'; create a new file/overwrite an existing.
 const copyFileWriteFlag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+
+type progressKey struct{}
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: WithProgress                           */
+/* -------------------------------------------------------------------------- */
+
+// WithProgress creates a sub-context with an associated progress reporter. The
+// result can be passed to the extract function(s) in this package to get
+// updates on extraction progress.
+func WithProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKey{}, p)
+}
 
 /* -------------------------------------------------------------------------- */
 /*                             Interface: Archive                             */
