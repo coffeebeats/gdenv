@@ -35,3 +35,17 @@ func ForceRename(oldPath, newPath string) error {
 
 	return os.Rename(oldPath, newPath)
 }
+
+/* -------------------------------------------------------------------------- */
+/*                              Function: SizeOf                              */
+/* -------------------------------------------------------------------------- */
+
+// SizeOf returns the size of the specified file in bytes.
+func SizeOf(path string) (uint64, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(info.Size()), nil
+}
