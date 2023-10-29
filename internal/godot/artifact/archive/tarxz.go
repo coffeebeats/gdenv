@@ -66,6 +66,11 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 		reader = io.TeeReader(reader, progressWriter)
 	}
 
+	baseDirMode, err := osutil.ModeOf(out)
+	if err != nil {
+		return err
+	}
+
 	archive := tar.NewReader(reader)
 	prefix := strings.TrimSuffix(filepath.Base(path), extensionTarXZ)
 
@@ -83,6 +88,13 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 		// Remove the name of the tar-file from the filepath; this is to
 		// facilitate extracting contents directly into the 'out' path.
 		out := filepath.Join(out, strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator)))
+
+		// Ensure the parent directory exists with best-effort permissions. If
+		// the zip archive already contains the directory as an entry then this
+		// will have no effect.
+		if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
+			return err
+		}
 
 		if err := extractTarFile(ctx, archive, hdr, out); err != nil {
 			return err

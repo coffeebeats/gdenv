@@ -95,14 +95,8 @@ func extractZipFile(
 	// Ensure the parent directory exists with best-effort permissions. If
 	// the zip archive already contains the directory as an entry then this
 	// will have no effect.
-	if _, err := os.Stat(filepath.Dir(out)); err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
-
-		if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
-			return err
-		}
+	if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
+		return err
 	}
 
 	mode := f.FileInfo().Mode()
