@@ -9,6 +9,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/ioutil"
+	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/internal/progress"
 )
 
@@ -92,9 +93,32 @@ func copyFile(ctx context.Context, f io.Reader, mode fs.FileMode, out string) er
 
 	defer dst.Close()
 
-	if _, err := io.Copy(dst, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
+	if _, err := io.Copy(dst, ioutil.NewReaderWithContext(ctx, f.Read)); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+/* ------------------- Function: newFileReaderWithProgress ------------------ */
+
+// newFileReaderWithProgress sets the 'total' value of the 'progress.Progress'
+// instance attached to the context, if one exists. A pointer to the provided
+// 'progress.Progress' is returned.
+func newFileReaderWithProgress(ctx context.Context, f *os.File) (io.Reader, error) {
+	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
+	if !ok || p == nil {
+		return f, nil
+	}
+
+	sum, err := osutil.SizeOf(f.Name())
+	if err != nil {
+		return f, err
+	}
+
+	if err := p.SetTotal(sum); err != nil {
+		return f, err
+	}
+
+	return io.TeeReader(f, progress.NewWriter(p)), nil
 }
