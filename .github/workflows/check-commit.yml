@@ -112,7 +112,7 @@ jobs:
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8
 
     steps:
       - uses: actions/checkout@v4
@@ -123,7 +123,7 @@ jobs:
 
       - name: Test source code
         shell: bash
-        run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
