@@ -51,7 +51,7 @@ func copyArchiveAndSetPermissions(t *testing.T, path, out string) {
 
 	defer r.Close()
 
-	f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE, osutil.ModeUserRWX)
+	f, err := os.OpenFile(out, os.O_WRONLY|os.O_CREATE, osutil.ModeUserRWX)
 	if err != nil {
 		t.Fatalf("test setup: failed to create file: %v", path)
 	}
@@ -80,7 +80,7 @@ func copyArchiveAndSetPermissions(t *testing.T, path, out string) {
 func createArchiveWithContents(t *testing.T, contents []Writer, out string) {
 	t.Helper()
 
-	f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE, osutil.ModeUserRWX)
+	f, err := os.OpenFile(out, os.O_WRONLY|os.O_CREATE, osutil.ModeUserRWX)
 	if err != nil {
 		t.Fatalf("test setup: failed to create file: %v", out)
 	}
