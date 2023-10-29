@@ -37,6 +37,20 @@ func ForceRename(oldPath, newPath string) error {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                              Function: ModeOf                              */
+/* -------------------------------------------------------------------------- */
+
+// ModeOf returns the file mode of the specified file.
+func ModeOf(path string) (fs.FileMode, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+
+	return info.Mode(), nil
+}
+
+/* -------------------------------------------------------------------------- */
 /*                              Function: SizeOf                              */
 /* -------------------------------------------------------------------------- */
 
