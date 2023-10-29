@@ -12,7 +12,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/progress"
 )
 
-/* -------------------------- Function: TestExtract ------------------------- */
+/* ------------------------ Function: TestZipExtract ------------------------ */
 
 func TestZipExtract(t *testing.T) {
 	tests := []struct {
@@ -121,12 +121,26 @@ func TestZipExtract(t *testing.T) {
 func TestZipExtractWithProgress(t *testing.T) {
 	tests := []struct {
 		name     string
-		artifact fstest.Writer
 		progress *progress.Progress
+		artifact fstest.Writer
 
 		want float64
 		err  error
-	}{}
+	}{
+		{
+			name:     "progress is reported correctly with a single file",
+			progress: &progress.Progress{},
+			artifact: fstest.Zip{
+				Path: "archive.zip",
+				// Relative to archive file.
+				Contents: []fstest.Writer{
+					fstest.File{Path: "godot.exe", Contents: "contents"},
+				},
+			},
+
+			want: 1.0,
+		},
+	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -134,6 +148,9 @@ func TestZipExtractWithProgress(t *testing.T) {
 
 			// Given: A directory to extract into.
 			out := filepath.Join(tmp, "extract")
+			if err := os.Mkdir(out, osutil.ModeUserRWX); err != nil {
+				t.Fatal(err)
+			}
 
 			// Given: The specified archive exists on the file system.
 			tc.artifact.Write(t, tmp)
@@ -145,8 +162,10 @@ func TestZipExtractWithProgress(t *testing.T) {
 			}
 
 			// When: The archive is extracted.
+			err := (Zip[MockArtifact]{}).extract(ctx, tc.artifact.Abs(t, tmp), out)
+
 			// Then: The expected error value is returned.
-			if err := (Zip[MockArtifact]{}).extract(ctx, tc.artifact.Abs(t, tmp), out); !errors.Is(err, tc.err) {
+			if !errors.Is(err, tc.err) {
 				t.Errorf("got: %v, want: %v", err, tc.err)
 			}
 
