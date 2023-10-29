@@ -73,11 +73,13 @@ func (tr TarXZ) Write(t *testing.T, pathBaseDir string) { //nolint:funlen
 				t.Fatalf("test setup: failed to determine path: %v", err)
 			}
 
+			contents = []byte(c.Contents)
+
 			hdr.Name = p
 			hdr.Mode = osutil.ModeUserRW
 			hdr.Typeflag = tar.TypeReg
+			hdr.Size = int64(len(contents))
 
-			contents = []byte(c.Contents)
 		default:
 			t.Fatalf("unsupported content type: %T", w)
 		}
