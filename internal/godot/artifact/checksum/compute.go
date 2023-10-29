@@ -38,13 +38,13 @@ func Compute[T archive.Archive](ctx context.Context, d artifact.Local[T]) (strin
 	switch any(d.Artifact).(type) { // FIXME: https://github.com/golang/go/issues/45380
 	case executable.Archive:
 		h = sha512.New()
-		if _, err := io.Copy(h, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
+		if _, err := io.Copy(h, ioutil.NewReaderWithContext(ctx, f.Read)); err != nil {
 			return "", err
 		}
 
 	case source.Archive:
 		h = sha256.New()
-		if _, err := io.Copy(h, ioutil.NewReaderClosure(ctx, f.Read)); err != nil {
+		if _, err := io.Copy(h, ioutil.NewReaderWithContext(ctx, f.Read)); err != nil {
 			return "", err
 		}
 
