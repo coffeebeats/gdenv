@@ -37,27 +37,30 @@ var (
 /* -------------------------------------------------------------------------- */
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
-type TuxFamily struct {
-	client client.Client
-}
+type TuxFamily struct{}
 
-// Validate at compile-time that 'TuxFamily' implements 'Mirror'.
-var _ Mirror = &TuxFamily{} //nolint:exhaustruct
-
-/* ------------------------------ Function: New ----------------------------- */
-
-func NewTuxFamily() TuxFamily {
-	c := client.NewWithRedirectDomains(tuxfamilyDownloadsDomain)
-
-	return TuxFamily{c}
-}
+// Validate at compile-time that 'TuxFamily' implements 'Mirror' interfaces.
+var _ Mirror = &TuxFamily{}
+var _ Executable = &TuxFamily{}
+var _ Source = &TuxFamily{}
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
 
 // Returns a new 'client.Client' for downloading artifacts from the mirror.
-func (m TuxFamily) Client() client.Client {
-	return m.client
+func (m TuxFamily) Domains() []string {
+	return nil
 }
+
+// Checks whether the version is broadly supported by the mirror. No network
+// request is issued, but this does not guarantee the host has the version.
+// To check whether the host has the version definitively via the network,
+// use the 'checkIfExists' method.
+func (m TuxFamily) Supports(v version.Version) bool {
+	// TuxFamily seems to contain all published releases.
+	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0
+}
+
+/* ---------------------------- Impl: Executable ---------------------------- */
 
 func (m TuxFamily) ExecutableArchive(
 	v version.Version,
@@ -113,6 +116,8 @@ func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remot
 	return a, nil
 }
 
+/* ------------------------------ Impl: Source ------------------------------ */
+
 func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
 	var a artifact.Remote[source.Archive]
 
@@ -163,15 +168,6 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 	a.Artifact, a.URL = checksumsSource, urlParsed
 
 	return a, nil
-}
-
-// Checks whether the version is broadly supported by the mirror. No network
-// request is issued, but this does not guarantee the host has the version.
-// To check whether the host has the version definitively via the network,
-// use the 'checkIfExists' method.
-func (m TuxFamily) Supports(v version.Version) bool {
-	// TuxFamily seems to contain all published releases.
-	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0
 }
 
 /* -------------------- Function: urlTuxFamilyVersionDir -------------------- */
