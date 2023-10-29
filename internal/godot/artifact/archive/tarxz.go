@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"context"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,53 +51,53 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 
 	defer f.Close()
 
-	var reader io.Reader
-
-	reader, err = xz.NewReader(f)
+	reader, err := newFileReaderWithProgress(ctx, f)
 	if err != nil {
 		return err
 	}
 
-	progressWriter, err := newTarProgressWriter(ctx, path)
+	reader, err = xz.NewReader(reader)
 	if err != nil {
 		return err
 	}
 
-	if progressWriter != nil {
-		reader = io.TeeReader(reader, progressWriter)
-	}
+	archive := tar.NewReader(reader)
 
 	baseDirMode, err := osutil.ModeOf(out)
 	if err != nil {
 		return err
 	}
 
-	archive := tar.NewReader(reader)
 	prefix := strings.TrimSuffix(filepath.Base(path), extensionTarXZ)
 
 	// Extract all files within the archive.
 	for {
 		hdr, err := archive.Next()
 		if err != nil {
-			if err == io.EOF {
-				break
+			if err != io.EOF {
+				return err
 			}
 
-			return err
+			// NOTE: The 'tar.Reader' can discard bytes from the last file,
+			// causing the reported progress to not be accurate at close. To
+			// reconcile, manually add the required amount of progress. There
+			// doesn't seem to be a way to get the exact amount, so just add
+			// what's missing.
+			p, ok := ctx.Value(progressKey{}).(*progress.Progress)
+			if ok && p != nil {
+				if remaining := p.Total() - p.Current(); remaining > 0 {
+					p.Add(remaining)
+				}
+			}
+
+			break
 		}
 
 		// Remove the name of the tar-file from the filepath; this is to
 		// facilitate extracting contents directly into the 'out' path.
 		out := filepath.Join(out, strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator)))
 
-		// Ensure the parent directory exists with best-effort permissions. If
-		// the zip archive already contains the directory as an entry then this
-		// will have no effect.
-		if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
-			return err
-		}
-
-		if err := extractTarFile(ctx, archive, hdr, out); err != nil {
+		if err := extractTarFile(ctx, archive, hdr, out, baseDirMode); err != nil {
 			return err
 		}
 	}
@@ -107,7 +108,20 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 /* ------------------------ Function: extractTarFile ------------------------ */
 
 // extractFile handles the extraction logic for each file in the Tar archive.
-func extractTarFile(ctx context.Context, archive *tar.Reader, hdr *tar.Header, out string) error {
+func extractTarFile(
+	ctx context.Context,
+	archive *tar.Reader,
+	hdr *tar.Header,
+	out string,
+	baseDirMode fs.FileMode,
+) error {
+	// Ensure the parent directory exists with best-effort permissions. If
+	// the zip archive already contains the directory as an entry then this
+	// will have no effect.
+	if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
+		return err
+	}
+
 	mode := hdr.FileInfo().Mode()
 
 	switch hdr.Typeflag {
@@ -127,26 +141,4 @@ func extractTarFile(ctx context.Context, archive *tar.Reader, hdr *tar.Header, o
 	}
 
 	return nil
-}
-
-/* --------------------- Function: newTarProgressWriter --------------------- */
-
-// newTarProgressWriter configures the 'progress.Progress' instance's
-// 'total' bytes if one is found on the context.
-func newTarProgressWriter(ctx context.Context, path string) (*progress.Writer, error) {
-	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
-	if !ok || p == nil {
-		return nil, nil //nolint:nilnil
-	}
-
-	sum, err := osutil.SizeOf(path)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := p.Total(sum); err != nil {
-		return nil, err
-	}
-
-	return progress.NewWriter(p), nil
 }

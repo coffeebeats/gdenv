@@ -48,15 +48,15 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 
 	defer archive.Close()
 
-	baseDirMode, err := osutil.ModeOf(out)
+	// There doesn't appear to be a good way to read the compressed bytes during
+	// extraction. Instead, use a manual writer and record progress in steps
+	// after each file completes.
+	p, err := newZipProgress(ctx, path)
 	if err != nil {
 		return err
 	}
 
-	// There doesn't appear to be a good way to read the compressed bytes during
-	// extraction. Instead, use a manual writer and record progress in steps
-	// after each file completes.
-	progressWriter, err := newZipProgressWriter(ctx, path)
+	baseDirMode, err := osutil.ModeOf(out)
 	if err != nil {
 		return err
 	}
@@ -71,8 +71,8 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 			return err
 		}
 
-		if progressWriter != nil {
-			progressWriter.Add(f.CompressedSize64)
+		if p != nil {
+			p.Add(f.CompressedSize64)
 		}
 	}
 
@@ -126,15 +126,15 @@ func extractZipFile(
 	return nil
 }
 
-/* --------------------- Function: newZipProgressWriter --------------------- */
+/* ------------------------ Function: newZipProgress ------------------------ */
 
-// newZipProgressWriter configures the 'progress.Progress' instance's 'total'
-// bytes if one is found on the context. If one is found then a valid pointer to
-// a 'progress.ManualWriter' will be returned.
+// newZipProgress sets the 'total' value of the 'progress.Progress' instance
+// attached to the context, if one exists. A pointer to the provided
+// 'progress.Progress' is returned.
 //
 // NOTE: Using a pointer for optionality here is not ideal, but there isn't much
 // benefit to improving this.
-func newZipProgressWriter(ctx context.Context, path string) (*progress.ManualWriter, error) {
+func newZipProgress(ctx context.Context, path string) (*progress.Progress, error) {
 	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
 	if !ok || p == nil {
 		return nil, nil //nolint:nilnil
@@ -153,9 +153,9 @@ func newZipProgressWriter(ctx context.Context, path string) (*progress.ManualWri
 		sum += f.CompressedSize64
 	}
 
-	if err := p.Total(sum); err != nil {
+	if err := p.SetTotal(sum); err != nil {
 		return nil, err
 	}
 
-	return progress.NewManualWriter(p), nil
+	return p, nil
 }

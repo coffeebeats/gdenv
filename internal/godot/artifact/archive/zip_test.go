@@ -116,7 +116,7 @@ func TestZipExtract(t *testing.T) {
 	}
 }
 
-/* -------------------- Function: TestExtractWithProgress ------------------- */
+/* ------------------ Function: TestZipExtractWithProgress ------------------ */
 
 func TestZipExtractWithProgress(t *testing.T) {
 	tests := []struct {
