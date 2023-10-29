@@ -3,6 +3,7 @@ package archive
 import (
 	"archive/tar"
 	"context"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -40,9 +41,10 @@ func (a TarXZ[T]) Name() string {
 
 // Extracts the archived contents to the specified directory.
 //
-// NOTE: This method does not detect insecure filepaths included in the archive.
-// Instead, ensure the binary is compiled with the GODEBUG option
-// 'tarinsecurepath=0' (see https://github.com/golang/go/issues/55356).
+// NOTE: While this method *does* detect insecure filepaths included in the
+// archive using the same method implemented by Go, this binary should still be
+// compiled with the GODEBUG option 'tarinsecurepath=0' in the event that the
+// implementation changes (see https://github.com/golang/go/issues/55356).
 func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -78,19 +80,14 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 				return err
 			}
 
-			// NOTE: The 'tar.Reader' can discard bytes from the last file,
-			// causing the reported progress to not be accurate at close. To
-			// reconcile, manually add the required amount of progress. There
-			// doesn't seem to be a way to get the exact amount, so just add
-			// what's missing.
-			p, ok := ctx.Value(progressKey{}).(*progress.Progress)
-			if ok && p != nil {
-				if remaining := p.Total() - p.Current(); remaining > 0 {
-					p.Add(remaining)
-				}
-			}
+			closeProgress(ctx)
 
 			break
+		}
+
+		// See https://cs.opensource.google/go/go/+/refs/tags/go1.21.3:src/archive/tar/reader.go;l=60-67.
+		if !filepath.IsLocal(hdr.Name) || strings.Contains(hdr.Name, `\`) {
+			return fmt.Errorf("%w: %s", tar.ErrInsecurePath, hdr.Name)
 		}
 
 		// Remove the name of the tar-file from the filepath; this is to
@@ -103,6 +100,22 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 	}
 
 	return nil
+}
+
+/* ------------------------- Function: closeProgress ------------------------ */
+
+// closeProgress updates the 'progress.Progress' instance attached to the
+// context to 100% complete. This is because the 'tar.Reader' can discard bytes
+// from the last file, causing the reported progress to not be accurate at
+// close. There doesn't seem to be a way to get the exact amount, so just add
+// what's missing.
+func closeProgress(ctx context.Context) {
+	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
+	if ok && p != nil {
+		if remaining := p.Total() - p.Current(); remaining > 0 {
+			p.Add(remaining)
+		}
+	}
 }
 
 /* ------------------------ Function: extractTarFile ------------------------ */

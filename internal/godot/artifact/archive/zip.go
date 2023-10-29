@@ -3,9 +3,11 @@ package archive
 import (
 	"archive/zip"
 	"context"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/internal/progress"
@@ -37,9 +39,10 @@ func (a Zip[T]) Name() string {
 
 // Extracts the archived contents to the specified directory.
 //
-// NOTE: This method does not detect insecure filepaths included in the archive.
-// Instead, ensure the binary is compiled with the GODEBUG option
-// 'zipinsecurepath=0' (see https://github.com/golang/go/issues/55356).
+// NOTE: While this method *does* detect insecure filepaths included in the
+// archive using the same method implemented by Go, this binary should still be
+// compiled with the GODEBUG option 'zipinsecurepath=0' in the event that the
+// implementation changes (see https://github.com/golang/go/issues/55356).
 func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 	archive, err := zip.OpenReader(path)
 	if err != nil {
@@ -67,6 +70,13 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 			return ctx.Err()
 		}
 
+		// See https://cs.opensource.google/go/go/+/refs/tags/go1.21.3:src/archive/zip/reader.go;l=168-173.
+		if !filepath.IsLocal(f.Name) || strings.Contains(f.Name, `\`) {
+			return fmt.Errorf("%w: %s", zip.ErrInsecurePath, f.Name)
+		}
+
+		out := filepath.Join(out, f.Name) //nolint:gosec
+
 		if err := extractZipFile(ctx, archive, f, out, baseDirMode); err != nil {
 			return err
 		}
@@ -90,8 +100,6 @@ func extractZipFile(
 	out string,
 	baseDirMode fs.FileMode,
 ) error {
-	out = filepath.Join(out, f.Name) //nolint:gosec
-
 	// Ensure the parent directory exists with best-effort permissions. If
 	// the zip archive already contains the directory as an entry then this
 	// will have no effect.
