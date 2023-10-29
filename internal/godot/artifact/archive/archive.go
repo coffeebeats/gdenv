@@ -66,7 +66,7 @@ func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) er
 		return fmt.Errorf("%w: '%s'", fs.ErrNotExist, a.Path)
 	}
 
-	// Validate that the 'out' parameter either doesn't exist or is a directory.
+	// Validate that the 'out' parameter exists and is a directory.
 	info, err := os.Stat(out)
 	if err != nil {
 		return err

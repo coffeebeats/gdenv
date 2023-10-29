@@ -84,7 +84,7 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 		// facilitate extracting contents directly into the 'out' path.
 		out := filepath.Join(out, strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator)))
 
-		if err := extractFile(ctx, archive, hdr, out); err != nil {
+		if err := extractTarFile(ctx, archive, hdr, out); err != nil {
 			return err
 		}
 	}
@@ -92,10 +92,10 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 	return nil
 }
 
-/* -------------------------- Function: extractFile ------------------------- */
+/* ------------------------ Function: extractTarFile ------------------------ */
 
 // extractFile handles the extraction logic for each file in the Tar archive.
-func extractFile(ctx context.Context, archive *tar.Reader, hdr *tar.Header, out string) error {
+func extractTarFile(ctx context.Context, archive *tar.Reader, hdr *tar.Header, out string) error {
 	mode := hdr.FileInfo().Mode()
 
 	switch hdr.Typeflag {

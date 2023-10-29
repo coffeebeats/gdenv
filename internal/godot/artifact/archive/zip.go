@@ -3,6 +3,7 @@ package archive
 import (
 	"archive/zip"
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -47,6 +48,11 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 
 	defer archive.Close()
 
+	baseDirMode, err := osutil.ModeOf(out)
+	if err != nil {
+		return err
+	}
+
 	// There doesn't appear to be a good way to read the compressed bytes during
 	// extraction. Instead, use a manual writer and record progress in steps
 	// after each file completes.
@@ -57,33 +63,70 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 
 	// Extract all files within the archive.
 	for _, f := range archive.File {
-		mode := f.FileInfo().Mode()
-		out := filepath.Join(out, f.Name) //nolint:gosec
-
-		if f.FileInfo().IsDir() {
-			if ctx.Err() != nil {
-				return ctx.Err()
-			}
-
-			if err := os.MkdirAll(out, mode); err != nil {
-				return err
-			}
-
-			continue
+		if ctx.Err() != nil {
+			return ctx.Err()
 		}
 
-		src, err := archive.Open(f.Name)
-		if err != nil {
-			return err
-		}
-
-		if err := copyFile(ctx, src, mode, out); err != nil {
+		if err := extractZipFile(ctx, archive, f, out, baseDirMode); err != nil {
 			return err
 		}
 
 		if progressWriter != nil {
 			progressWriter.Add(f.CompressedSize64)
 		}
+	}
+
+	return nil
+}
+
+/* ------------------------ Function: extractZipFile ------------------------ */
+
+// extractZipFile extracts a single entry from a zip archive to the specified
+// destination path.
+func extractZipFile(
+	ctx context.Context,
+	a *zip.ReadCloser,
+	f *zip.File,
+	out string,
+	baseDirMode fs.FileMode,
+) error {
+	out = filepath.Join(out, f.Name) //nolint:gosec
+
+	// Ensure the parent directory exists with best-effort permissions. If
+	// the zip archive already contains the directory as an entry then this
+	// will have no effect.
+	if _, err := os.Stat(filepath.Dir(out)); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+
+		if err := os.MkdirAll(filepath.Dir(out), baseDirMode); err != nil {
+			return err
+		}
+	}
+
+	mode := f.FileInfo().Mode()
+
+	// Create all the ancestor directories if required.
+	if err := os.MkdirAll(filepath.Dir(out), mode); err != nil {
+		return err
+	}
+
+	if f.FileInfo().IsDir() {
+		if err := os.Mkdir(out, mode); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	src, err := a.Open(f.Name)
+	if err != nil {
+		return err
+	}
+
+	if err := copyFile(ctx, src, mode, out); err != nil {
+		return err
 	}
 
 	return nil
