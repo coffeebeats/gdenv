@@ -146,9 +146,17 @@ func newZipProgressWriter(ctx context.Context, path string) (*progress.ManualWri
 		return nil, nil //nolint:nilnil
 	}
 
-	sum, err := osutil.SizeOf(path)
+	var sum uint64
+
+	r, err := zip.OpenReader(path)
 	if err != nil {
 		return nil, err
+	}
+
+	defer r.Close()
+
+	for _, f := range r.File {
+		sum += f.CompressedSize64
 	}
 
 	if err := p.Total(sum); err != nil {
