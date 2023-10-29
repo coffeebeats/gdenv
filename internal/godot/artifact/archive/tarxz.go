@@ -85,14 +85,16 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 			break
 		}
 
+		name := hdr.Name
+
 		// See https://cs.opensource.google/go/go/+/refs/tags/go1.21.3:src/archive/tar/reader.go;l=60-67.
-		if !filepath.IsLocal(hdr.Name) || strings.Contains(hdr.Name, `\`) {
-			return fmt.Errorf("%w: %s", tar.ErrInsecurePath, hdr.Name)
+		if !filepath.IsLocal(name) || strings.Contains(name, `\`) || strings.Contains(name, "..") {
+			return fmt.Errorf("%w: %s", tar.ErrInsecurePath, name)
 		}
 
 		// Remove the name of the tar-file from the filepath; this is to
 		// facilitate extracting contents directly into the 'out' path.
-		out := filepath.Join(out, strings.TrimPrefix(hdr.Name, prefix+string(os.PathSeparator)))
+		out := filepath.Join(out, strings.TrimPrefix(name, prefix+string(os.PathSeparator)))
 
 		if err := extractTarFile(ctx, archive, hdr, out, baseDirMode); err != nil {
 			return err

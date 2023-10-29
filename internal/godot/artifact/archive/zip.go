@@ -70,12 +70,14 @@ func (a Zip[T]) extract(ctx context.Context, path, out string) error {
 			return ctx.Err()
 		}
 
+		name := f.Name
+
 		// See https://cs.opensource.google/go/go/+/refs/tags/go1.21.3:src/archive/zip/reader.go;l=168-173.
-		if !filepath.IsLocal(f.Name) || strings.Contains(f.Name, `\`) {
-			return fmt.Errorf("%w: %s", zip.ErrInsecurePath, f.Name)
+		if !filepath.IsLocal(name) || strings.Contains(name, `\`) || strings.Contains(name, "..") {
+			return fmt.Errorf("%w: %s", zip.ErrInsecurePath, name)
 		}
 
-		out := filepath.Join(out, f.Name) //nolint:gosec
+		out := filepath.Join(out, name) //nolint:gosec
 
 		if err := extractZipFile(ctx, archive, f, out, baseDirMode); err != nil {
 			return err
