@@ -1,8 +1,6 @@
 package fstest
 
 import (
-	"errors"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,7 +12,7 @@ import (
 /* -------------------------------------------------------------------------- */
 
 type Asserter interface {
-	Assert(t *testing.T, tempDir string)
+	Assert(t *testing.T, pathBaseDir string)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -22,40 +20,8 @@ type Asserter interface {
 /* -------------------------------------------------------------------------- */
 
 type Writer interface {
-	Write(t *testing.T, tempDir string)
-}
-
-/* -------------------------------------------------------------------------- */
-/*                               Struct: Absent                               */
-/* -------------------------------------------------------------------------- */
-
-type Absent struct {
-	Path string
-}
-
-/* ----------------------------- Impl: Asserter ----------------------------- */
-
-func (a Absent) Assert(t *testing.T, tempDir string) {
-	t.Helper()
-
-	path := clean(t, tempDir, a.Path)
-
-	info, err := os.Stat(path)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			t.Fatal(err)
-		}
-
-		return
-	}
-
-	t.Errorf("unexpectedly found file: %s (%v)", path, info.Mode().Type())
-}
-
-/* ------------------------------ Impl: Writer ------------------------------ */
-
-func (a Absent) Write(t *testing.T, _ string) {
-	t.Helper()
+	Abs(t *testing.T, pathBaseDir string) string
+	Write(t *testing.T, pathBaseDir string)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,13 +38,8 @@ func clean(t *testing.T, base, path string) string {
 		t.Fatalf("expected 'base' path to be absolute: %s", base)
 	}
 
-	info, err := os.Stat(base)
-	if err != nil {
+	if _, err := os.Stat(base); err != nil {
 		t.Fatal(err)
-	}
-
-	if !info.IsDir() {
-		t.Fatalf("expected 'base' path to be a directory: %s", base)
 	}
 
 	path = filepath.Clean(path)

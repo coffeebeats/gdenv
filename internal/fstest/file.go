@@ -20,10 +20,10 @@ type File struct {
 
 /* ----------------------------- Impl: Asserter ----------------------------- */
 
-func (f File) Assert(t *testing.T, tempDir string) {
+func (f File) Assert(t *testing.T, pathBaseDir string) {
 	t.Helper()
 
-	path := clean(t, tempDir, f.Path)
+	path := f.Abs(t, pathBaseDir)
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -54,10 +54,16 @@ func (f File) Assert(t *testing.T, tempDir string) {
 
 /* ------------------------------ Impl: Writer ------------------------------ */
 
-func (f File) Write(t *testing.T, tempDir string) {
+func (f File) Abs(t *testing.T, pathBaseDir string) string {
 	t.Helper()
 
-	path := clean(t, tempDir, f.Path)
+	return clean(t, pathBaseDir, f.Path)
+}
+
+func (f File) Write(t *testing.T, pathBaseDir string) {
+	t.Helper()
+
+	path := f.Abs(t, pathBaseDir)
 
 	if err := os.MkdirAll(filepath.Dir(path), osutil.ModeUserRWXGroupRX); err != nil {
 		t.Fatalf("%s: failed to write directory: %s", err, path)
