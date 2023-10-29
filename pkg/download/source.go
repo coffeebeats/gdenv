@@ -10,11 +10,39 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/progress"
 	"golang.org/x/sync/errgroup"
 )
 
-type localSourceArchive = artifact.Local[source.Archive]
-type localSourceChecksums = artifact.Local[checksum.Source]
+type (
+	progressKeySource         struct{}
+	progressKeySourceChecksum struct{}
+
+	localSourceArchive   = artifact.Local[source.Archive]
+	localSourceChecksums = artifact.Local[checksum.Source]
+)
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: WithProgress                           */
+/* -------------------------------------------------------------------------- */
+
+// WithSourceProgress creates a sub-context with an associated progress
+// reporter. The result can be passed to download functions in this package to
+// get updates on download progress.
+func WithSourceProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKeySource{}, p)
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: WithProgress                           */
+/* -------------------------------------------------------------------------- */
+
+// WithSourceChecksumProgress creates a sub-context with an associated progress
+// reporter. The result can be passed to download functions in this package to
+// get updates on download progress.
+func WithSourceChecksumProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKeySourceChecksum{}, p)
+}
 
 /* -------------------------------------------------------------------------- */
 /*                   Function: SourceWithChecksumValidation                   */
@@ -97,7 +125,7 @@ func Source(
 	}
 
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
+	if err := downloadArtifact(ctx, m, remote, out, progressKeySource{}); err != nil {
 		return localSourceArchive{}, err
 	}
 
@@ -131,7 +159,7 @@ func SourceChecksums(
 	}
 
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
+	if err := downloadArtifact(ctx, m, remote, out, progressKeySourceChecksum{}); err != nil {
 		return localSourceChecksums{}, err
 	}
 

@@ -32,6 +32,8 @@ var (
 	ErrUnexpectedRedirect     = errors.New("unexpected redirect")
 )
 
+type progressKey struct{}
+
 /* -------------------------------------------------------------------------- */
 /*                             Function: ParseURL                             */
 /* -------------------------------------------------------------------------- */
@@ -58,6 +60,17 @@ func ParseURL(urlBaseRaw string, urlPartsRaw ...string) (*url.URL, error) {
 	}
 
 	return urlParsed, nil
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Function: WithProgress                           */
+/* -------------------------------------------------------------------------- */
+
+// WithProgress creates a sub-context with an associated progress reporter. The
+// result can be passed to file download functions in this package to get
+// updates on download progress.
+func WithProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKey{}, p)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -180,9 +193,21 @@ func (c Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...st
 /* ---------------------------- Method: Download ---------------------------- */
 
 // Downloads the provided asset, copying the response to all of the provided
-// 'io.Writer' writers.
+// 'io.Writer' writers. Reports progress to a 'progress.Progress' set on the
+// provided context.
 func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error {
 	return c.get(ctx, u, func(r *resty.Response) error {
+		if r.RawResponse.ContentLength > 0 { // No progress to report if '0'.
+			// Report progress if set on the context.
+			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
+				if err := p.SetTotal(uint64(r.RawResponse.ContentLength)); err != nil {
+					return err
+				}
+
+				w = append(w, progress.NewWriter(p))
+			}
+		}
+
 		// Copy the asset contents into provided writers.
 		_, err := io.Copy(io.MultiWriter(w...), r.RawBody())
 
@@ -192,7 +217,8 @@ func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error 
 
 /* --------------------------- Method: DownloadTo --------------------------- */
 
-// Downloads the provided asset to a specified file 'out'.
+// Downloads the provided asset to a specified file 'out'. Reports progress to
+// a 'progress.Progress' set on the provided context.
 func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
@@ -202,38 +228,21 @@ func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	defer f.Close()
 
 	return c.get(ctx, u, func(r *resty.Response) error {
-		// Copy the response contents into the writer.
-		_, err := io.Copy(f, r.RawBody())
+		var w io.Writer = f
 
-		return err
-	})
-}
+		if r.RawResponse.ContentLength > 0 { // No progress to report if '0'.
+			// Report progress if set on the context.
+			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
+				if err := p.SetTotal(uint64(r.RawResponse.ContentLength)); err != nil {
+					return err
+				}
 
-/* --------------------- Method: DownloadToWithProgress --------------------- */
-
-// Downloads the response of a request to the specified filepath, reporting the
-// download progress to the provided progress pointer 'p'.
-//
-// NOTE: The provided 'Progress' struct will be reconfigured as needed.
-func (c Client) DownloadToWithProgress(ctx context.Context, u *url.URL, out string, p *progress.Progress) error {
-	f, err := os.Create(out)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	return c.get(ctx, u, func(r *resty.Response) error {
-		// Reset any pre-existing progress in the 'Progress' reporter.
-		p.Reset()
-
-		// Set the 'Progress' total based on the response header.
-		if err := p.Total(uint64(r.RawResponse.ContentLength)); err != nil {
-			return err
+				w = io.MultiWriter(f, progress.NewWriter(p))
+			}
 		}
 
-		// Copy the asset contents into the file and progress writer.
-		_, err := io.Copy(io.MultiWriter(f, progress.NewWriter(p)), r.RawBody())
+		// Copy the response contents into the writer.
+		_, err := io.Copy(w, r.RawBody())
 
 		return err
 	})

@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-/* -------------------------------- Test: New ------------------------------- */
+/* ------------------------- Test: TestNewWithTotal ------------------------- */
 
-func TestNew(t *testing.T) {
+func TestNewWithTotal(t *testing.T) {
 	tests := []struct {
 		size uint64
 		want *Progress
@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 			}
 
 			// When: A new 'Progress' struct is created with the specified size.
-			got, err := New(tc.size)
+			got, err := NewWithTotal(tc.size)
 
 			// Then: It matches the expected value.
 			if !errors.Is(err, tc.err) {
@@ -64,14 +64,14 @@ func TestProgressPercentage(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// Given: A 'Progress' struct with the specified size.
-			p, err := New(tc.size)
+			p, err := NewWithTotal(tc.size)
 			if !errors.Is(err, nil) {
 				t.Errorf("err: got %#v, want %#v", err, nil)
 
 			}
 
 			// Given: The specified progress is already made.
-			p.add(uint64(tc.current))
+			p.Add(uint64(tc.current))
 
 			// When: The current progress percentage is collected.
 			// Then: It matches the expected value of 'current' / 'total'.
@@ -100,13 +100,13 @@ func TestProgressReset(t *testing.T) {
 			p.total.Store(tc.total)
 
 			// Given: The specified progress is already made.
-			p.add(tc.current)
+			p.Add(tc.current)
 
 			// When: The current progress is reset.
 			p.Reset()
 
 			// Then: The 'current' progress is reset to '0'.
-			if got := p.current.Load(); got != 0 {
+			if got := p.Current(); got != 0 {
 				t.Errorf("output: got %#v, want %#v", got, 0)
 			}
 
@@ -118,9 +118,9 @@ func TestProgressReset(t *testing.T) {
 	}
 }
 
-/* -------------------------- Test: Progress.Total -------------------------- */
+/* ------------------------- Test: Progress.SetTotal ------------------------ */
 
-func TestProgressTotal(t *testing.T) {
+func TestProgressSetTotal(t *testing.T) {
 	tests := []struct {
 		current, total, next, want uint64
 		err                        error
@@ -142,10 +142,10 @@ func TestProgressTotal(t *testing.T) {
 			p.total.Store(tc.total)
 
 			// Given: The specified progress is already made.
-			p.add(tc.current)
+			p.Add(tc.current)
 
 			// When: The 'total' is set to the new value.
-			err := p.Total(tc.next)
+			err := p.SetTotal(tc.next)
 
 			// Then: An error is returned if the new value is invalid.
 			if !errors.Is(err, tc.err) {
@@ -158,44 +158,7 @@ func TestProgressTotal(t *testing.T) {
 			}
 
 			// Then: The 'total' field is updated to the desired value.
-			if got := p.total.Load(); got != tc.want {
-				t.Errorf("output: got %#v, want %#v", got, tc.want)
-			}
-		})
-	}
-}
-
-/* --------------------------- Test: Progress.add --------------------------- */
-
-func TestProgressAdd(t *testing.T) {
-	tests := []struct {
-		size, add  uint64
-		want       uint64
-		percentage float64
-	}{
-		{size: 10, add: 0, want: 0, percentage: 0.0},
-		{size: 10, add: 5, want: 5, percentage: 0.5},
-		{size: 10, add: 10, want: 10, percentage: 1.0},
-		{size: 10, add: 20, want: 20, percentage: 2.0},
-	}
-
-	for i, tc := range tests {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			// Given: A 'Progress' struct with the specified size.
-			p, err := New(tc.size)
-			if !errors.Is(err, nil) {
-				t.Errorf("err: got %#v, want %#v", err, nil)
-
-			}
-
-			// When: The specified progress amount is added.
-			// Then: It returns the expected new value.
-			if got := p.add(uint64(tc.add)); got != tc.want {
-				t.Errorf("output: got %#v, want %#v", got, tc.want)
-			}
-
-			// Then: The reported progress reflects the added value.
-			if got := p.Percentage(); got != tc.percentage {
+			if got := p.Total(); got != tc.want {
 				t.Errorf("output: got %#v, want %#v", got, tc.want)
 			}
 		})

@@ -21,16 +21,16 @@ var _ io.Writer = &Writer{} //nolint:exhaustruct
 //
 // NOTE: It's the caller's responsibility to ensure that the initial 'Progress'
 // provided is correctly configured so that the calculated progress is accurate.
-func NewWriter(p *Progress) Writer {
-	return Writer{p}
+func NewWriter(p *Progress) *Writer {
+	return &Writer{p}
 }
 
 /* ----------------------------- Impl: io.Writer ---------------------------- */
 
-func (w Writer) Write(data []byte) (int, error) {
+func (w *Writer) Write(data []byte) (int, error) {
 	n := len(data)
 
-	w.progress.add(uint64(n))
+	w.progress.Add(uint64(n))
 
 	return n, nil
 }

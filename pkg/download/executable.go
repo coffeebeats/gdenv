@@ -10,13 +10,39 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/internal/progress"
 	"golang.org/x/sync/errgroup"
 )
 
 type (
+	progressKeyExecutable         struct{}
+	progressKeyExecutableChecksum struct{}
+
 	localExArchive   = artifact.Local[executable.Archive]
 	localExChecksums = artifact.Local[checksum.Executable]
 )
+
+/* -------------------------------------------------------------------------- */
+/*                      Function: WithExecutableProgress                      */
+/* -------------------------------------------------------------------------- */
+
+// WithSourceProgress creates a sub-context with an associated progress
+// reporter. The result can be passed to download functions in this package to
+// get updates on download progress.
+func WithExecutableProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKeyExecutable{}, p)
+}
+
+/* -------------------------------------------------------------------------- */
+/*                  Function: WithExecutableChecksumProgress                  */
+/* -------------------------------------------------------------------------- */
+
+// WithExecutableChecksumProgress creates a sub-context with an associated
+// progress reporter. The result can be passed to download functions in this
+// package to get updates on download progress.
+func WithExecutableChecksumProgress(ctx context.Context, p *progress.Progress) context.Context {
+	return context.WithValue(ctx, progressKeyExecutableChecksum{}, p)
+}
 
 /* -------------------------------------------------------------------------- */
 /*                 Function: ExecutableWithChecksumValidation                 */
@@ -99,7 +125,7 @@ func Executable(
 	}
 
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
+	if err := downloadArtifact(ctx, m, remote, out, progressKeyExecutable{}); err != nil {
 		return localExArchive{}, err
 	}
 
@@ -133,7 +159,7 @@ func ExecutableChecksums(
 	}
 
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := m.Client().DownloadTo(ctx, remote.URL, out); err != nil {
+	if err := downloadArtifact(ctx, m, remote, out, progressKeyExecutableChecksum{}); err != nil {
 		return localExChecksums{}, err
 	}
 
