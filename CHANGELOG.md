@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1 (2023-10-30)
+
+## What's Changed
+* chore(docs): clean up `README.md` and split out `Commands` and `Installation` sections into `./docs` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/116
+* chore(deps): bump google.golang.org/grpc from 1.57.0 to 1.57.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/118
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.5.0...v0.5.1
+
 ## 0.5.0 (2023-10-30)
 
 ## What's Changed
