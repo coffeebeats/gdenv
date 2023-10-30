@@ -32,7 +32,7 @@ func main() { //nolint:funlen
 
 	app := &cli.App{
 		Name:    "gdenv",
-		Version: "v0.5.0", // x-release-please-version
+		Version: "v0.5.1", // x-release-please-version
 
 		Suggest:                true,
 		UseShortOptionHandling: true,
