@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/internal/godot/platform"
-	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/pkg/godot/platform"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 const envStore = "GDENV_HOME"

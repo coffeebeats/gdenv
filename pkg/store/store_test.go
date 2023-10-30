@@ -9,11 +9,11 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/fstest"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/artifacttest"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/artifacttest"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 const storeName = "store"

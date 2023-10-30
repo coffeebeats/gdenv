@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/internal/godot/version"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 /* ---------------------------- Test: Executable ---------------------------- */

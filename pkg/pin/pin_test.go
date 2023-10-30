@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/fstest"
-	"github.com/coffeebeats/gdenv/internal/godot/version"
 	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 /* ------------------------------- Test: Read ------------------------------- */
