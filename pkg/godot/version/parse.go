@@ -113,7 +113,7 @@ func parseNormalVersion(input string) ([3]int, error) {
 	}
 
 	for i, version := range parts { //nolint:varnamelen
-		n, err := strconv.ParseUint(version, 10, 0)
+		n, err := strconv.ParseUint(version, 10, 32)
 		if err != nil {
 			return out, fmt.Errorf("%w: '%s'", ErrInvalidNumber, version)
 		}
