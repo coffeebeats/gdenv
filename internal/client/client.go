@@ -85,7 +85,7 @@ type Client struct {
 /* ------------------------------ Function: New ----------------------------- */
 
 // Creates a new 'Client' with default settings for mirrors.
-func New() Client {
+func New() *Client {
 	restyClient := resty.New()
 
 	restyClient.SetRetryCount(retryCount)
@@ -118,14 +118,14 @@ func New() Client {
 	// Disable internal resty client logging.
 	restyClient.SetLogger(silentLogger{})
 
-	return Client{restyClient}
+	return &Client{restyClient}
 }
 
 /* -------------------- Function: NewWithRedirectDomains -------------------- */
 
 // Creates a new 'Client' with the provided domains allowed for redirects. If
 // none are provided, then no redirects are permitted.
-func NewWithRedirectDomains(domains ...string) Client {
+func NewWithRedirectDomains(domains ...string) *Client {
 	var p resty.RedirectPolicy
 
 	switch len(domains) {
@@ -145,7 +145,7 @@ func NewWithRedirectDomains(domains ...string) Client {
 /* ----------------------------- Method: Exists ----------------------------- */
 
 // Issues a 'HEAD' request to test whether or not the URL is reachable.
-func (c Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...string) (bool, error) {
+func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...string) (bool, error) {
 	if urlBaseRaw == "" {
 		return false, ErrMissingURL
 	}
@@ -195,7 +195,7 @@ func (c Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...st
 // Downloads the provided asset, copying the response to all of the provided
 // 'io.Writer' writers. Reports progress to a 'progress.Progress' set on the
 // provided context.
-func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error {
+func (c *Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error {
 	return c.get(ctx, u, func(r *resty.Response) error {
 		if r.RawResponse.ContentLength > 0 { // No progress to report if '0'.
 			// Report progress if set on the context.
@@ -219,7 +219,7 @@ func (c Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error 
 
 // Downloads the provided asset to a specified file 'out'. Reports progress to
 // a 'progress.Progress' set on the provided context.
-func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
+func (c *Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	f, err := os.Create(out)
 	if err != nil {
 		return err
@@ -248,17 +248,28 @@ func (c Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 	})
 }
 
+/* --------------------------- Method: RestyClient -------------------------- */
+
+// RestyClient returns the underlying 'resty.Client'. Exposing this allows for
+// tests in other packages to stub responses.
+//
+// TODO: Find an alternative way of allowing other packages to stub responses
+// without exposing the use of 'resty'.
+func (c *Client) RestyClient() *resty.Client {
+	return c.restyClient
+}
+
 /* ------------------------------- Method: get ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'GET' request.
-func (c Client) get(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
+func (c *Client) get(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
 	return execute(ctx, c.restyClient.R(), resty.MethodGet, u.String(), h)
 }
 
 /* ------------------------------ Method: head ------------------------------ */
 
 // A convenience wrapper around execute which issues a 'HEAD' request.
-func (c Client) head(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
+func (c *Client) head(ctx context.Context, u *url.URL, h func(*resty.Response) error) error {
 	return execute(ctx, c.restyClient.R(), resty.MethodHead, u.String(), h)
 }
 

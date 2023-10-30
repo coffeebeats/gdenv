@@ -9,6 +9,7 @@ import (
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/internal/godot/version"
 )
 
@@ -109,6 +110,86 @@ func TestTuxFamilyExecutableArchiveChecksums(t *testing.T) {
 			want := artifact.Remote[checksum.Executable]{Artifact: ex, URL: tc.url}
 			if !reflect.DeepEqual(got, want) {
 				t.Errorf("output: got %#v, want %#v", got, want)
+			}
+		})
+	}
+}
+
+/* ---------------------- Test: TuxFamily.SourceArchive --------------------- */
+
+func TestTuxFamilySourceArchive(t *testing.T) {
+	tests := []struct {
+		v version.Version
+
+		artifact source.Archive
+		url      *url.URL
+		err      error
+	}{
+		// Invalid inputs
+		{v: version.Version{}, err: ErrInvalidSpecification},
+		{v: version.MustParse("v0.1.0"), err: ErrInvalidSpecification},
+
+		// Valid inputs
+		{
+			v:        version.MustParse("v4.1.1"),
+			artifact: source.Archive{Artifact: source.New(version.MustParse("v4.1.1"))},
+			url:      mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1.1/godot-4.1.1-stable.tar.xz"),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.v.String(), func(t *testing.T) {
+			remote, err := (&TuxFamily{}).SourceArchive(tc.v)
+
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %v, want %v", err, tc.err)
+			}
+
+			if got := remote.Artifact; !reflect.DeepEqual(got, tc.artifact) {
+				t.Errorf("output: got %v, want %v", got, tc.artifact)
+			}
+			if got := remote.URL; !reflect.DeepEqual(got, tc.url) {
+				t.Errorf("output: got %v, want %v", got, tc.url)
+			}
+		})
+	}
+}
+
+/* ----------------- Test: TuxFamily.SourceArchiveChecksums ----------------- */
+
+func TestTuxFamilySourceArchiveChecksums(t *testing.T) {
+	tests := []struct {
+		v version.Version
+
+		artifact checksum.Source
+		url      *url.URL
+		err      error
+	}{
+		// Invalid inputs
+		{v: version.Version{}, err: ErrInvalidSpecification},
+		{v: version.MustParse("v0.1.0"), err: ErrInvalidSpecification},
+
+		// Valid inputs
+		{
+			v:        version.MustParse("v4.1.1"),
+			artifact: mustMakeNewSource(t, version.MustParse("v4.1.1")),
+			url:      mustParseURL(t, "https://downloads.tuxfamily.org/godotengine/4.1.1/godot-4.1.1-stable.tar.xz.sha256"),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.v.String(), func(t *testing.T) {
+			remote, err := (&TuxFamily{}).SourceArchiveChecksums(tc.v)
+
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %v, want %v", err, tc.err)
+			}
+
+			if got := remote.Artifact; !reflect.DeepEqual(got, tc.artifact) {
+				t.Errorf("output: got %v, want %v", got, tc.artifact)
+			}
+			if got := remote.URL; !reflect.DeepEqual(got, tc.url) {
+				t.Errorf("output: got %v, want %v", got, tc.url)
 			}
 		})
 	}

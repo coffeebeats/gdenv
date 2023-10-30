@@ -27,29 +27,30 @@ var versionGitHubAssetSupport = version.MustParse("v3.1.1") //nolint:gochecknogl
 
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
-type GitHub struct {
-	client client.Client
-}
+type GitHub struct{}
 
-// Validate at compile-time that 'GitHub' implements 'Mirror'.
-var _ Mirror = &GitHub{} //nolint:exhaustruct
-
-/* ------------------------------ Function: New ----------------------------- */
-
-// Creates a new GitHub 'Mirror' client with default retry mechanisms and
-// redirect policies configured.
-func NewGitHub() GitHub {
-	c := client.NewWithRedirectDomains(gitHubContentDomain)
-
-	return GitHub{c}
-}
+// Validate at compile-time that 'GitHub' implements 'Mirror' interfaces.
+var _ Mirror = &GitHub{}
+var _ Executable = &GitHub{}
+var _ Source = &GitHub{}
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
 
 // Returns a new 'client.Client' for downloading artifacts from the mirror.
-func (m GitHub) Client() client.Client {
-	return m.client
+func (m GitHub) Domains() []string {
+	return []string{gitHubContentDomain}
 }
+
+// Checks whether the version is broadly supported by the mirror. No network
+// request is issued, but this does not guarantee the host has the version.
+// To check whether the host has the version definitively via the network,
+// use the 'checkIfExists' method.
+func (m GitHub) Supports(v version.Version) bool {
+	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
+	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
+}
+
+/* ---------------------------- Impl: Executable ---------------------------- */
 
 func (m GitHub) ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error) {
 	var a artifact.Remote[executable.Archive]
@@ -102,6 +103,8 @@ func (m GitHub) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[c
 	return a, nil
 }
 
+/* ------------------------------ Impl: Source ------------------------------ */
+
 func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
 	var a artifact.Remote[source.Archive]
 
@@ -152,15 +155,6 @@ func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[check
 	a.Artifact, a.URL = checksumsSource, urlParsed
 
 	return a, nil
-}
-
-// Checks whether the version is broadly supported by the mirror. No network
-// request is issued, but this does not guarantee the host has the version.
-// To check whether the host has the version definitively via the network,
-// use the 'checkIfExists' method.
-func (m GitHub) Supports(v version.Version) bool {
-	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
-	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
 }
 
 /* ----------------------- Function: urlGitHubRelease ----------------------- */

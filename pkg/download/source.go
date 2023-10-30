@@ -2,9 +2,11 @@ package download
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/source"
@@ -119,13 +121,20 @@ func Source(
 		return localSourceArchive{}, err
 	}
 
-	remote, err := m.SourceArchive(v)
+	sourceMirror, ok := m.(mirror.Source)
+	if !ok || sourceMirror == nil {
+		return localSourceArchive{}, fmt.Errorf("%w: source code", mirror.ErrNotSupported)
+	}
+
+	remote, err := sourceMirror.SourceArchive(v)
 	if err != nil {
 		return localSourceArchive{}, err
 	}
 
+	c := client.NewWithRedirectDomains(m.Domains()...)
+
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := downloadArtifact(ctx, m, remote, out, progressKeySource{}); err != nil {
+	if err := downloadArtifact(ctx, c, remote, out, progressKeySource{}); err != nil {
 		return localSourceArchive{}, err
 	}
 
@@ -153,13 +162,20 @@ func SourceChecksums(
 		return localSourceChecksums{}, err
 	}
 
-	remote, err := m.SourceArchiveChecksums(v)
+	sourceMirror, ok := m.(mirror.Source)
+	if !ok || sourceMirror == nil {
+		return localSourceChecksums{}, fmt.Errorf("%w: source code", mirror.ErrNotSupported)
+	}
+
+	remote, err := sourceMirror.SourceArchiveChecksums(v)
 	if err != nil {
 		return localSourceChecksums{}, err
 	}
 
+	c := client.NewWithRedirectDomains(m.Domains()...)
+
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := downloadArtifact(ctx, m, remote, out, progressKeySourceChecksum{}); err != nil {
+	if err := downloadArtifact(ctx, c, remote, out, progressKeySourceChecksum{}); err != nil {
 		return localSourceChecksums{}, err
 	}
 

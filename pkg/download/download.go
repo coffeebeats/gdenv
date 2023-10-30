@@ -8,7 +8,6 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
-	"github.com/coffeebeats/gdenv/internal/godot/mirror"
 	"github.com/coffeebeats/gdenv/internal/progress"
 )
 
@@ -39,7 +38,7 @@ func checkIsDirectory(path string) error {
 // reporter extracted from the context using the provided key.
 func downloadArtifact[T artifact.Artifact](
 	ctx context.Context,
-	m mirror.Mirror,
+	c *client.Client,
 	a artifact.Remote[T],
 	out string,
 	progressKey any,
@@ -49,5 +48,5 @@ func downloadArtifact[T artifact.Artifact](
 		ctx = client.WithProgress(ctx, p)
 	}
 
-	return m.Client().DownloadTo(ctx, a.URL, out)
+	return c.DownloadTo(ctx, a.URL, out)
 }

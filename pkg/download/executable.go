@@ -2,9 +2,11 @@ package download
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact/executable"
@@ -119,13 +121,20 @@ func Executable(
 		return localExArchive{}, err
 	}
 
-	remote, err := m.ExecutableArchive(ex.Version(), ex.Platform())
+	executableMirror, ok := m.(mirror.Executable)
+	if !ok || executableMirror == nil {
+		return localExArchive{}, fmt.Errorf("%w: executables", mirror.ErrNotSupported)
+	}
+
+	remote, err := executableMirror.ExecutableArchive(ex.Version(), ex.Platform())
 	if err != nil {
 		return localExArchive{}, err
 	}
 
+	c := client.NewWithRedirectDomains(m.Domains()...)
+
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := downloadArtifact(ctx, m, remote, out, progressKeyExecutable{}); err != nil {
+	if err := downloadArtifact(ctx, c, remote, out, progressKeyExecutable{}); err != nil {
 		return localExArchive{}, err
 	}
 
@@ -153,13 +162,20 @@ func ExecutableChecksums(
 		return localExChecksums{}, err
 	}
 
-	remote, err := m.ExecutableArchiveChecksums(v)
+	executableMirror, ok := m.(mirror.Executable)
+	if !ok || executableMirror == nil {
+		return localExChecksums{}, fmt.Errorf("%w: executables", mirror.ErrNotSupported)
+	}
+
+	remote, err := executableMirror.ExecutableArchiveChecksums(v)
 	if err != nil {
 		return localExChecksums{}, err
 	}
 
+	c := client.NewWithRedirectDomains(m.Domains()...)
+
 	out = filepath.Join(out, remote.Artifact.Name())
-	if err := downloadArtifact(ctx, m, remote, out, progressKeyExecutableChecksum{}); err != nil {
+	if err := downloadArtifact(ctx, c, remote, out, progressKeyExecutableChecksum{}); err != nil {
 		return localExChecksums{}, err
 	}
 
