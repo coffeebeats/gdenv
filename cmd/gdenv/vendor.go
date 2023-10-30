@@ -25,7 +25,7 @@ func NewVendor() *cli.Command {
 		Name:     "vendor",
 		Category: "Install",
 
-		Usage:     "download and cache a specific version of Godot source code",
+		Usage:     "download the Godot source code to the specified directory",
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{

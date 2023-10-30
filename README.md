@@ -1,7 +1,5 @@
 # **gdenv** ![GitHub release (with filter)](https://img.shields.io/github/v/release/coffeebeats/gdenv) ![GitHub](https://img.shields.io/github/license/coffeebeats/gdenv) [![Build Status](https://img.shields.io/github/actions/workflow/status/coffeebeats/gdenv/check-commit.yml?branch=main)](https://github.com/coffeebeats/gdenv/actions?query=branch%3Amain+workflow%3Acheck) [![codecov](https://codecov.io/gh/coffeebeats/gdenv/graph/badge.svg)](https://codecov.io/gh/coffeebeats/gdenv)
 
-> ⚠️ **WARNING:** This repository is in its early stages and is under active development. A lot of functionality is missing, and there is no guarantee of API stability.
-
 A single-purpose, CI-friendly command-line interface for managing Godot versions. Inspired by [pyenv](https://github.com/pyenv/pyenv), [rbenv](https://github.com/rbenv/rbenv), and [volta](https://github.com/volta-cli/volta).
 
 ## **Getting started**
@@ -10,16 +8,26 @@ These instructions will help you install `gdenv` and pin projects (or your syste
 
 ### **Example usage**
 
+After following the [installation instructions](#installation), the following are example usages of `gdenv`:
+
 #### Install a global (system-wide) _Godot_ version
 
 ```sh
-gdenv pin -ig 4.1.1
+gdenv pin -ig 4.0
 ```
 
 #### Pin a project to a specific _Godot_ version
 
 ```sh
-gdenv pin --path /path/to/project -i 4.1.1
+# Omit the `--path` option to pin the current directory. The `-i` flag instructs `gdenv` to download the pinned version to its cache.
+gdenv pin -i --path /path/to/project 4.0
+```
+
+#### Vendor the _Godot_ source code
+
+```sh
+# Omit the `--path` option to vendor to `./godot-4.0-stable`.
+gdenv vendor --path /path/to/source 4.0
 ```
 
 ### **Installation**
@@ -50,7 +58,7 @@ Invoke-WebRequest `
     -UseBasicParsing `
     -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
     -OutFile "./install-gdenv.ps1"; `
-    &"./install-gdenv.ps1"
+    &"./scripts/install-gdenv.ps1"
 ```
 
 #### **Manual (not recommended)**
@@ -84,7 +92,13 @@ Invoke-WebRequest `
 
 #### **Compile from source (not recommended)**
 
-TODO: Provide instructions for compiling from source.
+`gdenv` is a Go project and can be installed using `go install`. This option is not recommended as it requires having the Go toolchain installed, it's slower than downloading a prebuilt binary, and there may be instability due to using a different version of Go than it was developed with.
+
+> NOTE: You will need to somehow set the installed `gdenv-shim` binary as your system's `godot` command (consider using a symbolic link). This is done automatically by the recommended installation methods listed above.
+
+```sh
+go install github.com/coffeebeats/gdenv/cmd/gdenv@latest
+```
 
 ## **Documentation**
 
@@ -100,8 +114,9 @@ Sets the _Godot_ version globally or for a specific directory.
 
 **Options:**
 
-- **`-i`**, **`--install`** — installs the specified version of _Godot_ if missing
 - **`-g`**, **`--global`** — pin the system version (cannot be used with `-p`)
+- **`-i`**, **`--install`** — installs the specified version of _Godot_ if missing
+- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry (only used with `-i`)
 - **`-p`**, **`--path <PATH>`** — pin the specified path (cannot be used with `-g`)
   - Default value: `$PWD` (current working directory)
 
@@ -130,10 +145,35 @@ Downloads and caches a specific version of _Godot_.
 **Options:**
 
 - **`-f`**, **`--force`** — forcibly overwrite an existing cache entry
+- **`-g`**, **`--global`** — pin the system version (cannot be used with `-p`)
+- **`-p`**, **`--path <PATH>`** — determine the version from the pinned `PATH` (ignores the global pin)
+- **`-s`**, **`--src`**, **`--source`** — install source code instead of an executable (cannot be used with `-g`)
 
 **Arguments:**
 
-- **`<VERSION>`** — the specific version string to install (must be exact)
+- **`[VERSION]`** — the specific version string to install (must be exact)
+  - Default value: Resolves the pinned version at `$PWD` (ignoring the global pin)
+  - Example values:
+    - `3.5.1` (if missing, the label will default to `stable`)
+    - `4.0.4-stable`
+    - `4.2-beta2`
+
+### **gdenv `vendor`**
+
+Download the _Godot_ source code to the specified directory.
+
+**Options:**
+
+- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry
+- **`-o`**, **`--out`** — download the source code into `OUT` (will overwrite conflicting files)
+  - Default value: `$PWD/./godot-<VERSION>`
+- **`-p`**, **`--path <PATH>`** — determine the version from the pinned `PATH` (ignores the global pin)
+  - Default value: `$PWD` (current working directory)
+
+**Arguments:**
+
+- **`[VERSION]`** — the specific version string to install (must be exact and cannot be used with `-p`)
+  - Default value: Resolves the pinned version at `$PWD` (ignoring the global pin)
   - Example values:
     - `3.5.1` (if missing, the label will default to `stable`)
     - `4.0.4-stable`
@@ -145,7 +185,8 @@ Removes the specified version of _Godot_ from the `gdenv` download cache.
 
 **Options:**
 
-- **`-a`**, **`--all`** — uninstall all versions of _Godot_ in the `gdenv` cache
+- **`-a`**, **`--all`** — uninstall all versions of _Godot_ (ignores source code without `-s`)
+- **`-s`**, **`--src`**, **`--source`** — uninstall source code versions
 
 **Arguments:**
 
@@ -155,9 +196,14 @@ Removes the specified version of _Godot_ from the `gdenv` download cache.
     - `4.0.4-stable`
     - `4.2-beta2`
 
-### **gdenv `ls`**
+### **gdenv `ls`/`list`**
 
 Prints the path and version of all of the installed versions of _Godot_.
+
+**Options:**
+
+- **`-a`**, **`--all`** — list executable _and_ source code versions
+- **`-s`**, **`--src`**, **`--source`** — list source code versions
 
 ### **gdenv `which`**
 
@@ -169,6 +215,8 @@ Prints the path to the _Godot_ executable which would be used in the specified d
   - Default value: `$PWD` (current working directory)
 
 ### **gdenv `completions`**
+
+> ⚠️ **WARNING:** This command is not yet implemented.
 
 Provides shell completions for the `gdenv` CLI application.
 
@@ -188,11 +236,45 @@ Provides shell completions for the `gdenv` CLI application.
 
 ## **Development**
 
-TODO: Provide development environment setup instructions.
+The following instructions outline how to get the project set up for local development:
+
+1. [Follow the instructions](https://go.dev/doc/install) to install Go (see [go.mod](./go.mod) for the minimum required version).
+2. Clone the [coffeebeats/gdenv](https://github.com/coffeebeats/gdenv) repository.
+3. Install the [required tools](./tools.go) using the following command:
+
+    ```sh
+    cat tools.go | grep _ | grep -v '//' | awk -F'"' '{print $2}' | xargs -tI % go install %
+    ```
+
+When submitting code for review, ensure the following requirements are met:
+
+1. The project is correctly formatted using [go fmt](https://go.dev/blog/gofmt):
+
+    ```sh
+    go fmt ./...
+    ```
+
+2. All [golangci-lint](https://golangci-lint.run/) linter warnings are addressed:
+
+    ```sh
+    go fmt ./...
+    ```
+
+3. All unit tests pass and no data races are found:
+
+    ```sh
+    go test -race ./...
+    ```
+
+4. The `gdenv` and `gdenv-shim` binaries successfully compile (release artifacts will be available at `./dist`):
+
+    ```sh
+    goreleaser release --clean --skip-publish --snapshot
+    ```
 
 ## **Contributing**
 
-All contributions are welcome! Feel free to open pull request or file [bugs](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md&title=) and [feature requests](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=enhancement&projects=&template=%F0%9F%99%8B-feature-request.md&title=).
+All contributions are welcome! Feel free to file [bugs](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md&title=) and [feature requests](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=enhancement&projects=&template=%F0%9F%99%8B-feature-request.md&title=) and/or open pull requests.
 
 ## **Version history**
 
