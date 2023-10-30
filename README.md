@@ -8,7 +8,7 @@ These instructions will help you install `gdenv` and pin projects (or your syste
 
 ### **Example usage**
 
-After following the [installation instructions](#installation), the following are example usages of `gdenv`:
+> NOTE: For _Mono_-flavored builds, see [Version selection (C#/_Mono_ support)](#version-selection-cmono-support).
 
 #### Install a global (system-wide) _Godot_ version
 
@@ -19,32 +19,30 @@ gdenv pin -ig 4.0
 #### Pin a project to a specific _Godot_ version
 
 ```sh
-# Omit the `--path` option to pin the current directory. The `-i` flag instructs `gdenv` to download the pinned version to its cache.
+# Omit the `--path` option to pin the current directory;
+#   the `-i` flag instructs `gdenv` to download the pinned version to its cache.
 gdenv pin -i --path /path/to/project 4.0
-```
-
-#### Vendor the _Godot_ source code
-
-```sh
-# Omit the `--path` option to vendor to `./godot-4.0-stable`.
-gdenv vendor --path /path/to/source 4.0
 ```
 
 ### **Installation**
 
 The easiest way to install `gdenv` is by using the pre-built binaries. These can be manually downloaded and configured, but automated installation scripts are provided and recommended.
 
+See the full [installation instructions](./docs/installation.md) for additional options for installing `gdenv`.
+
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
-#### **Linux/MacOS — `sh` (recommended)**
-
-> ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use these instructions instead of [Windows (powershell)](#windows--powershell-recommended).
+#### **Linux/MacOS — `sh`**
 
 ```sh
 curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | sh
 ```
 
-#### **Windows — `powershell` (recommended)**
+#### **Windows - Git BASH for Windows**
+
+> ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use the [Linux/MacOS instructions](#linuxmacos--sh).
+
+#### **Windows — `powershell`**
 
 > ❕ **NOTE:** In order to run scripts in PowerShell, the [execution policy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) must _not_ be `Restricted`. Consider running the following command
 > if you encounter `UnauthorizedAccess` errors when following these instructions. See [Set-ExecutionPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy) documentation for details.
@@ -61,46 +59,20 @@ Invoke-WebRequest `
     &"./scripts/install-gdenv.ps1"
 ```
 
-#### **Manual (not recommended)**
-
-> ❕ **NOTE:** The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _PowerShell_, the process will be similar.
-
-1. Download a prebuilt binary from the corresponding GitHub release.
-
-    ```sh
-    # Set '$VERSION', '$OS', and '$ARCH' to the desired values.
-    VERSION=0.0.0 OS=linux ARCH=x86_64; \
-    curl -LO https://github.com/coffeebeats/gdenv/releases/download/v$VERSION/gdenv-$VERSION-$OS-$ARCH.tar.gz
-    ```
-
-2. Extract the downloaded archive.
-
-    ```sh
-    # Set '$GDENV_HOME' to the desired location.
-    GDENV_HOME=$HOME/.gdenv; \
-    mkdir -p $GDENV_HOME/bin && \
-    tar -C $GDENV_HOME/bin -xf gdenv-$VERSION-$OS-$ARCH.tar.gz
-    ```
-
-3. Export the `$GDENV_HOME` variable and add `$GDENV_HOME/bin` to `$PATH`.
-
-    ```sh
-    # In '.bashrc', or something similar ('$GDENV_HOME' can be customized).
-    export GDENV_HOME="$HOME/.gdenv"
-    export PATH="$GDENV_HOME/bin:$PATH"
-    ```
-
-#### **Compile from source (not recommended)**
-
-`gdenv` is a Go project and can be installed using `go install`. This option is not recommended as it requires having the Go toolchain installed, it's slower than downloading a prebuilt binary, and there may be instability due to using a different version of Go than it was developed with.
-
-> NOTE: You will need to somehow set the installed `gdenv-shim` binary as your system's `godot` command (consider using a symbolic link). This is done automatically by the recommended installation methods listed above.
-
-```sh
-go install github.com/coffeebeats/gdenv/cmd/gdenv@latest
-```
-
 ## **Documentation**
+
+### Commands
+
+See [Commands](./docs/commands.md) for more explanation about how to use `gdenv`.
+
+- **[completions](./docs/commands.md#gdenv-completions)**
+- **[install](./docs/commands.md#gdenv-install)**
+- **[ls](./docs/commands.md#gdenv-lslist)**
+- **[pin](./docs/commands.md#gdenv-pin)**
+- **[uninstall](./docs/commands.md#gdenv-uninstall)**
+- **[unpin](./docs/commands.md#gdenv-unpin)**
+- **[vendor](./docs/commands.md#gdenv-vendor)**
+- **[which](./docs/commands.md#gdenv-which)**
 
 ### **How it works**
 
@@ -108,131 +80,23 @@ The `gdenv` application maintains a cache of downloaded _Godot_ executables (typ
 
 In order to track pinned versions of _Godot_, the `pin` subcommand will place a `.godot-version` file in the specified directory (or within `$GDENV_HOME` if pinning a global version with `-g`). This is what the `godot` shim will use to determine the correct _Godot_ version.
 
-### **gdenv `pin`**
+### Platform selection
 
-Sets the _Godot_ version globally or for a specific directory.
+By default `gdenv` will install _Godot_ executables for the host platform (i.e. the system `gdenv` is running on). To change which platform `gdenv` selections, the following environment variables can be set in front of any `gdenv` command:
 
-**Options:**
+> ❕ **NOTE:** These options are meant to circumvent incorrect platform detection by `gdenv` or facilitate installing different _Godot_ editor versions in a CI environment. Most users will not need to set these environment variables when using `gdenv` locally.
 
-- **`-g`**, **`--global`** — pin the system version (cannot be used with `-p`)
-- **`-i`**, **`--install`** — installs the specified version of _Godot_ if missing
-- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry (only used with `-i`)
-- **`-p`**, **`--path <PATH>`** — pin the specified path (cannot be used with `-g`)
-  - Default value: `$PWD` (current working directory)
+- `GDENV_OS` - set the target operating system (still uses the host's CPU architecture)
+- `GDENV_ARCH` - set the target CPU architecture (still uses the host's operating system)
+- `GDENV_PLATFORM` - set the literal string suffix of the _Godot_ editor (e.g. `macos.universal` or `win64`)
 
-**Arguments:**
+### Version selection (C#/_Mono_ support)
 
-- **`<VERSION>`** — the specific version string to install (must be exact)
-  - Example values:
-    - `3.5.1` (if missing, the label will default to `stable`)
-    - `4.0.4-stable`
-    - `4.2-beta2`
+`gdenv` considers _Mono_ variants of _Godot_ to be part of the version and not the platform. As such, to have `gdenv` install Mono builds of _Godot_ editors all version specifications should be suffixed with `stable_mono` (e.g. `gdenv pin 4.0-stable_mono` or `gdenv install 4.1.1-stable_mono`). Although `gdenv` normally assumes a `stable` release if the label is omitted, _Mono_ builds must be explicitly specified.
 
-### **gdenv `unpin`**
+However, to simplify use of `gdenv` when _Mono_ builds are desired, the following environment variable can be set to have `gdenv` default to using _Mono_ builds _when the version label is omitted_. A non-_Mono_ build can then be specified by passing a version label of `stable` without the `_mono` suffix.
 
-Removes a `Godot` version pin from the system or specified directory.
-
-**Options:**
-
-- **`-g`**, **`--global`** — unpin the system version (cannot be used with `-p`)
-- **`-p`**, **`--path <PATH>`** — unpin the specified path (cannot be used with `-g`)
-  - Default value: `$PWD` (current working directory)
-
-### **gdenv `install`**
-
-Downloads and caches a specific version of _Godot_.
-
-**Options:**
-
-- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry
-- **`-g`**, **`--global`** — pin the system version (cannot be used with `-p`)
-- **`-p`**, **`--path <PATH>`** — determine the version from the pinned `PATH` (ignores the global pin)
-- **`-s`**, **`--src`**, **`--source`** — install source code instead of an executable (cannot be used with `-g`)
-
-**Arguments:**
-
-- **`[VERSION]`** — the specific version string to install (must be exact)
-  - Default value: Resolves the pinned version at `$PWD` (ignoring the global pin)
-  - Example values:
-    - `3.5.1` (if missing, the label will default to `stable`)
-    - `4.0.4-stable`
-    - `4.2-beta2`
-
-### **gdenv `vendor`**
-
-Download the _Godot_ source code to the specified directory.
-
-**Options:**
-
-- **`-f`**, **`--force`** — forcibly overwrite an existing cache entry
-- **`-o`**, **`--out`** — download the source code into `OUT` (will overwrite conflicting files)
-  - Default value: `$PWD/./godot-<VERSION>`
-- **`-p`**, **`--path <PATH>`** — determine the version from the pinned `PATH` (ignores the global pin)
-  - Default value: `$PWD` (current working directory)
-
-**Arguments:**
-
-- **`[VERSION]`** — the specific version string to install (must be exact and cannot be used with `-p`)
-  - Default value: Resolves the pinned version at `$PWD` (ignoring the global pin)
-  - Example values:
-    - `3.5.1` (if missing, the label will default to `stable`)
-    - `4.0.4-stable`
-    - `4.2-beta2`
-
-### **gdenv `uninstall`**
-
-Removes the specified version of _Godot_ from the `gdenv` download cache.
-
-**Options:**
-
-- **`-a`**, **`--all`** — uninstall all versions of _Godot_ (ignores source code without `-s`)
-- **`-s`**, **`--src`**, **`--source`** — uninstall source code versions
-
-**Arguments:**
-
-- **`[VERSION]`** — the specific version string to install (must be exact; omit if using `-a`)
-  - Example values:
-    - `3.5.1` (if missing, the label will default to `stable`)
-    - `4.0.4-stable`
-    - `4.2-beta2`
-
-### **gdenv `ls`/`list`**
-
-Prints the path and version of all of the installed versions of _Godot_.
-
-**Options:**
-
-- **`-a`**, **`--all`** — list executable _and_ source code versions
-- **`-s`**, **`--src`**, **`--source`** — list source code versions
-
-### **gdenv `which`**
-
-Prints the path to the _Godot_ executable which would be used in the specified directory.
-
-**Options:**
-
-- **`-p`**, **`--path <PATH>`** — the specified path to check
-  - Default value: `$PWD` (current working directory)
-
-### **gdenv `completions`**
-
-> ⚠️ **WARNING:** This command is not yet implemented.
-
-Provides shell completions for the `gdenv` CLI application.
-
-**Options:**
-
-- **`-o`**, **`--output <OUT_FILE>`** — File to write the completions to
-  - Default value: `stdout`
-
-**Arguments:**
-
-- **`<SHELL>`** — the specific version string to install (must be exact)
-  - Supported values:
-    - `bash`
-    - `fish`
-    - `powershell`
-    - `zsh`
+- `GDENV_MONO_DEFAULT` - set to something truthy (e.g. `1`) to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`.
 
 ## **Development**
 
