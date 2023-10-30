@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 (2023-10-30)
+
+## What's Changed
+* feat: add support for tracking progress of installs and archive extraction by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/110
+* refactor(internal/godot/mirror): split `Mirror` interface into separate concerns by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/112
+* chore(deps): bump tj-actions/changed-files from 39 to 40 by @dependabot in https://github.com/coffeebeats/gdenv/pull/113
+* feat(pkg/godot,pkg/progress)!: make `godot` and `progress` packages public by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/114
+* fix(pkg/godot/version): ensure parsed integer has sufficient bit size by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/115
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.4.6...v0.5.0
+
 ## 0.4.6 (2023-10-28)
 
 ## What's Changed
