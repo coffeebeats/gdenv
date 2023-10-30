@@ -65,15 +65,6 @@ Invoke-WebRequest `
 
 See [Commands](./docs/commands.md) for more explanation about how to use `gdenv`.
 
-- **[completions](./docs/commands.md#gdenv-completions)**
-- **[install](./docs/commands.md#gdenv-install)**
-- **[ls](./docs/commands.md#gdenv-lslist)**
-- **[pin](./docs/commands.md#gdenv-pin)**
-- **[uninstall](./docs/commands.md#gdenv-uninstall)**
-- **[unpin](./docs/commands.md#gdenv-unpin)**
-- **[vendor](./docs/commands.md#gdenv-vendor)**
-- **[which](./docs/commands.md#gdenv-which)**
-
 ### **How it works**
 
 The `gdenv` application maintains a cache of downloaded _Godot_ executables (typically `$HOME/.gdenv`) and provides a shim which should be set to the system's `godot` executable. The shim will examine the current directory from which the `godot` command is invoked (handling a `--path` option as well) and delegate to the correct version of _Godot_.
@@ -84,7 +75,7 @@ In order to track pinned versions of _Godot_, the `pin` subcommand will place a 
 
 By default `gdenv` will install _Godot_ executables for the host platform (i.e. the system `gdenv` is running on). To change which platform `gdenv` selections, the following environment variables can be set in front of any `gdenv` command:
 
-> ❕ **NOTE:** These options are meant to circumvent incorrect platform detection by `gdenv` or facilitate installing different _Godot_ editor versions in a CI environment. Most users will not need to set these environment variables when using `gdenv` locally.
+> ❕ **NOTE:** These options are meant to circumvent incorrect platform detection by `gdenv` or facilitate installing different _Godot_ editor versions in a CI environment. Most users will not need to set these when using `gdenv` locally.
 
 - `GDENV_OS` - set the target operating system (still uses the host's CPU architecture)
 - `GDENV_ARCH` - set the target CPU architecture (still uses the host's operating system)
@@ -96,7 +87,7 @@ By default `gdenv` will install _Godot_ executables for the host platform (i.e. 
 
 However, to simplify use of `gdenv` when _Mono_ builds are desired, the following environment variable can be set to have `gdenv` default to using _Mono_ builds _when the version label is omitted_. A non-_Mono_ build can then be specified by passing a version label of `stable` without the `_mono` suffix.
 
-- `GDENV_MONO_DEFAULT` - set to something truthy (e.g. `1`) to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`.
+- `GDENV_MONO_DEFAULT` - set to something truthy (e.g. `1`) to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`
 
 ## **Development**
 
@@ -104,7 +95,7 @@ The following instructions outline how to get the project set up for local devel
 
 1. [Follow the instructions](https://go.dev/doc/install) to install Go (see [go.mod](./go.mod) for the minimum required version).
 2. Clone the [coffeebeats/gdenv](https://github.com/coffeebeats/gdenv) repository.
-3. Install the [required tools](./tools.go) using the following command:
+3. Install the [required tools](./tools.go) [using the following command](https://www.alexedwards.net/blog/using-go-run-to-manage-tool-dependencies):
 
     ```sh
     cat tools.go | grep _ | grep -v '//' | awk -F'"' '{print $2}' | xargs -tI % go install %
