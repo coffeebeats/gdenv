@@ -38,7 +38,7 @@ func checkIsDirectory(path string) error {
 // reporter extracted from the context using the provided key.
 func downloadArtifact[T artifact.Artifact](
 	ctx context.Context,
-	c client.Client,
+	c *client.Client,
 	a artifact.Remote[T],
 	out string,
 	progressKey any,
