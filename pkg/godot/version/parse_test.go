@@ -3,7 +3,9 @@ package version
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 	"testing"
 	"unicode"
 )
@@ -134,4 +136,33 @@ func TestParse(t *testing.T) {
 			}
 		})
 	}
+}
+
+/* -------------------- Function: TestParseInvalidNumber -------------------- */
+
+func TestParseInvalidNumber(t *testing.T) {
+	tests := []struct {
+		input string
+
+		want Version
+		err  error
+	}{
+		{input: "v1." + strconv.FormatUint(math.MaxUint64, 10), err: ErrInvalidNumber},
+		{input: "v1." + strconv.FormatInt(math.MinInt64, 10), err: ErrInvalid},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.input, func(t *testing.T) {
+			got, err := Parse(tc.input)
+
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %#v, want %#v", err, tc.err)
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+
 }

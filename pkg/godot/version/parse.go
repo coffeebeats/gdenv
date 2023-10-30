@@ -3,6 +3,7 @@ package version
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -113,8 +114,8 @@ func parseNormalVersion(input string) ([3]int, error) {
 	}
 
 	for i, version := range parts { //nolint:varnamelen
-		n, err := strconv.ParseUint(version, 10, 0)
-		if err != nil {
+		n, err := strconv.ParseUint(version, 10, strconv.IntSize)
+		if err != nil || n > math.MaxInt {
 			return out, fmt.Errorf("%w: '%s'", ErrInvalidNumber, version)
 		}
 
