@@ -18,6 +18,7 @@ import (
 var (
 	ErrInvalidSpecification = errors.New("invalid specification")
 	ErrInvalidURL           = errors.New("invalid URL")
+	ErrMissingMirrors       = errors.New("no mirrors provided")
 	ErrNotFound             = errors.New("no mirror found")
 	ErrNotSupported         = errors.New("mirror not supported")
 )
@@ -79,6 +80,10 @@ func Select( //nolint:ireturn
 	p platform.Platform,
 	mirrors []Mirror,
 ) (Mirror, error) {
+	if len(mirrors) == 0 {
+		return nil, ErrMissingMirrors
+	}
+
 	eg, ctx := errgroup.WithContext(ctx)
 
 	ctx, cancel := context.WithCancel(ctx)
