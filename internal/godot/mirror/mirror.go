@@ -23,6 +23,9 @@ var (
 	ErrNotSupported         = errors.New("mirror not supported")
 )
 
+// clientKey is a context key used internally to replace the REST client used.
+type clientKey struct{}
+
 /* -------------------------------------------------------------------------- */
 /*                              Interface: Mirror                             */
 /* -------------------------------------------------------------------------- */
@@ -153,7 +156,14 @@ func checkIfExists(
 		return false, err
 	}
 
-	c := client.NewWithRedirectDomains(m.Domains()...)
+	// NOTE: It would be cleaner to expose this as an actual dependency, as an
+	// HTTP client *is* required. However, the internal 'client.Client'
+	// implementation is opinionated and not ready to be exposed yet as a public
+	// type. For now, this simply allows tests to inject a client.
+	c, ok := ctx.Value(clientKey{}).(*client.Client)
+	if !ok || c == nil {
+		c = client.NewWithRedirectDomains(m.Domains()...)
+	}
 
 	exists, err := c.Exists(ctx, remote.URL.String())
 	if err != nil {
