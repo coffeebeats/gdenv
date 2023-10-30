@@ -3,7 +3,7 @@ package mirror
 import (
 	"context"
 	"errors"
-	"fmt"
+	"slices"
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/internal/godot/artifact"
@@ -68,15 +68,16 @@ type Source interface {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              Function: Choose                              */
+/*                              Function: Select                              */
 /* -------------------------------------------------------------------------- */
 
-// Choose selects the best 'Mirror' for downloading assets for the specified
-// version and platform of Godot.
-func Choose( //nolint:cyclop,funlen,ireturn
+// Select chooses the best 'Mirror' of those provided for downloading assets
+// corresponding to the specified version and platform of Godot.
+func Select( //nolint:ireturn
 	ctx context.Context,
 	v version.Version,
 	p platform.Platform,
+	mirrors []Mirror,
 ) (Mirror, error) {
 	eg, ctx := errgroup.WithContext(ctx)
 
@@ -90,76 +91,40 @@ func Choose( //nolint:cyclop,funlen,ireturn
 
 	selected := make(chan Mirror)
 
-	// Check if 'GitHub' supports the specified version.
-	eg.Go(func() error {
-		// NOTE: Use a zero value to avoid initializing a client before necessary.
-		if !(GitHub{}).Supports(v) {
+	for _, m := range mirrors {
+		executableMirror, ok := m.(Executable)
+		if !ok || executableMirror == nil {
+			continue
+		}
+
+		eg.Go(func() error {
+			ok, err := checkIfExists(ctx, executableMirror, v, p)
+			if err != nil {
+				return err
+			}
+
+			if !ok {
+				return nil
+			}
+
+			select {
+			case selected <- executableMirror:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+
 			return nil
-		}
-
-		m := GitHub{}
-		ok, err := checkIfExists(ctx, m, v, p)
-		if err != nil {
-			return err
-		}
-
-		if !ok {
-			return nil
-		}
-
-		select {
-		case selected <- m:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-
-		return nil
-	})
-
-	// Check if 'TuxFamily' supports the specified version.
-	eg.Go(func() error {
-		// NOTE: Use a zero value to avoid initializing a client before necessary.
-		if !(TuxFamily{}).Supports(v) {
-			return nil
-		}
-
-		m := TuxFamily{}
-		ok, err := checkIfExists(ctx, m, v, p)
-		if err != nil {
-			return err
-		}
-
-		if !ok {
-			return nil
-		}
-
-		select {
-		case selected <- m:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-
-		return nil
-	})
+		})
+	}
 
 	go func() {
 		eg.Wait() //nolint:errcheck
 		close(selected)
 	}()
 
-	var out Mirror
-
-	for m := range selected {
-		// Take GitHub immediately if it's valid because it has great speeds.
-		if m, ok := m.(GitHub); ok {
-			return m, nil
-		}
-
-		out = m
-	}
-
-	if out == nil {
-		return nil, fmt.Errorf("%w: version '%s'", ErrNotFound, v)
+	out, err := chooseBest(selected, mirrors)
+	if err != nil {
+		return nil, err
 	}
 
 	return out, eg.Wait()
@@ -191,4 +156,28 @@ func checkIfExists(
 	}
 
 	return exists, nil
+}
+
+/* -------------------------- Function: chooseBest -------------------------- */
+
+// chooseBest selects the best mirror from those available. The lowest indexed
+// 'Mirror' in 'ranking' will be returned. If none are available an error is
+// returned.
+func chooseBest(available <-chan Mirror, ranking []Mirror) (Mirror, error) { //nolint:ireturn
+	out, index := Mirror(nil), len(ranking)
+
+	for m := range available {
+		// Rank mirrors according to order in 'mirrors'.
+		i := slices.Index(ranking, m)
+		if i <= index {
+			out = m
+			index = i
+		}
+	}
+
+	if out == nil {
+		return nil, ErrNotFound
+	}
+
+	return out, nil
 }

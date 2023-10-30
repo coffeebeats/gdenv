@@ -24,7 +24,7 @@ import (
 
 // Downloads and caches a platform-specific version of Godot.
 func Executable(ctx context.Context, storePath string, ex executable.Executable) error {
-	m, err := mirror.Choose(ctx, ex.Version(), ex.Platform())
+	m, err := mirror.Select(ctx, ex.Version(), ex.Platform(), availableMirrors())
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 	// arbitrary artifact. For now, select a platform that will certainly exist.
 	p := platform.Platform{Arch: platform.Amd64, OS: platform.Windows}
 
-	m, err := mirror.Choose(ctx, src.Version(), p)
+	m, err := mirror.Select(ctx, src.Version(), p, availableMirrors())
 	if err != nil {
 		return err
 	}
@@ -114,4 +114,12 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 			Path:     localSourceArchive.Path,
 		},
 	)
+}
+
+/* ----------------------- Function: availableMirrors ----------------------- */
+
+// availableMirrors returns the list of possible 'Mirror' hosts to use for
+// downloads.
+func availableMirrors() []mirror.Mirror {
+	return []mirror.Mirror{mirror.GitHub{}, mirror.TuxFamily{}}
 }
