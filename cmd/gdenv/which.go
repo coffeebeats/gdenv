@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/charmbracelet/log"
-	"github.com/coffeebeats/gdenv/internal/godot/platform"
+	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/urfave/cli/v2"
 )
