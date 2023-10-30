@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/coffeebeats/gdenv/internal/client"
-	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
 /* -------------------------------------------------------------------------- */

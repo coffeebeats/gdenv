@@ -9,7 +9,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/fstest"
 	"github.com/coffeebeats/gdenv/internal/osutil"
-	"github.com/coffeebeats/gdenv/internal/progress"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
 /* ------------------------ Function: TestZipExtract ------------------------ */

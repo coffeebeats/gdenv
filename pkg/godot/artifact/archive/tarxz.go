@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
-	"github.com/coffeebeats/gdenv/internal/progress"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 	"github.com/ulikunitz/xz"
 )
 

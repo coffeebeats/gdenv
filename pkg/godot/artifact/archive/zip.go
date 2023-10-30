@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
-	"github.com/coffeebeats/gdenv/internal/progress"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
 const extensionZip = ".zip"

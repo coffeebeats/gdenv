@@ -9,8 +9,8 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/ioutil"
 	"github.com/coffeebeats/gdenv/internal/osutil"
-	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
 // Only write to 'out'; create a new file/overwrite an existing.

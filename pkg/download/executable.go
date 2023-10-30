@@ -7,12 +7,12 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/internal/client"
-	"github.com/coffeebeats/gdenv/internal/progress"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/mirror"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 	"golang.org/x/sync/errgroup"
 )
 

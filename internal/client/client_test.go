@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/progress"
+	"github.com/coffeebeats/gdenv/pkg/progress"
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 )
