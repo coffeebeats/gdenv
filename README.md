@@ -129,7 +129,7 @@ When submitting code for review, ensure the following requirements are met:
 
 ## **Contributing**
 
-All contributions are welcome! Feel free to file [bugs](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md&title=) and [feature requests](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=enhancement&projects=&template=%F0%9F%99%8B-feature-request.md&title=) and/or open pull requests.
+All contributions are welcome! Feel free to file [bugs](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=bug-report.md&title=) and [feature requests](https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=enhancement&projects=&template=feature-request.md&title=) and/or open pull requests.
 
 ## **Version history**
 
