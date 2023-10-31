@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.2 (2023-10-31)
+
+## What's Changed
+* feat(pkg/godot/version): add `GDENV_DEFAULT_MONO` to simplify Mono usage; improve `gdenv` version resolution logic by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/120
+* chore(deps): bump github.com/docker/docker from 24.0.2+incompatible to 24.0.7+incompatible by @dependabot in https://github.com/coffeebeats/gdenv/pull/119
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.5.1...v0.5.2
+
 ## 0.5.1 (2023-10-30)
 
 ## What's Changed
