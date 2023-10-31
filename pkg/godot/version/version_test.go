@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -53,44 +54,60 @@ func TestVersionNormal(t *testing.T) {
 /* -------------------------- Test: Version.String -------------------------- */
 
 func TestVersionString(t *testing.T) {
-	testLabel := "label"
+	for _, isDefaultMono := range []bool{true, false} {
+		t.Run(fmt.Sprintf("isDefaultMono: %t", isDefaultMono), func(t *testing.T) {
+			if isDefaultMono {
+				t.Setenv(EnvDefaultMono, strconv.FormatBool(isDefaultMono))
+			}
 
-	tests := []struct {
-		v    Version
-		want string
-	}{
-		// Default value
-		{Version{}, "v0.0-" + LabelDefault},
+			testLabel, labelDefault := "test-label", LabelDefault()
 
-		// Default label
-		{Version{major: 1}, "v1.0-" + LabelDefault},
-		{Version{major: 1, minor: 1}, "v1.1-" + LabelDefault},
-		{Version{major: 1, minor: 1, patch: 1}, "v1.1.1-" + LabelDefault},
+			if isDefaultMono && labelDefault != LabelMono {
+				t.Errorf("output: got %v, want %v", labelDefault, LabelMono)
+			}
 
-		{Version{minor: 1}, "v0.1-" + LabelDefault},
-		{Version{minor: 1, patch: 1}, "v0.1.1-" + LabelDefault},
+			if !isDefaultMono && labelDefault != LabelStable {
+				t.Errorf("output: got %v, want %v", labelDefault, LabelStable)
+			}
 
-		{Version{patch: 1}, "v0.0.1-" + LabelDefault},
+			tests := []struct {
+				v    Version
+				want string
+			}{
+				// Default value
+				{Version{}, "v0.0-" + labelDefault},
 
-		// Specific label
-		{Version{label: testLabel}, "v0.0-" + testLabel},
+				// Default label
+				{Version{major: 1}, "v1.0-" + labelDefault},
+				{Version{major: 1, minor: 1}, "v1.1-" + labelDefault},
+				{Version{major: 1, minor: 1, patch: 1}, "v1.1.1-" + labelDefault},
 
-		{Version{major: 1, label: testLabel}, "v1.0-" + testLabel},
-		{Version{major: 1, minor: 1, label: testLabel}, "v1.1-" + testLabel},
-		{Version{major: 1, minor: 1, patch: 1, label: testLabel}, "v1.1.1-" + testLabel},
+				{Version{minor: 1}, "v0.1-" + labelDefault},
+				{Version{minor: 1, patch: 1}, "v0.1.1-" + labelDefault},
 
-		{Version{minor: 1, label: testLabel}, "v0.1-" + testLabel},
-		{Version{minor: 1, patch: 1, label: testLabel}, "v0.1.1-" + testLabel},
+				{Version{patch: 1}, "v0.0.1-" + labelDefault},
 
-		{Version{patch: 1, label: testLabel}, "v0.0.1-" + testLabel},
-	}
+				// Specific label
+				{Version{label: testLabel}, "v0.0-" + testLabel},
 
-	for i, tc := range tests {
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			got := tc.v.String()
+				{Version{major: 1, label: testLabel}, "v1.0-" + testLabel},
+				{Version{major: 1, minor: 1, label: testLabel}, "v1.1-" + testLabel},
+				{Version{major: 1, minor: 1, patch: 1, label: testLabel}, "v1.1.1-" + testLabel},
 
-			if got != tc.want {
-				t.Errorf("output: got %#v, want %#v", got, tc.want)
+				{Version{minor: 1, label: testLabel}, "v0.1-" + testLabel},
+				{Version{minor: 1, patch: 1, label: testLabel}, "v0.1.1-" + testLabel},
+
+				{Version{patch: 1, label: testLabel}, "v0.0.1-" + testLabel},
+			}
+
+			for i, tc := range tests {
+				t.Run(fmt.Sprint(i), func(t *testing.T) {
+					got := tc.v.String()
+
+					if got != tc.want {
+						t.Errorf("output: got %#v, want %#v", got, tc.want)
+					}
+				})
 			}
 		})
 	}
