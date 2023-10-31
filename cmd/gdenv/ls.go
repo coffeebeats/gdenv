@@ -45,6 +45,8 @@ func NewLs() *cli.Command {
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			src, all := c.Bool("source"), c.Bool("all")
 
 			if !src {

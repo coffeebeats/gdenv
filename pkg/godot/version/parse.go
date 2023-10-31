@@ -48,7 +48,7 @@ func Parse(input string) (Version, error) {
 		return version, err
 	}
 
-	if label == LabelDefault {
+	if label == LabelDefault() {
 		label = ""
 	}
 

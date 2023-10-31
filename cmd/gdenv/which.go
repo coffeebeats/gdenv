@@ -20,7 +20,7 @@ func NewWhich() *cli.Command {
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "Check the specified `PATH`",
+				Usage:   "check at the specified `PATH`",
 			},
 		},
 
@@ -36,6 +36,8 @@ func NewWhich() *cli.Command {
 			if err != nil {
 				return err
 			}
+
+			log.Debugf("using store at path: %s", storePath)
 
 			// Define the host 'Platform'.
 			p, err := platform.Detect()

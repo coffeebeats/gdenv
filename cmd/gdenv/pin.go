@@ -36,7 +36,7 @@ func NewPin() *cli.Command { //nolint:funlen
 			&cli.BoolFlag{
 				Name:    "install",
 				Aliases: []string{"i"},
-				Usage:   "installs the specified version of Godot if missing",
+				Usage:   "install the specified version of Godot if missing",
 			},
 			&cli.BoolFlag{
 				Name:    "force",
@@ -70,6 +70,8 @@ func NewPin() *cli.Command { //nolint:funlen
 			if err != nil {
 				return err
 			}
+
+			log.Debugf("using store at path: %s", storePath)
 
 			// Determine 'path' option
 			pinPath, err := resolvePath(c)
