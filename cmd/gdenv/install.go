@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
@@ -66,7 +65,7 @@ func NewInstall() *cli.Command { //nolint:funlen
 				return UsageError{ctx: c, err: ErrInstallUsageGlobalAndSource}
 			}
 
-			v, err := resolveVersionFromArgOrPath(c)
+			v, err := resolveVersionFromInput(c)
 			if err != nil {
 				return err
 			}
@@ -180,11 +179,25 @@ func installSource(
 	return nil
 }
 
-/* ------------------ Function: resolveVersionFromArgOrPath ----------------- */
+/* -------------------- Function: resolveVersionFromInput ------------------- */
 
-// Parses command arguments and reads pin files to determine the correct version
-// of Godot to use.
-func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
+// Parses command arguments and environment variables and reads pin files to
+// determine the correct version of Godot to use.
+//
+// There are four distinct situations which need to be handled. These are listed
+// below along with their desired resolution:
+//  1. An explicit version is passed in (e.g. `install <version>`)
+//     > The explicitly specified version is returned.
+//  2. No version is passed, but the '-g' flag is used (e.g. `install -g`)
+//     > The globally pinned version is returned.
+//  3. No version is passed, but the '-p' flag is used (e.g. `install --path <path>`)
+//     > The pinned version is resolved _at the provided path_.
+//  4. No version is passed and no other flag is passed (e.g. `install`)
+//     > The pinned version is resolved _in the current working directory_.
+//
+// For 3. and 4., both of which require pin resolution, the standard resolution
+// strategy of checking for a local pin and then a global is used.
+func resolveVersionFromInput(c *cli.Context) (version.Version, error) {
 	versionArg := c.Args().First()
 
 	v, err := version.Parse(versionArg)
@@ -196,20 +209,27 @@ func resolveVersionFromArgOrPath(c *cli.Context) (version.Version, error) {
 		return v, nil
 	}
 
-	path := filepath.Clean(c.String("path"))
-	if path == "" {
-		path, err = os.Getwd() // Update 'path' value.
-		if err != nil {
-			return version.Version{}, err
-		}
+	storePath, err := store.Path()
+	if err != nil {
+		return version.Version{}, err
 	}
 
-	// NOTE: Omit store path to avoid resolving the global pin version.
-	v, err = pin.VersionAt(c.Context, "", path) // Update 'v' value.
+	// If '-g' is passed then _only_ the globally-pinned version should be
+	// returned. Prior validation should have already ensured '-p' was not
+	// simultaneously set.
+	if c.IsSet("global") && c.Bool("global") {
+		return pin.Read(storePath)
+	}
+
+	// NOTE: 'filepath.Clean' will replace '' with '.', handling cases 3. and 4.
+	// simultaneously.
+	path := filepath.Clean(c.String("path"))
+
+	v, err = pin.VersionAt(c.Context, storePath, path) // Update 'v' value.
 	if err != nil {
-		// Return an error that communicates the root problem and hides the
-		// storePath="" hack from above.
-		if errors.Is(err, pin.ErrMissingPath) {
+		// Return an error that communicates the root problem and hides any
+		// attempted global pin resolution.
+		if errors.Is(err, pin.ErrMissingPath) || errors.Is(err, pin.ErrMissingPin) {
 			return version.Version{}, fmt.Errorf("%w: %s", pin.ErrMissingPin, path)
 		}
 

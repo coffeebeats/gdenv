@@ -42,12 +42,12 @@ func NewVendor() *cli.Command {
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "determine the version from the pinned `PATH` (ignores the global pin)",
+				Usage:   "determine the version from the pinned `PATH`",
 			},
 		},
 
 		Action: func(c *cli.Context) error {
-			v, err := resolveVersionFromArgOrPath(c)
+			v, err := resolveVersionFromInput(c)
 			if err != nil {
 				return err
 			}
