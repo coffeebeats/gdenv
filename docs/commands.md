@@ -23,7 +23,7 @@ Print shell completions for the `gdenv` CLI application.
 
 ### Options
 
-- `-o`, `--output <OUT_FILE>` — file to write the completions to
+- `-o`, `--output <OUT_FILE>` — write the completions to `OUT_FILE`
   - Default value: `stdout`
 
 ### Arguments
@@ -53,7 +53,7 @@ Download and cache a specific version of _Godot_. If `VERSION` is omitted then t
 ### Arguments
 
 - `[VERSION]` — the specific version string to install (must be exact)
-  - Default value: Resolves the pinned version using `-g`, `-p`, or `$PWD` (if `-p` and `-g` omitted)
+  - Default value: resolve the pinned version using `-g`, `-p`, or, if `-p` and `-g` omitted, `$PWD`
   - Example values:
     - `3.5.1` (if missing, the label will default to `stable`)
     - `4.0.4-stable`
@@ -150,7 +150,7 @@ Download the _Godot_ source code to the specified directory.
 ### Arguments
 
 - `[VERSION]` — the specific version string to install (must be exact and cannot be used with `-p`)
-  - Default value: Resolves the pinned version at `$PWD`
+  - Default value: resolve the pinned version at `$PWD`
   - Example values:
     - `3.5.1` (if missing, the label will default to `stable`)
     - `4.0.4-stable`

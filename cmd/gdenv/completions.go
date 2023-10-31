@@ -17,7 +17,7 @@ func NewCompletions() *cli.Command {
 			&cli.StringFlag{
 				Name:    "output",
 				Aliases: []string{"p"},
-				Usage:   "file to write the completions to",
+				Usage:   "write the completions to 'OUT_FILE'",
 			},
 		},
 
