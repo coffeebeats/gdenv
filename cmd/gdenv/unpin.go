@@ -27,7 +27,7 @@ func NewUnpin() *cli.Command {
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "unpin the specified `PATH` (cannot be used with '-g')",
+				Usage:   "unpin the specified 'PATH' (cannot be used with '-g')",
 			},
 		},
 

@@ -20,7 +20,7 @@ func NewWhich() *cli.Command {
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "Check the specified `PATH`",
+				Usage:   "check at the specified `PATH`",
 			},
 		},
 

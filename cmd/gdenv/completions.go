@@ -10,14 +10,14 @@ func NewCompletions() *cli.Command {
 		Name:     "completions",
 		Category: "Utilities",
 
-		Usage:     "print shell completions for the gdenv CLI application",
+		Usage:     "print shell completions for the 'gdenv' CLI application",
 		UsageText: "gdenv completions [OPTIONS] <SHELL>",
 
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "output",
 				Aliases: []string{"p"},
-				Usage:   "Write the completions to `OUT_FILE`",
+				Usage:   "file to write the completions to",
 			},
 		},
 

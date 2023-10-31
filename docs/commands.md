@@ -15,15 +15,15 @@
 
 > ⚠️ **WARNING:** This command is not yet implemented.
 
-Provides shell completions for the `gdenv` CLI application.
+Print shell completions for the `gdenv` CLI application.
 
 ### Usage
 
-`gdenv completions [OPTIONS] [SHELL]`
+`gdenv completions [OPTIONS] <SHELL>`
 
 ### Options
 
-- `-o`, `--output <OUT_FILE>` — File to write the completions to
+- `-o`, `--output <OUT_FILE>` — file to write the completions to
   - Default value: `stdout`
 
 ### Arguments
@@ -37,7 +37,7 @@ Provides shell completions for the `gdenv` CLI application.
 
 ## **gdenv `install`**
 
-Downloads and caches a specific version of _Godot_. If `VERSION` is omitted then the version is resolved using `-g`, `-p`, or `$PWD`.
+Download and cache a specific version of _Godot_. If `VERSION` is omitted then the version is resolved using `-g`, `-p`, or `$PWD`.
 
 ### Usage
 
@@ -61,7 +61,7 @@ Downloads and caches a specific version of _Godot_. If `VERSION` is omitted then
 
 ## **gdenv `ls`/`list`**
 
-Prints the path and version of all of the installed versions of _Godot_.
+Print the path and version of all of the installed versions of _Godot_.
 
 ### Usage
 
@@ -74,7 +74,7 @@ Prints the path and version of all of the installed versions of _Godot_.
 
 ## **gdenv `pin`**
 
-Sets the _Godot_ version globally or for a specific directory.
+Set the _Godot_ version globally or for a specific directory.
 
 ### Usage
 
@@ -83,7 +83,7 @@ Sets the _Godot_ version globally or for a specific directory.
 ### Options
 
 - `-g`, `--global` — pin the system version (cannot be used with `-p`)
-- `-i`, `--install` — installs the specified version of _Godot_ if missing
+- `-i`, `--install` — install the specified version of _Godot_ if missing
 - `-f`, `--force` — forcibly overwrite an existing cache entry (only used with `-i`)
 - `-p`, `--path <PATH>` — pin the specified path (cannot be used with `-g`)
   - Default value: `$PWD` (current working directory)
@@ -98,7 +98,7 @@ Sets the _Godot_ version globally or for a specific directory.
 
 ## **gdenv `uninstall`**
 
-Removes the specified version of _Godot_ from the `gdenv` download cache.
+Remove the specified version of _Godot_ from the `gdenv` download cache.
 
 ### Usage
 
@@ -119,7 +119,7 @@ Removes the specified version of _Godot_ from the `gdenv` download cache.
 
 ## **gdenv `unpin`**
 
-Removes a `Godot` version pin from the system or specified directory.
+Remove a `Godot` version pin from the system or specified directory.
 
 ### Usage
 
@@ -128,7 +128,7 @@ Removes a `Godot` version pin from the system or specified directory.
 ### Options
 
 - `-g`, `--global` — unpin the system version (cannot be used with `-p`)
-- `-p`, `--path <PATH>` — unpin the specified path (cannot be used with `-g`)
+- `-p`, `--path <PATH>` — unpin the specified `PATH` (cannot be used with `-g`)
   - Default value: `$PWD` (current working directory)
 
 ## **gdenv `vendor`**
@@ -142,7 +142,7 @@ Download the _Godot_ source code to the specified directory.
 ### Options
 
 - `-f`, `--force` — forcibly overwrite an existing cache entry
-- `-o`, `--out <OUT_DIR>` — directory to extract the source code into (overwrites conflicting files)
+- `-o`, `--out <OUT_DIR>` — extract the source code into `OUT` (overwrites conflicting files)
   - Default value: `$PWD/godot-<VERSION>`
 - `-p`, `--path <PATH>` — resolve the pinned `VERSION` at `PATH`
   - Default value: `$PWD` (current working directory)
@@ -158,7 +158,7 @@ Download the _Godot_ source code to the specified directory.
 
 ## **gdenv `which`**
 
-Prints the path to the _Godot_ executable which would be used in the specified directory.
+Print the path to the _Godot_ executable which would be used in the specified directory.
 
 ### Usage
 
@@ -166,5 +166,5 @@ Prints the path to the _Godot_ executable which would be used in the specified d
 
 ### Options
 
-- `-p`, `--path <PATH>` — the specified path to check
+- `-p`, `--path <PATH>` — check at the specified `PATH`
   - Default value: `$PWD` (current working directory)

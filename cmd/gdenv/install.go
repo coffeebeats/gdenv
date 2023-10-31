@@ -30,7 +30,8 @@ func NewInstall() *cli.Command { //nolint:funlen
 
 		Aliases: []string{"i"},
 
-		Usage:     "download and cache a specific version of Godot",
+		Usage: "download and cache a specific version of Godot; " +
+			"if 'VERSION' is omitted then the version is resolved using '-g', '-p', or '$PWD'",
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
@@ -42,12 +43,12 @@ func NewInstall() *cli.Command { //nolint:funlen
 			&cli.BoolFlag{
 				Name:    "global",
 				Aliases: []string{"g"},
-				Usage:   "pin the system version",
+				Usage:   "update the global pin (if 'VERSION' is specified) or resolve 'VERSION' from the global pin",
 			},
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "determine the version from the pinned `PATH` (cannot be used with '-g')",
+				Usage:   "resolve the pinned 'VERSION' at 'PATH'",
 			},
 			&cli.BoolFlag{
 				Name:    "source",

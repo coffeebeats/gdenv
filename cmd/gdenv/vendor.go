@@ -37,12 +37,12 @@ func NewVendor() *cli.Command {
 			&cli.StringFlag{
 				Name:    "out",
 				Aliases: []string{"o"},
-				Usage:   "download the source code into `OUT` (will overwrite conflicting files)",
+				Usage:   "extract the source code into 'OUT' (overwrites conflicting files)",
 			},
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "determine the version from the pinned `PATH`",
+				Usage:   "resolve the pinned 'VERSION' at 'PATH'",
 			},
 		},
 
