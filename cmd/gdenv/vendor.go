@@ -37,17 +37,17 @@ func NewVendor() *cli.Command {
 			&cli.StringFlag{
 				Name:    "out",
 				Aliases: []string{"o"},
-				Usage:   "download the source code into `OUT` (will overwrite conflicting files)",
+				Usage:   "extract the source code into 'OUT' (overwrites conflicting files)",
 			},
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},
-				Usage:   "determine the version from the pinned `PATH` (ignores the global pin)",
+				Usage:   "resolve the pinned 'VERSION' at 'PATH'",
 			},
 		},
 
 		Action: func(c *cli.Context) error {
-			v, err := resolveVersionFromArgOrPath(c)
+			v, err := resolveVersionFromInput(c)
 			if err != nil {
 				return err
 			}
@@ -56,6 +56,8 @@ func NewVendor() *cli.Command {
 			if err != nil {
 				return err
 			}
+
+			log.Debugf("using store at path: %s", storePath)
 
 			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
 				return err

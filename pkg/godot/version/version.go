@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -9,14 +10,15 @@ import (
 )
 
 const (
+	EnvDefaultMono = "GDENV_DEFAULT_MONO"
+
 	Prefix                     = "v"
 	SeparatorBuildMetadata     = "+" // https://semver.org/#spec-item-10
 	SeparatorPreReleaseVersion = "-" // https://semver.org/#spec-item-9
 
-	LabelDefault = LabelStable
-	LabelMono    = LabelStable + "_" + Mono
-	LabelStable  = "stable"
-	Mono         = "mono"
+	LabelMono   = LabelStable + "_" + Mono
+	LabelStable = "stable"
+	Mono        = "mono"
 )
 
 /* -------------------------------------------------------------------------- */
@@ -31,6 +33,17 @@ func Godot3() Version {
 // Returns a 'Version' struct for Godot v4.
 func Godot4() Version {
 	return Version{major: 4} //nolint:exhaustruct,gomnd
+}
+
+// Returns the default version label. Set 'GDENV_DEFAULT_MONO' to a boolean
+// value to switch between 'stable' and 'stable_mono' default version labels.
+func LabelDefault() string {
+	isDefaultMono, err := strconv.ParseBool(os.Getenv(EnvDefaultMono))
+	if err != nil || !isDefaultMono {
+		return LabelStable
+	}
+
+	return LabelMono
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,7 +101,7 @@ func (v Version) Patch() int {
 // Returns the version label or a default if not defined.
 func (v Version) Label() string {
 	if v.label == "" {
-		return LabelDefault
+		return LabelDefault()
 	}
 
 	return v.label

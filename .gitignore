@@ -25,3 +25,4 @@ dist
 
 # gdenv-related ignores
 .gdenv
+.godot-version
