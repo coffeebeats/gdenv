@@ -87,7 +87,7 @@ By default `gdenv` will install _Godot_ executables for the host platform (i.e. 
 
 However, to simplify use of `gdenv` when _Mono_ builds are desired, the following environment variable can be set to have `gdenv` default to using _Mono_ builds _when the version label is omitted_. A non-_Mono_ build can then be specified by passing a version label of `stable` without the `_mono` suffix.
 
-- **`GDENV_MONO_DEFAULT`** - set to something truthy (e.g. `1`) to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`
+- **`GDENV_DEFAULT_MONO`** - set to `1` to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`
 
 ## **Development**
 
