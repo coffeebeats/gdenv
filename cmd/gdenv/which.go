@@ -37,6 +37,8 @@ func NewWhich() *cli.Command {
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			// Define the host 'Platform'.
 			p, err := platform.Detect()
 			if err != nil {

@@ -71,6 +71,8 @@ func NewPin() *cli.Command { //nolint:funlen
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			// Determine 'path' option
 			pinPath, err := resolvePath(c)
 			if err != nil {

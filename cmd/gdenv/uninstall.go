@@ -40,6 +40,8 @@ func NewUninstall() *cli.Command {
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			src, all := c.Bool("source"), c.Bool("all")
 
 			// Uninstall all versions.

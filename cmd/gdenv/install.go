@@ -76,6 +76,8 @@ func NewInstall() *cli.Command { //nolint:funlen
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			if c.Bool("source") {
 				return installSource(c.Context, storePath, v, c.Bool("force"))
 			}
@@ -226,8 +228,6 @@ func touchStore() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	log.Debugf("using store at path: %s", storePath)
 
 	// Ensure the store exists.
 	if err := store.Touch(storePath); err != nil {

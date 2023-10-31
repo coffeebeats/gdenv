@@ -57,6 +57,8 @@ func NewVendor() *cli.Command {
 				return err
 			}
 
+			log.Debugf("using store at path: %s", storePath)
+
 			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
 				return err
 			}
