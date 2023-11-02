@@ -95,8 +95,8 @@ func MustParse(input string) Version {
 //
 // NOTE: This implementation requires that there are *no* build or version
 // specifiers.
-func parseNormalVersion(input string) ([3]int, error) {
-	out := [3]int{0, 0, 0}
+func parseNormalVersion(input string) ([3]uint8, error) {
+	out := [3]uint8{0, 0, 0}
 
 	if !semver.IsValid(input) ||
 		strings.Contains(input, SeparatorBuildMetadata) ||
@@ -113,13 +113,13 @@ func parseNormalVersion(input string) ([3]int, error) {
 		return out, fmt.Errorf("%w: '%s'", ErrUnrecognized, input)
 	}
 
-	for i, version := range parts { //nolint:varnamelen
-		n, err := strconv.ParseUint(version, 10, strconv.IntSize)
+	for i, version := range parts {
+		n, err := strconv.ParseUint(version, 10, 8)
 		if err != nil || n > math.MaxInt {
 			return out, fmt.Errorf("%w: '%s'", ErrInvalidNumber, version)
 		}
 
-		out[i] = int(n)
+		out[i] = uint8(n)
 	}
 
 	return out, nil
