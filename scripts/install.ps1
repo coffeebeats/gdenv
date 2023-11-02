@@ -19,20 +19,22 @@
   Install 'gdenv' for managing multiple versions of the Godot editor.
 
 .DESCRIPTION
-  Install 'gdenv' for managing multiple versions of the Godot editor.
-
-  The following environment variables can be set to modify behavior:
-
-    - GDENV_VERSION: Install the specified version of 'gdenv'.
+  This script downloads the specified version of 'gdenv' from GitHub, extracts
+  its artifacts to the 'gdenv' store ('$GDENV_HOME' or a default path), and then
+  updates environment variables as needed.
 
 .PARAMETER NoModifyPath
-    Do not modify the \$PATH environment variable.
+  Do not modify the \$PATH environment variable.
+
+.PARAMETER Version
+  Install the specified version of 'gdenv'.
 
 .INPUTS
-  <Inputs if any, otherwise state None>
+  None
 
 .OUTPUTS
-  <Outputs if any, otherwise state None - example: Log file stored in C:\Windows\Temp\<name>.log>
+  $env:GDENV_HOME\bin\gdenv.exe
+  $env:GDENV_HOME\bin\godot.exe
 
 .NOTES
   Version:        0.5.2 # x-release-please-version
@@ -41,59 +43,13 @@
 
 # ------------------------------ Define: Params ------------------------------ #
 
-param (
-  [Switch] $NoModifyPath = $False
+Param (
+  # NoModifyPath help if set, the user's $PATH variable won't be updated
+  [Switch] $NoModifyPath = $False,
+
+  # Version help override the specific version of 'gdenv' to install
+  [String] $Version = "v0.5.2" # x-release-please-version
 )
-  
-# ------------------------------ Define: Version ----------------------------- #
-  
-$GdEnvVersion = Get-GdEnvVersion
-
-$GdEnvArchive = "gdenv-${GdEnvVersion}-windows-x86_64.zip"
-  
-# ------------------------------- Define: Store ------------------------------ #
-
-$GdEnvHome = Get-GdEnvHome
-
-Write-Host "using `$GDENV_HOME: ${GdEnvHome}"
-  
-# ----------------------------- Function: Install ---------------------------- #
-  
-$GdEnvRepositoryUrl = "https://github.com/coffeebeats/gdenv"
-
-Function Install() {
-  $GdEnvTempFolder = New-TemporaryFolder
-
-  $GdEnvArchiveURL = "${$GdEnvRepositoryUrl}/releases/download/${GdEnvVersion}/${GdEnvArchive}"
-  $GdEnvDownloadTo = "${GdEnvTempFolder}\${GdEnvArchive}"
-
-  try {
-    Invoke-WebRequest -URI $GdEnvArchiveURL -OutFile $GdEnvDownloadTo
-
-    Microsoft.PowerShell.Archive\Expand-Archive `
-    -Force `
-    -Path $GdEnvDownloadTo `
-    -DestinationPath "${GdEnvHome}\bin"
-
-    [System.Environment]::SetEnvironmentVariable("GDENV_HOME", $GdEnvHome, "User")
-  
-    if (!($NoModifyPath)) {
-      $GdEnvBinPath = "${$GdEnvHome}\bin"
-    
-      $PathParts = [System.Environment]::GetEnvironmentVariable("PATH", "User") -Split ";"
-      $PathParts = $PathParts | Where-Object -ne $GdEnvBinPath
-      $PathParts = $PathParts + $GdEnvBinPath
-
-      [System.Environment]::SetEnvironmentVariable("PATH", $($PathParts -Join ";"), "User")
-    }
-  } catch {
-    Write-Host "failed to install 'gdenv'"
-  } finally {
-    Remove-Item -Recurse $GdEnvTempFolder
-  }
-}
-
-Install
 
 # -------------------------- Function: Get-GdEnvHome ------------------------- #
 
@@ -101,7 +57,7 @@ Install
 # default if unset.
 Function Get-GdEnvHome() {
   if ([string]::IsNullOrEmpty($env:GDENV_HOME)) {
-    return "${env:LOCALAPPDATA}\gdenv"
+    return Join-Path -Path $env:LOCALAPPDATA -ChildPath "gdenv"
   }
 
   return $env:GDENV_HOME
@@ -110,23 +66,81 @@ Function Get-GdEnvHome() {
 # ------------------------ Function: Get-GdEnvVersion ------------------------ #
 
 Function Get-GdEnvVersion() {
-  if ([string]::IsNullOrEmpty($env:GDENV_VERSION)) {
-    return "v0.5.2" # x-release-please-version
-  }
-
-  $GdEnvVersion = $env:GDENV_VERSION
-  return "v" + $GdEnvVersion.TrimStart("v")
+  return "v" + $Version.TrimStart("v")
 }
 
 # --------------------- Function: Create-Temporary-Folder -------------------- #
 
-# Creates a new temporary directory for downloading and extracting 'gdenv'.
+# Creates a new temporary directory for downloading and extracting 'gdenv'. The
+# returned directory path will have a randomized suffix.
 Function New-TemporaryFolder() {
-  # Make a new temporary folder with a randomized suffix
-  $Name=$([System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetRandomFileName()))
-  $TemporaryFolderPath="${env:temp}\gdenv-${Name}"
-  
-  New-Item -ItemType Directory -Path $TemporaryFolderPath
-
-  return $TemporaryFolderPath
+  # Make a new temporary folder with a randomized suffix.
+  return New-Item `
+    -ItemType Directory `
+    -Name "gdenv-$([System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetRandomFileName()))"`
+    -Path $env:temp
 }
+
+# ------------------------------- Define: Store ------------------------------ #
+
+$GdEnvHome = Get-GdEnvHome
+
+Write-Host "info: setting 'GDENV_HOME' environment variable: ${GdEnvHome}"
+
+[System.Environment]::SetEnvironmentVariable("GDENV_HOME", $GdEnvHome, "User")
+
+# ------------------------------ Define: Version ----------------------------- #
+  
+$GdEnvVersion = Get-GdEnvVersion
+
+$GdEnvArchive = "gdenv-${GdEnvVersion}-windows-x86_64.zip"
+
+# ----------------------------- Execute: Install ----------------------------- #
+  
+$GdEnvRepositoryURL = "https://github.com/coffeebeats/gdenv"
+
+# Install downloads 'gdenv' and extracts its binaries into the store. It also
+# updates environment variables as needed.
+Function Install() {
+  $GdEnvTempFolder = New-TemporaryFolder
+
+  $GdEnvArchiveURL = "${GdEnvRepositoryURL}/releases/download/${GdEnvVersion}/${GdEnvArchive}"
+  $GdEnvDownloadTo = Join-Path -Path $GdEnvTempFolder -ChildPath $GdEnvArchive
+
+  $GdEnvHomeBinPath = Join-Path -Path $GdEnvHome -ChildPath "bin"
+
+  try {
+    Write-Host "info: installing version: '${GdEnvVersion}'"
+
+    Invoke-WebRequest -URI $GdEnvArchiveURL -OutFile $GdEnvDownloadTo
+
+    Microsoft.PowerShell.Archive\Expand-Archive `
+      -Force `
+      -Path $GdEnvDownloadTo `
+      -DestinationPath $GdEnvHomeBinPath
+  
+    if (!($NoModifyPath)) {
+      $PathParts = [System.Environment]::GetEnvironmentVariable("PATH", "User").Trim(";") -Split ";"
+      $PathParts = $PathParts.where{ $_ -ne $GdEnvHomeBinPath }
+      $PathParts = $PathParts + $GdEnvHomeBinPath
+
+      Write-Host "info: updating 'PATH' environment variable: ${GdEnvHomeBinPath}"
+
+      [System.Environment]::SetEnvironmentVariable("PATH", $($PathParts -Join ";"), "User")
+    }
+
+    Write-Host "info: sucessfully installed executables:`n"
+    Write-Host "  gdenv.exe: $(Join-Path -Path $GdEnvHomeBinPath -ChildPath "gdenv.exe")"
+    Write-Host "  godot.exe: $(Join-Path -Path $GdEnvHomeBinPath -ChildPath "godot.exe")"
+  }
+  catch {
+    Write-Host "error: failed to install 'gdenv': ${_}"
+  }
+  finally {
+    Write-Host "`ninfo: cleaning up downloads: ${GdEnvTempFolder}"
+
+    Remove-Item -Recurse $GdEnvTempFolder
+  }
+}
+
+Install
