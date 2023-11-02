@@ -163,7 +163,7 @@ if [ "$GDENV_HOME" = "" ]; then
     GDENV_HOME="$HOME/.gdenv"
 fi
 
-info "using '\$GDENV_HOME': '$GDENV_HOME'"
+info "using 'gdenv' store path: '$GDENV_HOME'"
 
 # ----------------------------- Define: Download ----------------------------- #
 
