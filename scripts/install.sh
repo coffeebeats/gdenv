@@ -55,7 +55,7 @@ unsupported_platform() {
 
 usage() {
     cat <<EOF
-gdenv-install: Installs 'gdenv' for managing multiple versions of the Godot editor.
+gdenv-install: Install 'gdenv' for managing multiple versions of the Godot editor.
 
 Usage: gdenv-install [OPTIONS]
 
@@ -163,7 +163,7 @@ if [ "$GDENV_HOME" = "" ]; then
     GDENV_HOME="$HOME/.gdenv"
 fi
 
-info "Setting '\$GDENV_HOME' to '$GDENV_HOME'"
+info "using '\$GDENV_HOME': '$GDENV_HOME'"
 
 # ----------------------------- Define: Download ----------------------------- #
 
@@ -238,7 +238,7 @@ windows)
     ;;
 esac
 
-info "Successfully installed 'gdenv@$GDENV_VERSION' to '$GDENV_HOME/bin'."
+info "successfully installed 'gdenv@$GDENV_VERSION' to '$GDENV_HOME/bin'"
 
 if [ $MODIFY_PATH -eq 0 ]; then
     exit 0
