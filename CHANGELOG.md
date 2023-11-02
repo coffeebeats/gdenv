@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.3 (2023-11-02)
+
+## What's Changed
+* feat(scripts): Add an `install.ps1` script for installing `gdenv` on Windows by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/122
+* fix: update install instructions for PowerShell by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/124
+* fix(pkg/godot/version): update `Version` to use `uint8` internally by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/125
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.5.2...v0.5.3
+
 ## 0.5.2 (2023-10-31)
 
 ## What's Changed
