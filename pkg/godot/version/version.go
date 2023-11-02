@@ -67,7 +67,7 @@ func Validate(v Version) error {
 
 // A struct containing a Godot version specification.
 type Version struct {
-	major, minor, patch int
+	major, minor, patch uint8
 
 	// Equivalent to "pre-release version" (see ttps://semver.org/#spec-item-9),
 	// though Godot affixes "stable" to its stable releases. Note that an empty
@@ -79,21 +79,21 @@ type Version struct {
 
 // Returns the major version component (see https://semver.org/#spec-item-4).
 func (v Version) Major() int {
-	return v.major
+	return int(v.major)
 }
 
 /* ------------------------------ Method: Minor ----------------------------- */
 
 // Returns the minor version component (see https://semver.org/#spec-item-7).
 func (v Version) Minor() int {
-	return v.minor
+	return int(v.minor)
 }
 
 /* ------------------------------ Method: Patch ----------------------------- */
 
 // Returns the patch version component (see https://semver.org/#spec-item-6).
 func (v Version) Patch() int {
-	return v.patch
+	return int(v.patch)
 }
 
 /* ------------------------------ Method: Label ----------------------------- */
