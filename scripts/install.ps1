@@ -22,7 +22,7 @@
   updates environment variables as needed.
 
 .PARAMETER NoModifyPath
-  Do not modify the \$PATH environment variable.
+  Do not modify the $PATH environment variable.
 
 .PARAMETER Version
   Install the specified version of 'gdenv'.
@@ -45,10 +45,10 @@
 # ------------------------------ Define: Params ------------------------------ #
 
 Param (
-  # NoModifyPath help if set, the user's $PATH variable won't be updated
+  # NoModifyPath - if set, the user's $PATH variable won't be updated
   [Switch] $NoModifyPath = $False,
 
-  # Version help override the specific version of 'gdenv' to install
+  # Version - override the specific version of 'gdenv' to install
   [String] $Version = "v0.5.2" # x-release-please-version
 )
 
