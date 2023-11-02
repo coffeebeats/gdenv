@@ -48,6 +48,7 @@ jobs:
 
           extra-files: |
             cmd/gdenv/main.go
+            scripts/install.ps1
             scripts/install.sh
 
   publish:

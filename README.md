@@ -28,7 +28,7 @@ gdenv pin -i --path /path/to/project 4.0
 
 The easiest way to install `gdenv` is by using the pre-built binaries. These can be manually downloaded and configured, but automated installation scripts are provided and recommended.
 
-See the full [installation instructions](./docs/installation.md) for additional options for installing `gdenv`.
+See the full [installation instructions](./docs/installation.md) for additional options when installing `gdenv`.
 
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
@@ -56,7 +56,8 @@ Invoke-WebRequest `
     -UseBasicParsing `
     -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
     -OutFile "./install-gdenv.ps1"; `
-    &"./scripts/install-gdenv.ps1"
+    &"./install-gdenv.ps1"; `
+    Remove-Item "./install-gdenv.ps1"
 ```
 
 ## **Documentation**
