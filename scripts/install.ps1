@@ -1,5 +1,3 @@
-#requires -version 2
-
 # This script installs 'gdenv' by downloading prebuilt binaries from the
 # project's GitHub releases page. By default the latest version is installed,
 # but a different release can be used instead by setting $GDENV_VERSION.
@@ -39,6 +37,9 @@
 .NOTES
   Version:        0.5.2 # x-release-please-version
   Author:         https://github.com/coffeebeats
+
+.LINK
+  https://github.com/coffeebeats/gdenv
 #>
 
 # ------------------------------ Define: Params ------------------------------ #
