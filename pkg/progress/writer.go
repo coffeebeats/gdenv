@@ -13,7 +13,7 @@ type Writer struct {
 }
 
 // Validate at compile-time that 'Writer' implements 'io.Writer'.
-var _ io.Writer = &Writer{} //nolint:exhaustruct
+var _ io.Writer = (*Writer)(nil)
 
 /* --------------------------- Function: NewWriter -------------------------- */
 

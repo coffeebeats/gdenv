@@ -28,7 +28,7 @@ type Source struct {
 }
 
 // Compile-time verifications that 'Source' implements 'Artifact'.
-var _ artifact.Artifact = Source{} //nolint:exhaustruct
+var _ artifact.Artifact = (*Source)(nil)
 
 /* ------------------------------ Function: New ----------------------------- */
 

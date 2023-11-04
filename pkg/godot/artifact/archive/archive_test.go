@@ -130,7 +130,7 @@ type MockArchive[T Archivable] struct {
 	err     error
 }
 
-var _ Archive = MockArchive[artifacttest.MockArtifact]{}
+var _ Archive = (*MockArchive[artifacttest.MockArtifact])(nil)
 
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
