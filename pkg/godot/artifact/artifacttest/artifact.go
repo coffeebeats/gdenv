@@ -11,6 +11,13 @@ type MockArtifact struct {
 	version version.Version
 }
 
+/* ------------------------ Function: NewWithVersion ------------------------ */
+
+// NewWithVersion creates a new mock artifact with the specified version.
+func NewWithVersion(v version.Version) MockArtifact {
+	return MockArtifact{name: "", version: v}
+}
+
 /* ----------------------------- Impl: Artifact ----------------------------- */
 
 func (a MockArtifact) Name() string {
