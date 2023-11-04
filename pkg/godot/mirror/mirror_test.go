@@ -40,8 +40,8 @@ func TestSelect(t *testing.T) {
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
-				"https://github.com/godotengine/godot/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(400, nil),
-				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                   httpmock.NewBytesResponder(400, nil),
+				"https://github.com/godotengine/godot-builds/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(400, nil),
+				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                          httpmock.NewBytesResponder(400, nil),
 			},
 
 			err: ErrNotFound,
@@ -54,7 +54,7 @@ func TestSelect(t *testing.T) {
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
-				"https://github.com/godotengine/godot/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(200, nil),
+				"https://github.com/godotengine/godot-builds/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(200, nil),
 			},
 
 			want: GitHub[executable.Archive]{},
@@ -65,8 +65,8 @@ func TestSelect(t *testing.T) {
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
-				"https://github.com/godotengine/godot/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(200, nil),
-				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                   httpmock.NewBytesResponder(200, nil),
+				"https://github.com/godotengine/godot-builds/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(200, nil),
+				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                          httpmock.NewBytesResponder(200, nil),
 			},
 
 			want: TuxFamily[executable.Archive]{}, // Appears first in 'mirrors'.
@@ -77,8 +77,8 @@ func TestSelect(t *testing.T) {
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
-				"https://github.com/godotengine/godot/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(400, nil),
-				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                   httpmock.NewBytesResponder(200, nil),
+				"https://github.com/godotengine/godot-builds/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(400, nil),
+				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                          httpmock.NewBytesResponder(200, nil),
 			},
 
 			want: TuxFamily[executable.Archive]{}, // Only mirror with successful response.
@@ -120,17 +120,26 @@ func TestSelect(t *testing.T) {
 	}
 }
 
-/* ----------------------- Function: mustMakeNewSource ---------------------- */
+/* ----------------- Function: mustMakeNewExecutableChecksum ---------------- */
 
-func mustMakeNewSource(t *testing.T, v version.Version) checksum.Source {
-	t.Helper()
-
-	s, err := checksum.NewSource(v)
+func mustMakeNewExecutableChecksum(t *testing.T, v version.Version) checksum.Executable {
+	c, err := checksum.NewExecutable(v)
 	if err != nil {
-		t.Fatalf("test setup: %#v", err)
+		t.Fatalf("test setup: %v", err)
 	}
 
-	return s
+	return c
+}
+
+/* ------------------- Function: mustMakeNewSourceChecksum ------------------ */
+
+func mustMakeNewSourceChecksum(t *testing.T, v version.Version) checksum.Source {
+	c, err := checksum.NewSource(v)
+	if err != nil {
+		t.Fatalf("test setup: %v", err)
+	}
+
+	return c
 }
 
 /* ------------------------- Function: mustParseURL ------------------------- */

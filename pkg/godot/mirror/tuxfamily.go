@@ -9,6 +9,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
@@ -36,9 +37,8 @@ var (
 type TuxFamily[T artifact.Versioned] struct{}
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror' interfaces.
-var _ Hoster = &TuxFamily[artifact.Versioned]{}
-var _ Remoter[executable.Archive] = &TuxFamily[executable.Archive]{}
-var _ Remoter[source.Archive] = &TuxFamily[source.Archive]{}
+var _ Hoster = (*TuxFamily[artifact.Versioned])(nil)
+var _ Remoter[artifact.Versioned] = (*TuxFamily[artifact.Versioned])(nil)
 
 /* ------------------------------ Impl: Hoster ------------------------------ */
 
@@ -53,6 +53,13 @@ func (m TuxFamily[T]) Hosts() []string {
 // remote wrapper contains the URL at which the artifact can be downloaded.
 func (m TuxFamily[T]) Remote(a T) (artifact.Remote[T], error) {
 	var remote artifact.Remote[T]
+
+	switch any(a).(type) { // FIXME: https://github.com/golang/go/issues/45380
+	case executable.Archive, source.Archive:
+	case checksum.Executable, checksum.Source:
+	default:
+		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
+	}
 
 	urlVersionDir, err := urlTuxFamilyVersionDir(a.Version())
 	if err != nil {

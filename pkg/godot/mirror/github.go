@@ -27,9 +27,8 @@ const (
 type GitHub[T artifact.Versioned] struct{}
 
 // Validate at compile-time that 'GitHub' implements 'Mirror' interfaces.
-var _ Hoster = &GitHub[artifact.Versioned]{}
-var _ Remoter[executable.Archive] = &GitHub[executable.Archive]{}
-var _ Remoter[source.Archive] = &GitHub[source.Archive]{}
+var _ Hoster = (*GitHub[artifact.Versioned])(nil)
+var _ Remoter[artifact.Versioned] = (*GitHub[artifact.Versioned])(nil)
 
 /* ------------------------------ Impl: Hoster ------------------------------ */
 
