@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/progress"
 	"github.com/ulikunitz/xz"
 )
@@ -35,6 +36,12 @@ func (a TarXZ[T]) Name() string {
 	}
 
 	return name
+}
+
+/* ----------------------------- Impl: Versioned ---------------------------- */
+
+func (a TarXZ[T]) Version() version.Version {
+	return a.Artifact.Version()
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */

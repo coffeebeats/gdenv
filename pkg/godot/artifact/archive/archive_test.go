@@ -10,6 +10,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/artifacttest"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 type MockArtifact = artifacttest.MockArtifact
@@ -124,8 +125,9 @@ func TestExtract(t *testing.T) {
 /* -------------------------------------------------------------------------- */
 
 type MockArchive[T Archivable] struct {
-	name string
-	err  error
+	name    string
+	version version.Version
+	err     error
 }
 
 var _ Archive = MockArchive[artifacttest.MockArtifact]{}
@@ -134,6 +136,12 @@ var _ Archive = MockArchive[artifacttest.MockArtifact]{}
 
 func (a MockArchive[T]) Name() string {
 	return a.name
+}
+
+/* ----------------------------- Impl: Versioned ---------------------------- */
+
+func (a MockArchive[T]) Version() version.Version {
+	return a.version
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */
