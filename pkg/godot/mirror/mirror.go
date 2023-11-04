@@ -11,11 +11,10 @@ import (
 )
 
 var (
-	ErrInvalidSpecification = errors.New("invalid specification")
-	ErrInvalidURL           = errors.New("invalid URL")
-	ErrMissingMirrors       = errors.New("no mirrors provided")
-	ErrNotFound             = errors.New("no mirror found")
-	ErrNotSupported         = errors.New("mirror not supported")
+	ErrInvalidURL          = errors.New("invalid URL")
+	ErrMissingMirrors      = errors.New("no mirrors provided")
+	ErrNotFound            = errors.New("no mirror found")
+	ErrUnsupportedArtifact = errors.New("unsupported artifact")
 )
 
 // clientKey is a context key used internally to replace the REST client used.
@@ -26,9 +25,11 @@ type clientKey struct{}
 /* -------------------------------------------------------------------------- */
 
 // Mirror specifies a host of Godot release artifacts.
-type Mirror[T artifact.Artifact] interface {
+type Mirror[T artifact.Versioned] interface {
 	Hoster
 	Remoter[T]
+
+	Name() string
 }
 
 /* -------------------------------------------------------------------------- */
