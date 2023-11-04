@@ -10,16 +10,13 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
 const (
 	gitHubContentDomain = "objects.githubusercontent.com"
-	gitHubAssetsURLBase = "https://github.com/godotengine/godot/releases/download"
+	gitHubAssetsURLBase = "https://github.com/godotengine/godot-builds/releases/download"
 )
-
-var versionGitHubAssetSupport = version.MustParse("v3.1.1") //nolint:gochecknoglobals
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: GitHub                               */
@@ -27,134 +24,54 @@ var versionGitHubAssetSupport = version.MustParse("v3.1.1") //nolint:gochecknogl
 
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
-type GitHub struct{}
+type GitHub[T artifact.Versioned] struct{}
 
 // Validate at compile-time that 'GitHub' implements 'Mirror' interfaces.
-var _ Mirror = &GitHub{}
-var _ Executable = &GitHub{}
-var _ Source = &GitHub{}
+var _ Hoster = &GitHub[artifact.Versioned]{}
+var _ Remoter[executable.Archive] = &GitHub[executable.Archive]{}
+var _ Remoter[source.Archive] = &GitHub[source.Archive]{}
 
-/* ------------------------------ Impl: Mirror ------------------------------ */
+/* ------------------------------ Impl: Hoster ------------------------------ */
 
-// Returns a new 'client.Client' for downloading artifacts from the mirror.
-func (m GitHub) Domains() []string {
+// Hosts returns the host URLs at which artifacts are hosted.
+func (m GitHub[T]) Hosts() []string {
 	return []string{gitHubContentDomain}
 }
 
-// Checks whether the version is broadly supported by the mirror. No network
-// request is issued, but this does not guarantee the host has the version.
-// To check whether the host has the version definitively via the network,
-// use the 'checkIfExists' method.
-func (m GitHub) Supports(v version.Version) bool {
-	// GitHub only contains stable releases, starting with 'versionGitHubAssetSupport'.
-	return v.IsStable() && v.CompareNormal(versionGitHubAssetSupport) >= 0
+/* ------------------------------ Impl: Remoter ----------------------------- */
+
+// Remote returns an 'artifact.Remote' wrapper around a specified artifact. The
+// remote wrapper contains the URL at which the artifact can be downloaded.
+func (m GitHub[T]) Remote(a T) (artifact.Remote[T], error) {
+	var remote artifact.Remote[T]
+
+	switch any(a).(type) { // FIXME: https://github.com/golang/go/issues/45380
+	case executable.Archive, source.Archive:
+	case checksum.Executable, checksum.Source:
+	default:
+		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
+	}
+
+	urlRelease, err := urlGitHubRelease(a.Version())
+	if err != nil {
+		return remote, errors.Join(ErrInvalidURL, err)
+	}
+
+	urlParsed, err := client.ParseURL(urlRelease, a.Name())
+	if err != nil {
+		return remote, errors.Join(ErrInvalidURL, err)
+	}
+
+	remote.Artifact, remote.URL = a, urlParsed
+
+	return remote, nil
 }
 
-/* ---------------------------- Impl: Executable ---------------------------- */
+/* ------------------------------ Impl: Mirror ------------------------------ */
 
-func (m GitHub) ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error) {
-	var a artifact.Remote[executable.Archive]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v)
-	}
-
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	executableArchive := executable.Archive{Artifact: executable.New(v, p)}
-
-	urlParsed, err := client.ParseURL(urlRelease, executableArchive.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = executableArchive, urlParsed
-
-	return a, nil
-}
-
-func (m GitHub) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error) {
-	var a artifact.Remote[checksum.Executable]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
-	}
-
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	checksumsExecutable, err := checksum.NewExecutable(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
-	}
-
-	urlParsed, err := client.ParseURL(urlRelease, checksumsExecutable.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = checksumsExecutable, urlParsed
-
-	return a, nil
-}
-
-/* ------------------------------ Impl: Source ------------------------------ */
-
-func (m GitHub) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
-	var a artifact.Remote[source.Archive]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v)
-	}
-
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	s := source.New(v)
-	sourceArchive := source.Archive{Artifact: s}
-
-	urlParsed, err := client.ParseURL(urlRelease, sourceArchive.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = sourceArchive, urlParsed
-
-	return a, nil
-}
-
-func (m GitHub) SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error) {
-	var a artifact.Remote[checksum.Source]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
-	}
-
-	urlRelease, err := urlGitHubRelease(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	checksumsSource, err := checksum.NewSource(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
-	}
-
-	urlParsed, err := client.ParseURL(urlRelease, checksumsSource.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = checksumsSource, urlParsed
-
-	return a, nil
+// Name returns the display name of the mirror.
+func (m GitHub[T]) Name() string {
+	return "GitHub (github.com/godotengine/godot-builds)"
 }
 
 /* ----------------------- Function: urlGitHubRelease ----------------------- */
