@@ -7,11 +7,6 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/pkg/godot/platform"
-	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -30,45 +25,32 @@ type clientKey struct{}
 /*                              Interface: Mirror                             */
 /* -------------------------------------------------------------------------- */
 
-// Specifies a host of Godot release artifacts. The associated methods are
-// related to the host itself and not about individual artifacts.
-type Mirror interface {
-	// Domains returns a slice of domains at which the mirror hosts artifacts.
-	Domains() []string
-
-	// Checks whether the version is broadly supported by the mirror. No network
-	// request is issued, but this does not guarantee the host has the version.
-	// To check whether the host has the version definitively via the network,
-	// use the 'Has' method.
-	Supports(v version.Version) bool
+// Mirror specifies a host of Godot release artifacts.
+type Mirror[T artifact.Artifact] interface {
+	Hoster
+	Remoter[T]
 }
 
 /* -------------------------------------------------------------------------- */
-/*                            Interface: Executable                           */
+/*                              Interface: Hoster                             */
 /* -------------------------------------------------------------------------- */
 
-// Executable is a mirror which hosts Godot executable artifacts. This does not
-// imply that *all* executable versions are hosted, so users should be prepared
-// to handle the case where resolving the artifact URL fails.
-type Executable interface {
-	Mirror
-
-	ExecutableArchive(v version.Version, p platform.Platform) (artifact.Remote[executable.Archive], error)
-	ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error)
+// Hoster is a mirror which describes the host URLs at which it hosts content.
+// This can be used to restrict redirects when downloading artifacts, improving
+// security.
+type Hoster interface {
+	// Hosts returns a slice of URL hosts at which the mirror hosts artifacts.
+	Hosts() []string
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              Interface: Source                             */
+/*                             Interface: Remoter                             */
 /* -------------------------------------------------------------------------- */
 
-// Source is a mirror which hosts Godot repository source code versions. This
-// does not imply that *all* executable versions are hosted, so users should be
-// prepared to handle the case where resolving the artifact URL fails.
-type Source interface {
-	Mirror
-
-	SourceArchive(v version.Version) (artifact.Remote[source.Archive], error)
-	SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error)
+// Remoter is a type that can resolve the URL at which a specified artifact is
+// hosted. Provided artifacts must be versioned.
+type Remoter[T artifact.Artifact] interface {
+	Remote(a T) (artifact.Remote[T], error)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -77,12 +59,11 @@ type Source interface {
 
 // Select chooses the best 'Mirror' of those provided for downloading assets
 // corresponding to the specified version and platform of Godot.
-func Select( //nolint:ireturn
+func Select[T artifact.Versioned](
 	ctx context.Context,
-	v version.Version,
-	p platform.Platform,
-	mirrors []Mirror,
-) (Mirror, error) {
+	mirrors []Mirror[T],
+	a T,
+) (Mirror[T], error) {
 	if len(mirrors) == 0 {
 		return nil, ErrMissingMirrors
 	}
@@ -97,16 +78,13 @@ func Select( //nolint:ireturn
 		eg.Wait() //nolint:errcheck
 	}()
 
-	selected := make(chan Mirror)
+	selected := make(chan Mirror[T])
 
 	for _, m := range mirrors {
-		executableMirror, ok := m.(Executable)
-		if !ok || executableMirror == nil {
-			continue
-		}
+		m := m // Prevent capture of loop variable.
 
 		eg.Go(func() error {
-			ok, err := checkIfExists(ctx, executableMirror, v, p)
+			ok, err := checkIfExists(ctx, m, a)
 			if err != nil {
 				return err
 			}
@@ -116,7 +94,7 @@ func Select( //nolint:ireturn
 			}
 
 			select {
-			case selected <- executableMirror:
+			case selected <- m:
 			case <-ctx.Done():
 				return ctx.Err()
 			}
@@ -141,17 +119,12 @@ func Select( //nolint:ireturn
 /* ------------------------- Function: checkIfExists ------------------------ */
 
 // Issues a request to the mirror host to determine if the artifact exists.
-func checkIfExists(
+func checkIfExists[T artifact.Versioned](
 	ctx context.Context,
-	m Executable,
-	v version.Version,
-	p platform.Platform,
+	m Mirror[T],
+	a T,
 ) (bool, error) {
-	if !m.Supports(v) {
-		return false, nil
-	}
-
-	remote, err := m.ExecutableArchive(v, p)
+	remote, err := m.Remote(a)
 	if err != nil {
 		return false, err
 	}
@@ -162,7 +135,7 @@ func checkIfExists(
 	// type. For now, this simply allows tests to inject a client.
 	c, ok := ctx.Value(clientKey{}).(*client.Client)
 	if !ok || c == nil {
-		c = client.NewWithRedirectDomains(m.Domains()...)
+		c = client.NewWithRedirectDomains(m.Hosts()...)
 	}
 
 	exists, err := c.Exists(ctx, remote.URL.String())
@@ -178,8 +151,11 @@ func checkIfExists(
 // chooseBest selects the best mirror from those available. The lowest indexed
 // 'Mirror' in 'ranking' will be returned. If none are available an error is
 // returned.
-func chooseBest(available <-chan Mirror, ranking []Mirror) (Mirror, error) { //nolint:ireturn
-	out, index := Mirror(nil), len(ranking)
+func chooseBest[T artifact.Versioned](
+	available <-chan Mirror[T],
+	ranking []Mirror[T],
+) (Mirror[T], error) {
+	out, index := Mirror[T](nil), len(ranking)
 
 	for m := range available {
 		// Rank mirrors according to order in 'mirrors'.

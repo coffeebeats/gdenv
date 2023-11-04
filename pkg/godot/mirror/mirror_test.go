@@ -8,6 +8,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/go-resty/resty/v2"
@@ -19,12 +20,12 @@ import (
 func TestSelect(t *testing.T) {
 	tests := []struct {
 		name    string
-		mirrors []Mirror
+		mirrors []Mirror[executable.Archive]
 		v       version.Version
 		p       platform.Platform
 		expects map[string]httpmock.Responder
 
-		want Mirror
+		want Mirror[executable.Archive]
 		err  error
 	}{
 		// Invalid inputs
@@ -35,7 +36,7 @@ func TestSelect(t *testing.T) {
 		},
 		{
 			name:    "no mirror supports version",
-			mirrors: []Mirror{TuxFamily{}, GitHub{}},
+			mirrors: []Mirror[executable.Archive]{TuxFamily[executable.Archive]{}, GitHub[executable.Archive]{}},
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
@@ -49,18 +50,18 @@ func TestSelect(t *testing.T) {
 		// Valid inputs
 		{
 			name:    "one valid mirror is selected",
-			mirrors: []Mirror{GitHub{}},
+			mirrors: []Mirror[executable.Archive]{GitHub[executable.Archive]{}},
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
 				"https://github.com/godotengine/godot/releases/download/4.0-stable/Godot_v4.0-stable_win64.exe.zip": httpmock.NewBytesResponder(200, nil),
 			},
 
-			want: GitHub{},
+			want: GitHub[executable.Archive]{},
 		},
 		{
 			name:    "best mirror is selected",
-			mirrors: []Mirror{TuxFamily{}, GitHub{}},
+			mirrors: []Mirror[executable.Archive]{TuxFamily[executable.Archive]{}, GitHub[executable.Archive]{}},
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
@@ -68,11 +69,11 @@ func TestSelect(t *testing.T) {
 				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                   httpmock.NewBytesResponder(200, nil),
 			},
 
-			want: TuxFamily{}, // Appears first in 'mirrors'.
+			want: TuxFamily[executable.Archive]{}, // Appears first in 'mirrors'.
 		},
 		{
 			name:    "worse mirror is selected if best isn't available",
-			mirrors: []Mirror{GitHub{}, TuxFamily{}},
+			mirrors: []Mirror[executable.Archive]{GitHub[executable.Archive]{}, TuxFamily[executable.Archive]{}},
 			v:       version.Godot4(),
 			p:       platform.MustParse("win64"),
 			expects: map[string]httpmock.Responder{
@@ -80,7 +81,7 @@ func TestSelect(t *testing.T) {
 				"https://downloads.tuxfamily.org/godotengine/4.0/Godot_v4.0-stable_win64.exe.zip":                   httpmock.NewBytesResponder(200, nil),
 			},
 
-			want: TuxFamily{}, // Only mirror with successful response.
+			want: TuxFamily[executable.Archive]{}, // Only mirror with successful response.
 		},
 	}
 
@@ -104,7 +105,7 @@ func TestSelect(t *testing.T) {
 			ctx := context.WithValue(context.Background(), clientKey{}, c)
 
 			// When: A 'Mirror' is selected from the list of options.
-			got, err := Select(ctx, tc.v, tc.p, tc.mirrors)
+			got, err := Select(ctx, tc.mirrors, executable.Archive{Artifact: executable.New(tc.v, tc.p)})
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {
