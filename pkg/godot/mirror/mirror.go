@@ -58,8 +58,8 @@ type Remoter[T artifact.Artifact] interface {
 /*                              Function: Select                              */
 /* -------------------------------------------------------------------------- */
 
-// Select chooses the best 'Mirror' of those provided for downloading assets
-// corresponding to the specified version and platform of Godot.
+// Select chooses the best 'Mirror' of those provided for downloading the
+// specified Godot release artifact.
 func Select[T artifact.Versioned](
 	ctx context.Context,
 	mirrors []Mirror[T],
