@@ -2,10 +2,8 @@ package install
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/pkg/download"
@@ -13,8 +11,6 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/pkg/godot/mirror"
-	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
 
@@ -24,13 +20,6 @@ import (
 
 // Downloads and caches a platform-specific version of Godot.
 func Executable(ctx context.Context, storePath string, ex executable.Executable) error {
-	m, err := mirror.Select(ctx, ex.Version(), ex.Platform(), availableMirrors())
-	if err != nil {
-		return err
-	}
-
-	log.Infof("downloading from mirror: %s", strings.TrimPrefix(fmt.Sprintf("%T", m), "mirror."))
-
 	tmp, err := os.MkdirTemp("", "gdenv-*")
 	if err != nil {
 		return err
@@ -40,7 +29,7 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 
 	log.Debugf("using temporary directory: %s", tmp)
 
-	localExArchive, err := download.ExecutableWithChecksumValidation(ctx, m, ex, tmp)
+	localExArchive, err := download.ExecutableWithChecksumValidation(ctx, ex, tmp)
 	if err != nil {
 		return err
 	}
@@ -79,18 +68,6 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 
 // Downloads and caches a specific version of Godot's source code.
 func Source(ctx context.Context, storePath string, src source.Source) error {
-	// TODO: Make this not rely on this (arbitrary) platform. It would be better
-	// if 'mirror.checkIfExists' could correctly determine existence of an
-	// arbitrary artifact. For now, select a platform that will certainly exist.
-	p := platform.Platform{Arch: platform.Amd64, OS: platform.Windows}
-
-	m, err := mirror.Select(ctx, src.Version(), p, availableMirrors())
-	if err != nil {
-		return err
-	}
-
-	log.Infof("downloading from mirror: %s", strings.TrimPrefix(fmt.Sprintf("%T", m), "mirror."))
-
 	tmp, err := os.MkdirTemp("", "gdenv-*")
 	if err != nil {
 		return err
@@ -100,7 +77,7 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 
 	log.Debugf("using temporary directory: %s", tmp)
 
-	localSourceArchive, err := download.SourceWithChecksumValidation(ctx, m, src.Version(), tmp)
+	localSourceArchive, err := download.SourceWithChecksumValidation(ctx, src.Version(), tmp)
 	if err != nil {
 		return err
 	}
@@ -114,12 +91,4 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 			Path:     localSourceArchive.Path,
 		},
 	)
-}
-
-/* ----------------------- Function: availableMirrors ----------------------- */
-
-// availableMirrors returns the list of possible 'Mirror' hosts to use for
-// downloads.
-func availableMirrors() []mirror.Mirror {
-	return []mirror.Mirror{mirror.GitHub{}, mirror.TuxFamily{}}
 }
