@@ -61,10 +61,7 @@ func (m TuxFamily[T]) Remote(a T) (artifact.Remote[T], error) {
 		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
 	}
 
-	urlVersionDir, err := urlTuxFamilyVersionDir(a.Version())
-	if err != nil {
-		return remote, err
-	}
+	urlVersionDir := urlTuxFamilyVersionDir(a.Version())
 
 	urlParsed, err := client.ParseURL(urlVersionDir, a.Name())
 	if err != nil {
@@ -91,7 +88,7 @@ func (m TuxFamily[T]) Name() string {
 // route is built up in parts by replicating the directory structure. It's
 // possible some edge cases are mishandled; please open an issue if one's found:
 // https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md
-func urlTuxFamilyVersionDir(v version.Version) (string, error) {
+func urlTuxFamilyVersionDir(v version.Version) string {
 	p := make([]string, 0)
 
 	// The first directory will be the "normal version", but a patch version of
@@ -121,10 +118,10 @@ func urlTuxFamilyVersionDir(v version.Version) (string, error) {
 		p = append(p, v.Label())
 	}
 
-	urlVersionDir, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
+	versionDirURL, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
 	if err != nil {
-		return "", errors.Join(ErrInvalidURL, err)
+		panic(err) // This indicates an error in the asset URL base constant.
 	}
 
-	return urlVersionDir, nil
+	return versionDirURL
 }

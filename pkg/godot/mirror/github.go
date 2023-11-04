@@ -51,10 +51,7 @@ func (m GitHub[T]) Remote(a T) (artifact.Remote[T], error) {
 		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
 	}
 
-	urlRelease, err := urlGitHubRelease(a.Version())
-	if err != nil {
-		return remote, errors.Join(ErrInvalidURL, err)
-	}
+	urlRelease := urlGitHubRelease(a.Version())
 
 	urlParsed, err := client.ParseURL(urlRelease, a.Name())
 	if err != nil {
@@ -76,7 +73,7 @@ func (m GitHub[T]) Name() string {
 /* ----------------------- Function: urlGitHubRelease ----------------------- */
 
 // Returns a URL to the version-specific release containing release assets.
-func urlGitHubRelease(v version.Version) (string, error) {
+func urlGitHubRelease(v version.Version) string {
 	// The release will be tagged as the "normal version", but a patch version
 	// of '0' will be dropped.
 	var normal string
@@ -90,5 +87,10 @@ func urlGitHubRelease(v version.Version) (string, error) {
 
 	tag := fmt.Sprintf("%s-%s", normal, version.LabelStable)
 
-	return url.JoinPath(gitHubAssetsURLBase, tag)
+	releaseURL, err := url.JoinPath(gitHubAssetsURLBase, tag)
+	if err != nil {
+		panic(err) // This indicates an error in the asset URL base constant.
+	}
+
+	return releaseURL
 }
