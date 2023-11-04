@@ -36,13 +36,18 @@ func NewExecutable(v version.Version) (Executable, error) {
 	return ex, nil
 }
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Executable' as a Godot release artifact.
+func (ex Executable) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (ex Executable) Name() string {
 	return filenameChecksums
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (ex Executable) Version() version.Version {
 	return ex.version

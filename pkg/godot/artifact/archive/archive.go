@@ -38,7 +38,7 @@ type Local = artifact.Local[Archive]
 
 // An interface representing a compressed 'Artifact' archive.
 type Archive interface {
-	artifact.Versioned
+	artifact.Artifact
 
 	extract(ctx context.Context, path, out string) error
 }
@@ -50,7 +50,7 @@ type Archive interface {
 // An interface representing an 'Artifact' that can be compressed into an
 // archive.
 type Archivable interface {
-	artifact.Versioned
+	artifact.Artifact
 
 	Archivable()
 }

@@ -417,7 +417,7 @@ func TestExecutables(t *testing.T) {
 
 func TestHas(t *testing.T) {
 	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
-	srcArchive := source.Archive{Artifact: source.New(ex.Version())}
+	srcArchive := source.Archive{Inner: source.New(ex.Version())}
 
 	storePathToEx := filepath.Join(storeName, storeDirEx, "v4.0-stable/linux.x86_64")
 	storePathToSrc := filepath.Join(storeName, storeDirSrc, "v4.0-stable")
@@ -453,13 +453,13 @@ func TestHas(t *testing.T) {
 		},
 		{
 			name:     "missing source returns false",
-			artifact: srcArchive.Artifact,
+			artifact: srcArchive.Inner,
 
 			want: false,
 		},
 		{
 			name:     "present source returns true",
-			artifact: srcArchive.Artifact,
+			artifact: srcArchive.Inner,
 			files: []fstest.Writer{
 				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
@@ -511,7 +511,7 @@ func TestHas(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	ex := executable.MustParse("Godot_v4.0-stable_linux.x86_64")
-	srcArchive := source.Archive{Artifact: source.New(ex.Version())}
+	srcArchive := source.Archive{Inner: source.New(ex.Version())}
 
 	storePathToEx := filepath.Join(storeName, storeDirEx, "v4.0-stable/linux.x86_64")
 	storePathToSrc := filepath.Join(storeName, storeDirSrc, "v4.0-stable")
@@ -550,7 +550,7 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source deletes artifact",
-			remove: srcArchive.Artifact,
+			remove: srcArchive.Inner,
 			files: []fstest.Writer{
 				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
@@ -576,7 +576,7 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source doesn't delete sibling artifact",
-			remove: srcArchive.Artifact,
+			remove: srcArchive.Inner,
 			files: []fstest.Writer{
 				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 				fstest.File{Path: filepath.Join(storePathToSrc, "sibling")},
@@ -601,14 +601,14 @@ func TestRemove(t *testing.T) {
 		},
 		{
 			name:   "remove source cleans up empty directory",
-			remove: srcArchive.Artifact,
+			remove: srcArchive.Inner,
 			files: []fstest.Writer{
 				fstest.File{Path: filepath.Join(storePathToSrc, srcArchive.Name())},
 			},
 
 			want: []fstest.Asserter{
 				fstest.Dir{Path: filepath.Join(storeName, storeDirSrc)},
-				fstest.Absent{Path: filepath.Join(storeName, storeDirSrc, srcArchive.Artifact.Version().String())},
+				fstest.Absent{Path: filepath.Join(storeName, storeDirSrc, srcArchive.Inner.Version().String())},
 			},
 		},
 	}
@@ -706,7 +706,7 @@ func TestSources(t *testing.T) {
 			// NOTE: These results must be alphabetically sorted by path elements.
 			want: []LocalSrc{
 				{
-					Artifact: source.Archive{Artifact: source.New(version.Godot3())},
+					Artifact: source.Archive{Inner: source.New(version.Godot3())},
 					Path: filepath.Join(
 						storeName,
 						storeDirSrc,
@@ -715,7 +715,7 @@ func TestSources(t *testing.T) {
 					),
 				},
 				{
-					Artifact: source.Archive{Artifact: source.New(version.MustParse("v3.1"))},
+					Artifact: source.Archive{Inner: source.New(version.MustParse("v3.1"))},
 					Path: filepath.Join(
 						storeName,
 						storeDirSrc,

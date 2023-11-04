@@ -17,7 +17,7 @@ import (
 
 func TestGitHubRemote(t *testing.T) {
 	tests := []struct {
-		artifact artifact.Versioned
+		artifact artifact.Artifact
 
 		url *url.URL
 		err error
@@ -27,19 +27,19 @@ func TestGitHubRemote(t *testing.T) {
 
 		// Valid inputs
 		{
-			artifact: executable.Archive{Artifact: executable.MustParse("Godot_v4.1.1-stable_linux.x86_64")},
+			artifact: executable.Archive{Inner: executable.MustParse("Godot_v4.1.1-stable_linux.x86_64")},
 			url:      mustParseURL(t, gitHubAssetsURLBase+"/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip"),
 		},
 		{
-			artifact: executable.Archive{Artifact: executable.MustParse("Godot_v4.1-stable_linux.x86_64")},
+			artifact: executable.Archive{Inner: executable.MustParse("Godot_v4.1-stable_linux.x86_64")},
 			url:      mustParseURL(t, gitHubAssetsURLBase+"/4.1-stable/Godot_v4.1-stable_linux.x86_64.zip"),
 		},
 		{
-			artifact: source.Archive{Artifact: source.New(version.MustParse("4.1.1-stable"))},
+			artifact: source.Archive{Inner: source.New(version.MustParse("4.1.1-stable"))},
 			url:      mustParseURL(t, gitHubAssetsURLBase+"/4.1.1-stable/godot-4.1.1-stable.tar.xz"),
 		},
 		{
-			artifact: source.Archive{Artifact: source.New(version.MustParse("4.1.0-stable"))},
+			artifact: source.Archive{Inner: source.New(version.MustParse("4.1.0-stable"))},
 			url:      mustParseURL(t, gitHubAssetsURLBase+"/4.1-stable/godot-4.1-stable.tar.xz"),
 		},
 		{
@@ -62,7 +62,7 @@ func TestGitHubRemote(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.artifact.Name(), func(t *testing.T) {
-			got, err := (&GitHub[artifact.Versioned]{}).Remote(tc.artifact)
+			got, err := (&GitHub[artifact.Artifact]{}).Remote(tc.artifact)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)

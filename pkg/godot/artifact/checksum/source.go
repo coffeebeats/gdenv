@@ -35,13 +35,18 @@ func NewSource(v version.Version) (Source, error) {
 	return s, nil
 }
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Source' as a Godot release artifact.
+func (s Source) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (s Source) Name() string {
-	return archive.TarXZ[source.Source]{Artifact: source.New(s.version)}.Name() + ".sha256"
+	return archive.TarXZ[source.Source]{Inner: source.New(s.version)}.Name() + ".sha256"
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (s Source) Version() version.Version {
 	return s.version

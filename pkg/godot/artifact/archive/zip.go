@@ -22,13 +22,18 @@ const extensionZip = ".zip"
 
 // A struct representing a 'zip'-compressed archive.
 type Zip[T Archivable] struct {
-	Artifact T
+	Inner T
 }
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Zip' as a Godot release artifact.
+func (a Zip[T]) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (a Zip[T]) Name() string {
-	name := a.Artifact.Name()
+	name := a.Inner.Name()
 	if name != "" {
 		name += extensionZip
 	}
@@ -36,10 +41,10 @@ func (a Zip[T]) Name() string {
 	return name
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (a Zip[T]) Version() version.Version {
-	return a.Artifact.Version()
+	return a.Inner.Version()
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */

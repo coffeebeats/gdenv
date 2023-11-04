@@ -37,12 +37,17 @@ func New(v version.Version) Source {
 	return Source{v}
 }
 
-/* ---------------------------- Impl: Archivable ---------------------------- */
+/* ------------------------ Impl: archive.Archivable ------------------------ */
 
 // Allows 'Source' to be used by 'Archive' implementation.
 func (s Source) Archivable() {}
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Source' as a Godot release artifact.
+func (s Source) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 // Returns the name of the Godot source directory for the specified 'Version'.
 //
@@ -58,7 +63,7 @@ func (s Source) Name() string {
 	return name.String()
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (s Source) Version() version.Version {
 	return s.version

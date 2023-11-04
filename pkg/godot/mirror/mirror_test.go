@@ -105,7 +105,7 @@ func TestSelect(t *testing.T) {
 			ctx := context.WithValue(context.Background(), clientKey{}, c)
 
 			// When: A 'Mirror' is selected from the list of options.
-			got, err := Select(ctx, tc.mirrors, executable.Archive{Artifact: executable.New(tc.v, tc.p)})
+			got, err := Select(ctx, tc.mirrors, executable.Archive{Inner: executable.New(tc.v, tc.p)})
 
 			// Then: The resulting error matches expectations.
 			if !errors.Is(err, tc.err) {

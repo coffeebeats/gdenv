@@ -132,13 +132,18 @@ type MockArchive[T Archivable] struct {
 
 var _ Archive = (*MockArchive[artifacttest.MockArtifact])(nil)
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'MockArchive' as a Godot release artifact.
+func (a MockArchive[T]) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (a MockArchive[T]) Name() string {
 	return a.name
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (a MockArchive[T]) Version() version.Version {
 	return a.version

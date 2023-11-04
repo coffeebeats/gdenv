@@ -18,6 +18,16 @@ var ErrMissingPath = errors.New("missing path")
 // An interface for different Godot-related files andfolder structures which
 // 'gdenv' needs to interact with.
 type Artifact interface {
+	Named
+	Versioned
+
+	Artifact()
+}
+
+/* ---------------------------- Interface: Named ---------------------------- */
+
+// An interface for any artifacts which have a specific name.
+type Named interface {
 	Name() string
 }
 
@@ -26,8 +36,6 @@ type Artifact interface {
 // An interface for any artifacts which are tied to a specific operating system
 // and CPU architecture.
 type Platformed interface {
-	Artifact
-
 	Platform() platform.Platform
 }
 
@@ -35,8 +43,6 @@ type Platformed interface {
 
 // An interface for any artifacts which are tied to a specific version of Godot.
 type Versioned interface {
-	Artifact
-
 	Version() version.Version
 }
 

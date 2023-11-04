@@ -41,7 +41,7 @@ func TestTarXZVersion(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("%d-%s", i, tc.artifact.Version()), func(t *testing.T) {
 			// Given: An archive wrapping the specified artifact.
-			a := TarXZ[Archivable]{Artifact: tc.artifact}
+			a := TarXZ[Archivable]{Inner: tc.artifact}
 
 			// When: The archive's version is determined.
 			got := a.Version()

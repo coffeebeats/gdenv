@@ -58,12 +58,17 @@ func (ex Executable) Path() string {
 	return ex.Name()
 }
 
-/* ---------------------------- Impl: Archivable ---------------------------- */
+/* ------------------------ Impl: archive.Archivable ------------------------ */
 
 // Allows 'Executable' to be used by 'Archive' implementation.
 func (ex Executable) Archivable() {}
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Executable' as a Godot release artifact.
+func (ex Executable) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 // Returns the name of the Godot executable, given the specified 'Version' and
 // 'Platform'.
@@ -95,19 +100,19 @@ func (ex Executable) Name() string {
 	return name.String()
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (ex Executable) Version() version.Version {
 	return ex.version
 }
 
-/* ---------------------------- Impl: Platformed ---------------------------- */
+/* ------------------------ Impl: artifact.Platformed ----------------------- */
 
 func (ex Executable) Platform() platform.Platform {
 	return ex.platform
 }
 
-/* ----------------------------- Impl: Stringer ----------------------------- */
+/* --------------------------- Impl: fmt.Stringer --------------------------- */
 
 func (ex Executable) String() string {
 	return ex.Name()

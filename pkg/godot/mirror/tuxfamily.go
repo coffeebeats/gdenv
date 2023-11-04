@@ -34,11 +34,11 @@ var (
 /* -------------------------------------------------------------------------- */
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
-type TuxFamily[T artifact.Versioned] struct{}
+type TuxFamily[T artifact.Artifact] struct{}
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror' interfaces.
-var _ Hoster = (*TuxFamily[artifact.Versioned])(nil)
-var _ Remoter[artifact.Versioned] = (*TuxFamily[artifact.Versioned])(nil)
+var _ Hoster = (*TuxFamily[artifact.Artifact])(nil)
+var _ Remoter[artifact.Artifact] = (*TuxFamily[artifact.Artifact])(nil)
 
 /* ------------------------------ Impl: Hoster ------------------------------ */
 

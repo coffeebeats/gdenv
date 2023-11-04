@@ -160,7 +160,7 @@ func printSources(ctx context.Context, storePath string) error {
 	log.Printf("Installed source code versions (%s):", storePath)
 
 	for _, src := range sources {
-		log.Printf("  %s", src.Artifact.Artifact.Version())
+		log.Printf("  %s", src.Artifact.Inner.Version())
 	}
 
 	return nil

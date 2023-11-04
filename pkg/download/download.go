@@ -14,7 +14,7 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
-type progressKey[T artifact.Versioned] struct{}
+type progressKey[T artifact.Artifact] struct{}
 
 /* -------------------------------------------------------------------------- */
 /*                           Function: WithProgress                           */
@@ -23,7 +23,7 @@ type progressKey[T artifact.Versioned] struct{}
 // WithProgress creates a sub-context with an associated progress reporter. The
 // result can be passed to download functions in this package to get updates on
 // the download progress for that specific artifact.
-func WithProgress[T artifact.Versioned](
+func WithProgress[T artifact.Artifact](
 	ctx context.Context,
 	p *progress.Progress,
 ) context.Context {
@@ -36,7 +36,7 @@ func WithProgress[T artifact.Versioned](
 
 // Download uses the provided mirror to download the specified artifact and
 // returns an 'artifact.Local' wrapper pointing to it.
-func Download[T artifact.Versioned](
+func Download[T artifact.Artifact](
 	ctx context.Context,
 	a T,
 	out string,
@@ -85,7 +85,7 @@ func Download[T artifact.Versioned](
 /* -------------------------------------------------------------------------- */
 
 // availableMirrors returns the list of possible 'Mirror' hosts.
-func availableMirrors[T artifact.Versioned]() []mirror.Mirror[T] {
+func availableMirrors[T artifact.Artifact]() []mirror.Mirror[T] {
 	return []mirror.Mirror[T]{mirror.GitHub[T]{}, mirror.TuxFamily[T]{}}
 }
 

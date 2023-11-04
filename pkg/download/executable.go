@@ -27,7 +27,7 @@ func ExecutableWithChecksumValidation(
 	eg, ctxDownload := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		exArchive := executable.Archive{Artifact: ex}
+		exArchive := executable.Archive{Inner: ex}
 
 		result, err := Download(ctxDownload, exArchive, out)
 		if err != nil {

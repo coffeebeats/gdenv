@@ -24,11 +24,11 @@ const (
 
 // A mirror implementation for fetching artifacts via releases on the Godot
 // GitHub repository.
-type GitHub[T artifact.Versioned] struct{}
+type GitHub[T artifact.Artifact] struct{}
 
 // Validate at compile-time that 'GitHub' implements 'Mirror' interfaces.
-var _ Hoster = (*GitHub[artifact.Versioned])(nil)
-var _ Remoter[artifact.Versioned] = (*GitHub[artifact.Versioned])(nil)
+var _ Hoster = (*GitHub[artifact.Artifact])(nil)
+var _ Remoter[artifact.Artifact] = (*GitHub[artifact.Artifact])(nil)
 
 /* ------------------------------ Impl: Hoster ------------------------------ */
 

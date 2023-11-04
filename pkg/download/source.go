@@ -28,7 +28,7 @@ func SourceWithChecksumValidation(
 	eg, ctxDownload := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		srcArchive := source.Archive{Artifact: source.New(v)}
+		srcArchive := source.Archive{Inner: source.New(v)}
 
 		result, err := Download(ctxDownload, srcArchive, out)
 		if err != nil {
