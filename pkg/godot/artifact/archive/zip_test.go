@@ -3,14 +3,56 @@ package archive
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/fstest"
 	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/artifacttest"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/progress"
 )
+
+/* ------------------------ Function: TestZipVersion ------------------------ */
+
+func TestZipVersion(t *testing.T) {
+	tests := []struct {
+		artifact Archivable
+
+		want version.Version
+	}{
+		{
+			artifact: artifacttest.MockArtifact{},
+			want:     version.Version{},
+		},
+		{
+			artifact: artifacttest.NewWithVersion(version.Godot3()),
+			want:     version.Godot3(),
+		},
+		{
+			artifact: artifacttest.NewWithVersion(version.Godot4()),
+			want:     version.Godot4(),
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("%d-%s", i, tc.artifact.Version()), func(t *testing.T) {
+			// Given: An archive wrapping the specified artifact.
+			a := Zip[Archivable]{Artifact: tc.artifact}
+
+			// When: The archive's version is determined.
+			got := a.Version()
+
+			// Then: The version matches the artifact's version.
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("output: got %#v, want %#v", got, tc.want)
+			}
+		})
+	}
+}
 
 /* ------------------------ Function: TestZipExtract ------------------------ */
 

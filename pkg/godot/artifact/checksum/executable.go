@@ -16,10 +16,10 @@ const filenameChecksums = "SHA512-SUMS.txt"
 type Executable checksums
 
 // Compile-time verifications that 'Executable' implements 'Artifact'.
-var _ artifact.Artifact = Executable{} //nolint:exhaustruct
+var _ artifact.Artifact = (*Executable)(nil)
 
 // Compile-time verifications that 'Executable' implements 'Checksums'.
-var _ Checksums[executable.Archive] = Executable{} //nolint:exhaustruct
+var _ Checksums[executable.Archive] = (*Executable)(nil)
 
 /* ------------------------- Function: NewExecutable ------------------------ */
 

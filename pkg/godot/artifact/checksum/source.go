@@ -15,10 +15,10 @@ import (
 type Source checksums
 
 // Compile-time verifications that 'Executable' implements 'Artifact'.
-var _ artifact.Artifact = Source{} //nolint:exhaustruct
+var _ artifact.Artifact = (*Source)(nil)
 
 // Compile-time verifications that 'Source' implements 'Checksums'.
-var _ Checksums[source.Archive] = Source{} //nolint:exhaustruct
+var _ Checksums[source.Archive] = (*Source)(nil)
 
 /* --------------------------- Function: NewSource -------------------------- */
 

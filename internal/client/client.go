@@ -304,7 +304,7 @@ func execute(ctx context.Context, req *resty.Request, m, u string, h func(*resty
 type silentLogger struct{}
 
 // Compile-time verification that 'silentLogger' implements 'resty.Logger'.
-var _ resty.Logger = silentLogger{}
+var _ resty.Logger = (*silentLogger)(nil)
 
 func (l silentLogger) Debugf(string, ...interface{}) {}
 func (l silentLogger) Errorf(string, ...interface{}) {}

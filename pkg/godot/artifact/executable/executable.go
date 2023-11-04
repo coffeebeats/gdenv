@@ -33,7 +33,7 @@ type Executable struct {
 }
 
 // Compile-time verifications that 'Executable' implements 'Artifact'.
-var _ artifact.Artifact = Executable{} //nolint:exhaustruct
+var _ artifact.Artifact = (*Executable)(nil)
 
 /* ------------------------------ Function: New ----------------------------- */
 

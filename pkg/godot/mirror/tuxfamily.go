@@ -12,7 +12,6 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
@@ -24,8 +23,6 @@ const (
 )
 
 var (
-	versionTuxFamilyMinSupported = version.MustParse("v1.1") //nolint:gochecknoglobals
-
 	// This expression matches all Godot v4.0 "pre-alpha" versions which use a
 	// release label similar to 'dev.20211015'. This expressions has been tested
 	// manually.
@@ -37,137 +34,50 @@ var (
 /* -------------------------------------------------------------------------- */
 
 // A mirror implementation for fetching artifacts via the Godot TuxFamily host.
-type TuxFamily struct{}
+type TuxFamily[T artifact.Versioned] struct{}
 
 // Validate at compile-time that 'TuxFamily' implements 'Mirror' interfaces.
-var _ Mirror = &TuxFamily{}
-var _ Executable = &TuxFamily{}
-var _ Source = &TuxFamily{}
+var _ Hoster = (*TuxFamily[artifact.Versioned])(nil)
+var _ Remoter[artifact.Versioned] = (*TuxFamily[artifact.Versioned])(nil)
+
+/* ------------------------------ Impl: Hoster ------------------------------ */
+
+// Hosts returns the host URLs at which artifacts are hosted.
+func (m TuxFamily[T]) Hosts() []string {
+	return []string{gitHubContentDomain}
+}
+
+/* ------------------------------ Impl: Remoter ----------------------------- */
+
+// Remote returns an 'artifact.Remote' wrapper around a specified artifact. The
+// remote wrapper contains the URL at which the artifact can be downloaded.
+func (m TuxFamily[T]) Remote(a T) (artifact.Remote[T], error) {
+	var remote artifact.Remote[T]
+
+	switch any(a).(type) { // FIXME: https://github.com/golang/go/issues/45380
+	case executable.Archive, source.Archive:
+	case checksum.Executable, checksum.Source:
+	default:
+		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
+	}
+
+	urlVersionDir := urlTuxFamilyVersionDir(a.Version())
+
+	urlParsed, err := client.ParseURL(urlVersionDir, a.Name())
+	if err != nil {
+		return remote, errors.Join(ErrInvalidURL, err)
+	}
+
+	remote.Artifact, remote.URL = a, urlParsed
+
+	return remote, nil
+}
 
 /* ------------------------------ Impl: Mirror ------------------------------ */
 
-// Returns a new 'client.Client' for downloading artifacts from the mirror.
-func (m TuxFamily) Domains() []string {
-	return nil
-}
-
-// Checks whether the version is broadly supported by the mirror. No network
-// request is issued, but this does not guarantee the host has the version.
-// To check whether the host has the version definitively via the network,
-// use the 'checkIfExists' method.
-func (m TuxFamily) Supports(v version.Version) bool {
-	// TuxFamily seems to contain all published releases.
-	return v.CompareNormal(versionTuxFamilyMinSupported) >= 0
-}
-
-/* ---------------------------- Impl: Executable ---------------------------- */
-
-func (m TuxFamily) ExecutableArchive(
-	v version.Version,
-	p platform.Platform,
-) (artifact.Remote[executable.Archive], error) {
-	var a artifact.Remote[executable.Archive]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v)
-	}
-
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return a, err
-	}
-
-	executableArchive := executable.Archive{Artifact: executable.New(v, p)}
-
-	urlParsed, err := client.ParseURL(urlVersionDir, executableArchive.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = executableArchive, urlParsed
-
-	return a, nil
-}
-
-func (m TuxFamily) ExecutableArchiveChecksums(v version.Version) (artifact.Remote[checksum.Executable], error) {
-	var a artifact.Remote[checksum.Executable]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
-	}
-
-	checksumsExecutable, err := checksum.NewExecutable(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
-	}
-
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return a, err
-	}
-
-	urlParsed, err := client.ParseURL(urlVersionDir, checksumsExecutable.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = checksumsExecutable, urlParsed
-
-	return a, nil
-}
-
-/* ------------------------------ Impl: Source ------------------------------ */
-
-func (m TuxFamily) SourceArchive(v version.Version) (artifact.Remote[source.Archive], error) {
-	var a artifact.Remote[source.Archive]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
-	}
-
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return a, err
-	}
-
-	s := source.New(v)
-	sourceArchive := source.Archive{Artifact: s}
-
-	urlParsed, err := client.ParseURL(urlVersionDir, sourceArchive.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = sourceArchive, urlParsed
-
-	return a, nil
-}
-
-func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[checksum.Source], error) {
-	var a artifact.Remote[checksum.Source]
-
-	if !m.Supports(v) {
-		return a, fmt.Errorf("%w: '%s'", ErrInvalidSpecification, v.String())
-	}
-
-	checksumsSource, err := checksum.NewSource(v)
-	if err != nil {
-		return a, errors.Join(ErrInvalidSpecification, err)
-	}
-
-	urlVersionDir, err := urlTuxFamilyVersionDir(v)
-	if err != nil {
-		return a, err
-	}
-
-	urlParsed, err := client.ParseURL(urlVersionDir, checksumsSource.Name())
-	if err != nil {
-		return a, errors.Join(ErrInvalidURL, err)
-	}
-
-	a.Artifact, a.URL = checksumsSource, urlParsed
-
-	return a, nil
+// Name returns the display name of the mirror.
+func (m TuxFamily[T]) Name() string {
+	return "TuxFamily (downloads.tuxfamily.org/godotengine)"
 }
 
 /* -------------------- Function: urlTuxFamilyVersionDir -------------------- */
@@ -178,7 +88,7 @@ func (m TuxFamily) SourceArchiveChecksums(v version.Version) (artifact.Remote[ch
 // route is built up in parts by replicating the directory structure. It's
 // possible some edge cases are mishandled; please open an issue if one's found:
 // https://github.com/coffeebeats/gdenv/issues/new?assignees=&labels=bug&projects=&template=%F0%9F%90%9B-bug-report.md
-func urlTuxFamilyVersionDir(v version.Version) (string, error) {
+func urlTuxFamilyVersionDir(v version.Version) string {
 	p := make([]string, 0)
 
 	// The first directory will be the "normal version", but a patch version of
@@ -208,10 +118,10 @@ func urlTuxFamilyVersionDir(v version.Version) (string, error) {
 		p = append(p, v.Label())
 	}
 
-	urlVersionDir, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
+	versionDirURL, err := url.JoinPath(tuxFamilyAssetsURLBase, p...)
 	if err != nil {
-		return "", errors.Join(ErrInvalidURL, err)
+		panic(err) // This indicates an error in the asset URL base constant.
 	}
 
-	return urlVersionDir, nil
+	return versionDirURL
 }

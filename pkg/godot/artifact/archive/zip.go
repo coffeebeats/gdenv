@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
@@ -33,6 +34,12 @@ func (a Zip[T]) Name() string {
 	}
 
 	return name
+}
+
+/* ----------------------------- Impl: Versioned ---------------------------- */
+
+func (a Zip[T]) Version() version.Version {
+	return a.Artifact.Version()
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */
