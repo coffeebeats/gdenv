@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash"
 
 	"github.com/charmbracelet/log"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
-	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -24,12 +23,13 @@ var (
 // An interface for an 'Artifact' representing a checksums file.
 type Checksums[T artifact.Artifact] interface {
 	artifact.Artifact
-	artifact.Versioned
 
-	// NOTE: This dummy method is defined in order to (i) restrict outside
-	// implementers and (ii) ensure the correct 'Artifact' types are used during
-	// checksum extraction.
-	supports(a T)
+	// Supports is a method to register which artifact the checksums are for.
+	Supports(_ T)
+
+	// Hash returns a 'hash.Hash' instance used to compute the checksum of the
+	// supported artifact type.
+	Hash() hash.Hash
 }
 
 /* -------------------------------------------------------------------------- */
@@ -39,7 +39,7 @@ type Checksums[T artifact.Artifact] interface {
 // Compare takes a local executable archive and a local checksums file for
 // executable archives and validates that the executable archive's checksum
 // matches the expected value.
-func Compare[T archive.Archive, U Checksums[T]](
+func Compare[T artifact.Artifact, U Checksums[T]](
 	ctx context.Context,
 	localArtifact artifact.Local[T],
 	localChecksums artifact.Local[U],
@@ -53,7 +53,7 @@ func Compare[T archive.Archive, U Checksums[T]](
 	defer close(want)
 
 	eg.Go(func() error {
-		value, err := Compute[T](ctx, localArtifact)
+		value, err := Compute[T](ctx, localChecksums.Artifact.Hash(), localArtifact)
 		if err != nil {
 			return err
 		}
@@ -97,14 +97,4 @@ func Compare[T archive.Archive, U Checksums[T]](
 	log.Debug("checksum matched expected value")
 
 	return eg.Wait()
-}
-
-/* -------------------------------------------------------------------------- */
-/*                              Struct: checksums                             */
-/* -------------------------------------------------------------------------- */
-
-// A shared implementation of a checksums file 'Artifact'; this should be
-// wrapped by user-facing types.
-type checksums struct {
-	version version.Version
 }

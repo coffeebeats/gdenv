@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
@@ -45,8 +44,8 @@ func (m GitHub[T]) Remote(a T) (artifact.Remote[T], error) {
 	var remote artifact.Remote[T]
 
 	switch any(a).(type) { // FIXME: https://github.com/golang/go/issues/45380
-	case executable.Archive, source.Archive:
-	case checksum.Executable, checksum.Source:
+	case executable.Archive, executable.Checksums:
+	case source.Archive, source.Checksums:
 	default:
 		return remote, fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)
 	}

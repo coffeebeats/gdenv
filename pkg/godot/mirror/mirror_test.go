@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/coffeebeats/gdenv/internal/client"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/go-resty/resty/v2"
@@ -122,8 +122,8 @@ func TestSelect(t *testing.T) {
 
 /* ----------------- Function: mustMakeNewExecutableChecksum ---------------- */
 
-func mustMakeNewExecutableChecksum(t *testing.T, v version.Version) checksum.Executable {
-	c, err := checksum.NewExecutable(v)
+func mustMakeNewExecutableChecksum(t *testing.T, v version.Version) executable.Checksums {
+	c, err := executable.NewChecksums(v)
 	if err != nil {
 		t.Fatalf("test setup: %v", err)
 	}
@@ -133,8 +133,8 @@ func mustMakeNewExecutableChecksum(t *testing.T, v version.Version) checksum.Exe
 
 /* ------------------- Function: mustMakeNewSourceChecksum ------------------ */
 
-func mustMakeNewSourceChecksum(t *testing.T, v version.Version) checksum.Source {
-	c, err := checksum.NewSource(v)
+func mustMakeNewSourceChecksum(t *testing.T, v version.Version) source.Checksums {
+	c, err := source.NewChecksums(v)
 	if err != nil {
 		t.Fatalf("test setup: %v", err)
 	}

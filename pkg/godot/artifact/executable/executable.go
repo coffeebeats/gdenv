@@ -1,7 +1,6 @@
 package executable
 
 import (
-	"errors"
 	"path/filepath"
 	"strings"
 
@@ -18,13 +17,11 @@ const (
 	nameGodotMacOSApp = "Godot.app"
 )
 
-var ErrInvalidPlatform = errors.New("invalid platform")
+type Archive = archive.Zip[Executable]
 
 /* -------------------------------------------------------------------------- */
 /*                             Struct: Executable                             */
 /* -------------------------------------------------------------------------- */
-
-type Archive = archive.Zip[Executable]
 
 // An 'Artifact' representing the Godot application itself.
 type Executable struct {

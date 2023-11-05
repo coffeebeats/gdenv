@@ -1,4 +1,4 @@
-package checksum
+package checksum_test
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
@@ -34,18 +35,18 @@ func TestExtractExecutable(t *testing.T) {
 	}{
 		// Invalid inputs
 		{exists: false, archive: archiveV4, err: fs.ErrNotExist},
-		{exists: true, contents: "abc 123 filename", archive: archiveV4, err: ErrUnrecognizedFormat},
+		{exists: true, contents: "abc 123 filename", archive: archiveV4, err: checksum.ErrUnrecognizedFormat},
 		{
 			exists:   true,
 			contents: fmt.Sprintf("checksum %s", archiveV5.Name()),
 			archive:  archiveV4,
-			err:      ErrChecksumNotFound,
+			err:      checksum.ErrChecksumNotFound,
 		},
 		{
 			exists:   true,
 			contents: fmt.Sprintf("checksum1 %s\nchecksum2 %s", archiveV4.Name(), archiveV4.Name()),
 			archive:  archiveV4,
-			err:      ErrConflictingChecksum,
+			err:      checksum.ErrConflictingChecksum,
 		},
 
 		// Valid inputs
@@ -59,7 +60,7 @@ func TestExtractExecutable(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var c artifact.Local[Checksums[executable.Archive]]
+			var c artifact.Local[executable.Checksums]
 
 			// NOTE: Property 'Artifact' doesn't need to be accessed.
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")
@@ -70,7 +71,7 @@ func TestExtractExecutable(t *testing.T) {
 				}
 			}
 
-			got, err := Extract(context.Background(), c, tc.archive)
+			got, err := checksum.Extract(context.Background(), c, tc.archive)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)
@@ -100,18 +101,18 @@ func TestExtractSource(t *testing.T) {
 	}{
 		// Invalid inputs
 		{exists: false, archive: archiveV4, err: fs.ErrNotExist},
-		{exists: true, contents: "abc 123 filename", archive: archiveV4, err: ErrUnrecognizedFormat},
+		{exists: true, contents: "abc 123 filename", archive: archiveV4, err: checksum.ErrUnrecognizedFormat},
 		{
 			exists:   true,
 			contents: fmt.Sprintf("checksum %s", archiveV4.Name()),
 			archive:  archiveV3,
-			err:      ErrChecksumNotFound,
+			err:      checksum.ErrChecksumNotFound,
 		},
 		{
 			exists:   true,
 			contents: fmt.Sprintf("checksum1 %s\nchecksum2 %s", archiveV3.Name(), archiveV3.Name()),
 			archive:  archiveV3,
-			err:      ErrConflictingChecksum,
+			err:      checksum.ErrConflictingChecksum,
 		},
 
 		// Valid inputs
@@ -125,7 +126,7 @@ func TestExtractSource(t *testing.T) {
 
 	for i, tc := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var c artifact.Local[Checksums[source.Archive]]
+			var c artifact.Local[source.Checksums]
 
 			// NOTE: Property 'Artifact' doesn't need to be accessed.
 			c.Path = filepath.Join(t.TempDir(), "checksums.txt")
@@ -136,7 +137,7 @@ func TestExtractSource(t *testing.T) {
 				}
 			}
 
-			got, err := Extract(context.Background(), c, tc.archive)
+			got, err := checksum.Extract(context.Background(), c, tc.archive)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)
