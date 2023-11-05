@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 (2023-11-05)
+
+## What's Changed
+* chore(cmd/gdenv): remove `completions` command until improved support is added in `urfave/cli` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/130
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.0...v0.6.1
+
 ## 0.6.0 (2023-11-05)
 
 ## What's Changed
