@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0 (2023-11-05)
+
+## What's Changed
+* chore: enabled `security-advanced` CodeQL queries by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/126
+* refactor(pkg/godot/mirror)!: simplify `Mirror` usage by making it generic over `artifact.Versioned` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/128
+* refactor(pkg/godot/artifact)!: simplify `artifact.Artifact` and `artifact/checksum.Checksums` implementations by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/129
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.5.3...v0.6.0
+
 ## 0.5.3 (2023-11-02)
 
 ## What's Changed
