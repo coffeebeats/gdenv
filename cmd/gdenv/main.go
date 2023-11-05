@@ -52,7 +52,6 @@ func main() { //nolint:funlen
 
 			/* --------------------------------- Utility -------------------------------- */
 
-			NewCompletions(),
 			NewLs(),
 			NewWhich(),
 		},

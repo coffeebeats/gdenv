@@ -2,7 +2,6 @@
 
 **Supported commands:**
 
-- **[gdenv completions](#gdenv-completions)**
 - **[gdenv install](#gdenv-install)**
 - **[gdenv ls/list](#gdenv-lslist)**
 - **[gdenv pin](#gdenv-pin)**
@@ -10,30 +9,6 @@
 - **[gdenv unpin](#gdenv-unpin)**
 - **[gdenv vendor](#gdenv-vendor)**
 - **[gdenv which](#gdenv-which)**
-
-## **gdenv `completions`**
-
-> ⚠️ **WARNING:** This command is not yet implemented.
-
-Print shell completions for the `gdenv` CLI application.
-
-### Usage
-
-`gdenv completions [OPTIONS] <SHELL>`
-
-### Options
-
-- `-o`, `--output <OUT_FILE>` — write the completions to `OUT_FILE`
-  - Default value: `stdout`
-
-### Arguments
-
-- `<SHELL>` — the specific version string to install (must be exact)
-  - Supported values:
-    - `bash`
-    - `fish`
-    - `powershell`
-    - `zsh`
 
 ## **gdenv `install`**
 
