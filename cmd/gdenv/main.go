@@ -34,6 +34,8 @@ func main() { //nolint:funlen
 		Name:    "gdenv",
 		Version: "v0.6.0", // x-release-please-version
 
+		EnableBashCompletion: true,
+
 		Suggest:                true,
 		UseShortOptionHandling: true,
 
@@ -52,7 +54,6 @@ func main() { //nolint:funlen
 
 			/* --------------------------------- Utility -------------------------------- */
 
-			NewCompletions(),
 			NewLs(),
 			NewWhich(),
 		},
