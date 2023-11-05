@@ -102,7 +102,7 @@ func TestPath(t *testing.T) {
 /* ------------------------------ Test: Source ------------------------------ */
 
 func TestSource(t *testing.T) {
-	srcArchive := source.Archive{Artifact: source.New(version.Godot4())}
+	srcArchive := source.Archive{Inner: source.New(version.Godot4())}
 
 	tests := []struct {
 		store string
@@ -134,7 +134,7 @@ func TestSource(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(fmt.Sprintf("%s-%s", tc.store, tc.src.Name()), func(t *testing.T) {
 			// When: The path to the cached source directory is determined.
-			got, err := Source(tc.store, tc.src.Artifact)
+			got, err := Source(tc.store, tc.src.Inner)
 
 			// Then: The expected error value is returned.
 			if !errors.Is(err, tc.err) {

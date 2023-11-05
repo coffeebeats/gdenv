@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
 )
 
 const checksumEntryParts = 2
@@ -26,8 +25,12 @@ var (
 
 // Given a locally-available checksums file, find and return the checksum for
 // the specified archive.
-func Extract[T archive.Archive, U Checksums[T]](ctx context.Context, c artifact.Local[U], a T) (string, error) {
-	f, err := os.Open(c.Path)
+func Extract[T artifact.Artifact, U Checksums[T]](
+	ctx context.Context,
+	local artifact.Local[U],
+	a T,
+) (string, error) {
+	f, err := os.Open(local.Path)
 	if err != nil {
 		return "", err
 	}

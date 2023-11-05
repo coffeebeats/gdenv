@@ -17,7 +17,7 @@ import (
 
 func TestTuxFamilyRemote(t *testing.T) {
 	tests := []struct {
-		artifact artifact.Versioned
+		artifact artifact.Artifact
 		name     string
 
 		url *url.URL
@@ -28,23 +28,23 @@ func TestTuxFamilyRemote(t *testing.T) {
 
 		// Valid inputs
 		{
-			artifact: executable.Archive{Artifact: executable.MustParse("Godot_v4.1.1-stable_mono_linux.x86_64")},
+			artifact: executable.Archive{Inner: executable.MustParse("Godot_v4.1.1-stable_mono_linux.x86_64")},
 			url:      mustParseURL(t, tuxFamilyAssetsURLBase+"/4.1.1/mono/Godot_v4.1.1-stable_mono_linux_x86_64.zip"),
 		},
 		{
-			artifact: executable.Archive{Artifact: executable.MustParse("Godot_v4.1-stable_linux.x86_64")},
+			artifact: executable.Archive{Inner: executable.MustParse("Godot_v4.1-stable_linux.x86_64")},
 			url:      mustParseURL(t, tuxFamilyAssetsURLBase+"/4.1/Godot_v4.1-stable_linux.x86_64.zip"),
 		},
 		{
-			artifact: executable.Archive{Artifact: executable.MustParse("Godot_v4.0-dev.20220118_win64.exe")},
+			artifact: executable.Archive{Inner: executable.MustParse("Godot_v4.0-dev.20220118_win64.exe")},
 			url:      mustParseURL(t, tuxFamilyAssetsURLBase+"/4.0/pre-alpha/4.0-dev.20220118/Godot_v4.0-dev.20220118_win64.exe.zip"),
 		},
 		{
-			artifact: source.Archive{Artifact: source.New(version.MustParse("4.1.1-stable"))},
+			artifact: source.Archive{Inner: source.New(version.MustParse("4.1.1-stable"))},
 			url:      mustParseURL(t, tuxFamilyAssetsURLBase+"/4.1.1/godot-4.1.1-stable.tar.xz"),
 		},
 		{
-			artifact: source.Archive{Artifact: source.New(version.MustParse("4.1.0-stable"))},
+			artifact: source.Archive{Inner: source.New(version.MustParse("4.1.0-stable"))},
 			url:      mustParseURL(t, tuxFamilyAssetsURLBase+"/4.1/godot-4.1-stable.tar.xz"),
 		},
 		{
@@ -71,7 +71,7 @@ func TestTuxFamilyRemote(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.artifact.Name(), func(t *testing.T) {
-			got, err := (&TuxFamily[artifact.Versioned]{}).Remote(tc.artifact)
+			got, err := (&TuxFamily[artifact.Artifact]{}).Remote(tc.artifact)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)

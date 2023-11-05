@@ -24,13 +24,18 @@ const extensionTarXZ = ".tar.xz"
 
 // A struct representing an 'XZ'-compressed archive.
 type TarXZ[T Archivable] struct {
-	Artifact T
+	Inner T
 }
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'TarXZ' as a Godot release artifact.
+func (a TarXZ[T]) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (a TarXZ[T]) Name() string {
-	name := a.Artifact.Name()
+	name := a.Inner.Name()
 	if name != "" {
 		name += extensionTarXZ
 	}
@@ -38,10 +43,10 @@ func (a TarXZ[T]) Name() string {
 	return name
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (a TarXZ[T]) Version() version.Version {
-	return a.Artifact.Version()
+	return a.Inner.Version()
 }
 
 /* ------------------------------ Impl: Archive ----------------------------- */

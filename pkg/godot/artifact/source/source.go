@@ -1,7 +1,6 @@
 package source
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
@@ -14,13 +13,11 @@ const (
 	nameSeparator = "-"
 )
 
-var ErrInvalidPlatform = errors.New("invalid platform")
+type Archive = archive.TarXZ[Source]
 
 /* -------------------------------------------------------------------------- */
 /*                               Struct: Source                               */
 /* -------------------------------------------------------------------------- */
-
-type Archive = archive.TarXZ[Source]
 
 // An 'Artifact' representing Godot source code for a specific version.
 type Source struct {
@@ -37,12 +34,17 @@ func New(v version.Version) Source {
 	return Source{v}
 }
 
-/* ---------------------------- Impl: Archivable ---------------------------- */
+/* ------------------------ Impl: archive.Archivable ------------------------ */
 
 // Allows 'Source' to be used by 'Archive' implementation.
 func (s Source) Archivable() {}
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'Source' as a Godot release artifact.
+func (s Source) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 // Returns the name of the Godot source directory for the specified 'Version'.
 //
@@ -58,11 +60,17 @@ func (s Source) Name() string {
 	return name.String()
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (s Source) Version() version.Version {
 	return s.version
 }
+
+/* ----------------------- Impl: checksum.Checksumable ---------------------- */
+
+// Checksumable "registers" 'Source' as a Godot release artifact with published
+// file checksums.
+func (s Source) Checksumable() {}
 
 /* ----------------------------- Impl: Stringer ----------------------------- */
 

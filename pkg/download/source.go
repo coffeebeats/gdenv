@@ -21,14 +21,16 @@ func SourceWithChecksumValidation(
 	v version.Version,
 	out string,
 ) (artifact.Local[source.Archive], error) {
-	chSource, chChecksums := make(chan artifact.Local[source.Archive]), make(chan artifact.Local[checksum.Source])
-	defer close(chSource)
+	chArchive := make(chan artifact.Local[source.Archive])
+	defer close(chArchive)
+
+	chChecksums := make(chan artifact.Local[source.Checksums])
 	defer close(chChecksums)
 
 	eg, ctxDownload := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		srcArchive := source.Archive{Artifact: source.New(v)}
+		srcArchive := source.Archive{Inner: source.New(v)}
 
 		result, err := Download(ctxDownload, srcArchive, out)
 		if err != nil {
@@ -36,7 +38,7 @@ func SourceWithChecksumValidation(
 		}
 
 		select {
-		case chSource <- result:
+		case chArchive <- result:
 		case <-ctx.Done():
 			return ctx.Err()
 		}
@@ -45,7 +47,7 @@ func SourceWithChecksumValidation(
 	})
 
 	eg.Go(func() error {
-		checksums, err := checksum.NewSource(v)
+		checksums, err := source.NewChecksums(v)
 		if err != nil {
 			return err
 		}
@@ -64,15 +66,15 @@ func SourceWithChecksumValidation(
 		return nil
 	})
 
-	sourceArchive, checksums := <-chSource, <-chChecksums
+	srcArchive, checksums := <-chArchive, <-chChecksums
 
 	if err := eg.Wait(); err != nil {
 		return artifact.Local[source.Archive]{}, err
 	}
 
-	if err := checksum.Compare[source.Archive](ctx, sourceArchive, checksums); err != nil {
+	if err := checksum.Compare[source.Archive](ctx, srcArchive, checksums); err != nil {
 		return artifact.Local[source.Archive]{}, err
 	}
 
-	return sourceArchive, nil
+	return srcArchive, nil
 }

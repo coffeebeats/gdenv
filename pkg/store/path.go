@@ -99,7 +99,7 @@ func artifactPath(storePath string, a artifact.Artifact) (string, error) {
 
 		return filepath.Join(path, pathExParts[0]), nil
 	case source.Archive:
-		pathSourceDir, err := sourceDir(storePath, a.Artifact.Version())
+		pathSourceDir, err := sourceDir(storePath, a.Inner.Version())
 		if err != nil {
 			return "", err
 		}
@@ -111,7 +111,7 @@ func artifactPath(storePath string, a artifact.Artifact) (string, error) {
 			return "", err
 		}
 
-		return filepath.Join(pathSourceDir, source.Archive{Artifact: a}.Name()), nil
+		return filepath.Join(pathSourceDir, source.Archive{Inner: a}.Name()), nil
 	}
 
 	return "", fmt.Errorf("%w: %T", ErrUnsupportedArtifact, a)

@@ -1,8 +1,11 @@
-package checksum
+package checksum_test
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/sha512"
 	"errors"
+	"hash"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,6 +14,7 @@ import (
 
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 )
 
@@ -20,6 +24,7 @@ func TestCompute(t *testing.T) {
 	tests := []struct {
 		contents string
 		exists   bool
+		hash     hash.Hash
 		want     string
 		err      error
 	}{
@@ -30,10 +35,17 @@ func TestCompute(t *testing.T) {
 		{
 			contents: "abc",
 			exists:   true,
+			hash:     sha512.New(),
 			want:     "4f285d0c0cc77286d8731798b7aae2639e28270d4166f40d769cbbdca5230714d848483d364e2f39fe6cb9083c15229b39a33615ebc6d57605f7c43f6906739d",
 			err:      nil,
 		},
-		// TODO: Add a test case for a 'source.Archive'.
+		{
+			contents: "abc",
+			exists:   true,
+			hash:     sha256.New(),
+			want:     "edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb",
+			err:      nil,
+		},
 	}
 
 	for i, tc := range tests {
@@ -49,7 +61,7 @@ func TestCompute(t *testing.T) {
 				}
 			}
 
-			got, err := Compute(context.Background(), f)
+			got, err := checksum.Compute(context.Background(), tc.hash, f)
 
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %#v, want %#v", err, tc.err)

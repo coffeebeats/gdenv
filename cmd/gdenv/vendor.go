@@ -72,9 +72,9 @@ func NewVendor() *cli.Command {
 
 // Extracts the cached source code folder into the specified 'out' path.
 func vendor(ctx context.Context, v version.Version, storePath, out string) error {
-	src := source.Archive{Artifact: source.New(v)}
+	src := source.Archive{Inner: source.New(v)}
 
-	srcPath, err := store.Source(storePath, src.Artifact)
+	srcPath, err := store.Source(storePath, src.Inner)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func vendor(ctx context.Context, v version.Version, storePath, out string) error
 			return err
 		}
 
-		out = filepath.Join(wd, src.Artifact.Name())
+		out = filepath.Join(wd, src.Inner.Name())
 	}
 
 	out = filepath.Clean(out)

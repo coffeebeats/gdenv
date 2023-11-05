@@ -334,7 +334,7 @@ func Sources(ctx context.Context, storePath string) ([]LocalSrc, error) {
 
 		out = append(
 			out,
-			LocalSrc{Artifact: source.Archive{Artifact: src}, Path: path},
+			LocalSrc{Artifact: source.Archive{Inner: src}, Path: path},
 		)
 	}
 

@@ -25,7 +25,7 @@ type clientKey struct{}
 /* -------------------------------------------------------------------------- */
 
 // Mirror specifies a host of Godot release artifacts.
-type Mirror[T artifact.Versioned] interface {
+type Mirror[T artifact.Artifact] interface {
 	Hoster
 	Remoter[T]
 
@@ -60,7 +60,7 @@ type Remoter[T artifact.Artifact] interface {
 
 // Select chooses the best 'Mirror' of those provided for downloading the
 // specified Godot release artifact.
-func Select[T artifact.Versioned](
+func Select[T artifact.Artifact](
 	ctx context.Context,
 	mirrors []Mirror[T],
 	a T,
@@ -120,7 +120,7 @@ func Select[T artifact.Versioned](
 /* ------------------------- Function: checkIfExists ------------------------ */
 
 // Issues a request to the mirror host to determine if the artifact exists.
-func checkIfExists[T artifact.Versioned](
+func checkIfExists[T artifact.Artifact](
 	ctx context.Context,
 	m Mirror[T],
 	a T,
@@ -152,7 +152,7 @@ func checkIfExists[T artifact.Versioned](
 // chooseBest selects the best mirror from those available. The lowest indexed
 // 'Mirror' in 'ranking' will be returned. If none are available an error is
 // returned.
-func chooseBest[T artifact.Versioned](
+func chooseBest[T artifact.Artifact](
 	available <-chan Mirror[T],
 	ranking []Mirror[T],
 ) (Mirror[T], error) {

@@ -18,18 +18,23 @@ func NewWithVersion(v version.Version) MockArtifact {
 	return MockArtifact{name: "", version: v}
 }
 
-/* ----------------------------- Impl: Artifact ----------------------------- */
+/* ------------------------- Impl: artifact.Artifact ------------------------ */
+
+// Artifact "registers" 'MockArtifact' as a Godot release artifact.
+func (a MockArtifact) Artifact() {}
+
+/* -------------------------- Impl: artifact.Named -------------------------- */
 
 func (a MockArtifact) Name() string {
 	return a.name
 }
 
-/* ----------------------------- Impl: Versioned ---------------------------- */
+/* ------------------------ Impl: artifact.Versioned ------------------------ */
 
 func (a MockArtifact) Version() version.Version {
 	return a.version
 }
 
-/* ---------------------------- Impl: Archivable ---------------------------- */
+/* ------------------------ Impl: archive.Archivable ------------------------ */
 
 func (a MockArtifact) Archivable() {}
