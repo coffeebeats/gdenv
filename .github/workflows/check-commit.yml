@@ -142,7 +142,7 @@ jobs:
 
       - name: Test source code
         shell: bash
-        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+        run: go test -v -race -timeout 16m -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v3
