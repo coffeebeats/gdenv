@@ -131,7 +131,7 @@ jobs:
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 4
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +142,7 @@ jobs:
 
       - name: Test source code
         shell: bash
-        run: go test -v -race -timeout 16m -covermode=atomic -coverprofile=coverage.out ./...
+        run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
@@ -150,7 +150,6 @@ jobs:
           fail_ci_if_error: true
           flags: gdenv
           token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
