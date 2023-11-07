@@ -1,3 +1,10 @@
+coverage:
+  status:
+    project:
+      default:
+        flags:
+          - project
+
 flags:
   project:
     carryforward: true
