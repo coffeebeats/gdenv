@@ -42,19 +42,19 @@ See [docs/commands.md](./docs/commands.md) for a detailed reference on how to us
 
 #### Manage installed versions
 
-- **[install](./docs/commands.md#gdenv-install)**
-- **[uninstall](./docs/commands.md#gdenv-uninstall)**
-- **[vendor](./docs/commands.md#gdenv-vendor)**
+- **[install](./docs/commands.md#gdenv-install)** — `gdenv install [OPTIONS] [VERSION]`
+- **[uninstall](./docs/commands.md#gdenv-uninstall)** — `gdenv uninstall [OPTIONS] [VERSION]`
+- **[vendor](./docs/commands.md#gdenv-vendor)** — `gdenv vendor [OPTIONS] [VERSION]`
 
 #### Pin projects/set system default
 
-- **[pin](./docs/commands.md#gdenv-pin)**
-- **[unpin](./docs/commands.md#gdenv-unpin)**
+- **[pin](./docs/commands.md#gdenv-pin)** — `gdenv pin [OPTIONS] <VERSION>`
+- **[unpin](./docs/commands.md#gdenv-unpin)** — `gdenv unpin [OPTIONS]`
 
 #### Inspect versions
 
-- **[ls/list](./docs/commands.md#gdenv-lslist)**
-- **[which](./docs/commands.md#gdenv-which)**
+- **[ls/list](./docs/commands.md#gdenv-lslist)** — `gdenv ls [OPTIONS]`
+- **[which](./docs/commands.md#gdenv-which)** — `gdenv which [OPTIONS]`
 
 ### **Platform selection**
 
