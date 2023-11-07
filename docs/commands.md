@@ -1,6 +1,6 @@
 # Commands
 
-**Supported commands:**
+**Available commands:**
 
 - **[gdenv install](#gdenv-install)**
 - **[gdenv ls/list](#gdenv-lslist)**

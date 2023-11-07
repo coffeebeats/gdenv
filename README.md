@@ -2,6 +2,12 @@
 
 A single-purpose, CI-friendly command-line interface for managing Godot editor versions. Inspired by [pyenv](https://github.com/pyenv/pyenv), [rbenv](https://github.com/rbenv/rbenv), and [volta](https://github.com/volta-cli/volta).
 
+## **How it works**
+
+The `gdenv` application maintains a cache of downloaded _Godot_ executables (typically `$HOME/.gdenv`) and provides a [shim](https://en.wikipedia.org/wiki/Shim_(computing)) which should be set to the system's `godot` executable. This shim intercepts normal use of the `godot` command and, based on the directory from which the `godot` command is invoked (or the `--path` option), transparently invokes the correct version of _Godot_ with the provided arguments.
+
+In order to track pinned versions of _Godot_, the `pin` subcommand will place a `.godot-version` file in the specified directory (or within `$GDENV_HOME` if pinning a global version with `-g`). This is what the `godot` shim will use to determine the correct _Godot_ version.
+
 ## **Getting started**
 
 These instructions will help you install `gdenv` and pin projects (or your system) to specific versions of _Godot_.
@@ -26,51 +32,13 @@ gdenv pin -i --path /path/to/project 4.0
 
 ### **Installation**
 
-The easiest way to install `gdenv` is by using the pre-built binaries. These can be manually downloaded and configured, but automated installation scripts are provided and recommended.
+See [docs/installation.md](./docs/installation.md#installation) for detailed instructions on how to download `gdenv`.
 
-See the full [installation instructions](./docs/installation.md) for additional options when installing `gdenv`.
+## **Usage**
 
-> ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
+### API Reference
 
-#### **Linux/MacOS — `sh`**
-
-```sh
-curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | sh
-```
-
-#### **Windows - Git BASH for Windows**
-
-> ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use the [Linux/MacOS instructions](#linuxmacos--sh).
-
-#### **Windows — `powershell`**
-
-> ❕ **NOTE:** In order to run scripts in PowerShell, the [execution policy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) must _not_ be `Restricted`. Consider running the following command
-> if you encounter `UnauthorizedAccess` errors when following these instructions. See [Set-ExecutionPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy) documentation for details.
->
-> ```sh
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-> ```
-
-```sh
-Invoke-WebRequest `
-    -UseBasicParsing `
-    -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
-    -OutFile "./install-gdenv.ps1"; `
-    &"./install-gdenv.ps1"; `
-    Remove-Item "./install-gdenv.ps1"
-```
-
-## **Documentation**
-
-### Commands
-
-See [Commands](./docs/commands.md) for more explanation about how to use `gdenv`.
-
-### **How it works**
-
-The `gdenv` application maintains a cache of downloaded _Godot_ executables (typically `$HOME/.gdenv`) and provides a shim which should be set to the system's `godot` executable. The shim will examine the current directory from which the `godot` command is invoked (handling a `--path` option as well) and delegate to the correct version of _Godot_.
-
-In order to track pinned versions of _Godot_, the `pin` subcommand will place a `.godot-version` file in the specified directory (or within `$GDENV_HOME` if pinning a global version with `-g`). This is what the `godot` shim will use to determine the correct _Godot_ version.
+See [Commands](./docs/commands.md) for a reference of available commands and how to use them.
 
 ### Platform selection
 
