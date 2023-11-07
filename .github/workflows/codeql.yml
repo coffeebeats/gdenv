@@ -39,6 +39,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Ensure the correct version of Go is used.
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
