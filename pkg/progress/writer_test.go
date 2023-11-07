@@ -24,28 +24,24 @@ func TestWriter(t *testing.T) {
 		// Given: A new 'Writer' reporting progress via the 'Progress' struct.
 		w := NewWriter(p)
 
-		for {
-			select {
-			case <-write:
-				// When: '1' byte is written to the reporter.
-				n, err := w.Write([]byte{1})
+		for range write {
+			// When: '1' byte is written to the reporter.
+			n, err := w.Write([]byte{1})
 
-				// Then: There's no error writing to the progress reporter.
-				if err != nil {
-					t.Errorf("err: got %#v, want %#v", err, nil)
-				}
-
-				// Then: The returned number of bytes written is correct.
-				if n != 1 {
-					t.Errorf("output: got %d, want %d", n, 1)
-				}
-
-				wrote <- struct{}{}
-			default: // channel 'write' closed
-				close(wrote)
-				return
+			// Then: There's no error writing to the progress reporter.
+			if err != nil {
+				t.Errorf("err: got %#v, want %#v", err, nil)
 			}
+
+			// Then: The returned number of bytes written is correct.
+			if n != 1 {
+				t.Errorf("output: got %d, want %d", n, 1)
+			}
+
+			wrote <- struct{}{}
 		}
+
+		close(wrote)
 	}(p)
 
 	for i := range make([]struct{}, total) {
