@@ -185,6 +185,7 @@ jobs:
           fail_ci_if_error: true
           flags: project
           token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
