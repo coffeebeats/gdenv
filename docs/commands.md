@@ -1,15 +1,5 @@
 # Commands
 
-**Available commands:**
-
-- **[gdenv install](#gdenv-install)**
-- **[gdenv ls/list](#gdenv-lslist)**
-- **[gdenv pin](#gdenv-pin)**
-- **[gdenv uninstall](#gdenv-uninstall)**
-- **[gdenv unpin](#gdenv-unpin)**
-- **[gdenv vendor](#gdenv-vendor)**
-- **[gdenv which](#gdenv-which)**
-
 ## **gdenv `install`**
 
 Download and cache a specific version of _Godot_. If `VERSION` is omitted then the version is resolved using `-g`, `-p`, or `$PWD`.

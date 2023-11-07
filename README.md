@@ -16,13 +16,13 @@ These instructions will help you install `gdenv` and pin projects (or your syste
 
 > NOTE: For _Mono_-flavored builds, see [Version selection (C#/_Mono_ support)](#version-selection-cmono-support).
 
-#### Install a global (system-wide) _Godot_ version
+#### **Install a global (system-wide) _Godot_ version**
 
 ```sh
 gdenv pin -ig 4.0
 ```
 
-#### Pin a project to a specific _Godot_ version
+#### **Pin a project to a specific _Godot_ version**
 
 ```sh
 # Omit the `--path` option to pin the current directory;
@@ -34,13 +34,29 @@ gdenv pin -i --path /path/to/project 4.0
 
 See [docs/installation.md](./docs/installation.md#installation) for detailed instructions on how to download `gdenv`.
 
-## **Usage**
+## **API Reference**
 
-### API Reference
+### **Commands**
 
-See [Commands](./docs/commands.md) for a reference of available commands and how to use them.
+See [docs/commands.md](./docs/commands.md) for a detailed reference on how to use each command.
 
-### Platform selection
+#### Manage installed versions
+
+- **[install](./docs/commands.md#gdenv-install)**
+- **[uninstall](./docs/commands.md#gdenv-uninstall)**
+- **[vendor](./docs/commands.md#gdenv-vendor)**
+
+#### Pin projects/set system default
+
+- **[pin](./docs/commands.md#gdenv-pin)**
+- **[unpin](./docs/commands.md#gdenv-unpin)**
+
+#### Inspect versions
+
+- **[ls/list](./docs/commands.md#gdenv-lslist)**
+- **[which](./docs/commands.md#gdenv-which)**
+
+### **Platform selection**
 
 By default `gdenv` will install _Godot_ executables for the host platform (i.e. the system `gdenv` is running on). To change which platform `gdenv` selections, the following environment variables can be set in front of any `gdenv` command:
 
@@ -50,7 +66,7 @@ By default `gdenv` will install _Godot_ executables for the host platform (i.e. 
 - **`GDENV_ARCH`** - set the target CPU architecture (still uses the host's operating system)
 - **`GDENV_PLATFORM`** - set the literal string suffix of the _Godot_ editor (e.g. `macos.universal` or `win64`)
 
-### Version selection (C#/_Mono_ support)
+### **Version selection (C#/_Mono_ support)**
 
 `gdenv` considers _Mono_ variants of _Godot_ to be part of the version and not the platform. As such, to have `gdenv` install Mono builds of _Godot_ editors all version specifications should be suffixed with `stable_mono` (e.g. `gdenv pin 4.0-stable_mono` or `gdenv install 4.1.1-stable_mono`). Although `gdenv` normally assumes a `stable` release if the label is omitted, _Mono_ builds must be explicitly specified.
 
