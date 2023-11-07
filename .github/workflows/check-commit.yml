@@ -164,6 +164,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
       - name: Download coverage report artifact
         uses: actions/download-artifact@v3
         continue-on-error: true # OK if coverage is missing.
