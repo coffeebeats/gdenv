@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.6.2 (2023-11-07)
+
+## What's Changed
+* chore(CI): use repository Go version during CodeQL scans by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/137
+* chore(deps): bump actions/checkout from 3 to 4 by @dependabot in https://github.com/coffeebeats/gdenv/pull/132
+* chore(deps): bump github.com/golangci/golangci-lint from 1.55.1 to 1.55.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/133
+* chore(deps): bump github.com/goreleaser/goreleaser from 1.21.2 to 1.22.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/136
+* chore(deps): bump golang.org/x/mod from 0.13.0 to 0.14.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/134
+* fix(CI): run linting in separate job by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/139
+* fix(CI): migrate to new `--skip` flag by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/140
+* fix(CI): carry forward CodeCov coverage for entire project by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/141
+* feat(CI): run tests with the race detector enabled by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/142
+* feat(internal/fstest): create `Filepath` interface for creating different filepath types in tests by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/143
+* fix(CI): ensure `go test` command has sufficient timeout by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/144
+* fix(pkg/progress): eliminate deadlock in `TestWriter` test by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/145
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.1...v0.6.2
+
 ## 0.6.1 (2023-11-05)
 
 ## What's Changed
