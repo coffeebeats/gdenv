@@ -172,7 +172,7 @@ jobs:
         uses: actions/download-artifact@v3
         continue-on-error: true # OK if coverage is missing.
         with:
-          name: coverage2.out
+          name: coverage.out
 
       - name: Test source code
         shell: bash
