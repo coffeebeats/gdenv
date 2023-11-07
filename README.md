@@ -40,21 +40,21 @@ See [docs/installation.md](./docs/installation.md#installation) for detailed ins
 
 See [docs/commands.md](./docs/commands.md) for a detailed reference on how to use each command.
 
-#### Manage installed versions
+#### **Manage installed versions**
 
-- **[install](./docs/commands.md#gdenv-install)** — `gdenv install [OPTIONS] [VERSION]`
-- **[uninstall](./docs/commands.md#gdenv-uninstall)** — `gdenv uninstall [OPTIONS] [VERSION]`
-- **[vendor](./docs/commands.md#gdenv-vendor)** — `gdenv vendor [OPTIONS] [VERSION]`
+- [install](./docs/commands.md#gdenv-install) — `gdenv install [OPTIONS] [VERSION]`
+- [uninstall](./docs/commands.md#gdenv-uninstall) — `gdenv uninstall [OPTIONS] [VERSION]`
+- [vendor](./docs/commands.md#gdenv-vendor) — `gdenv vendor [OPTIONS] [VERSION]`
 
-#### Pin projects/set system default
+#### **Pin projects/set system default**
 
-- **[pin](./docs/commands.md#gdenv-pin)** — `gdenv pin [OPTIONS] <VERSION>`
-- **[unpin](./docs/commands.md#gdenv-unpin)** — `gdenv unpin [OPTIONS]`
+- [pin](./docs/commands.md#gdenv-pin) — `gdenv pin [OPTIONS] <VERSION>`
+- [unpin](./docs/commands.md#gdenv-unpin) — `gdenv unpin [OPTIONS]`
 
-#### Inspect versions
+#### **Inspect versions**
 
-- **[ls/list](./docs/commands.md#gdenv-lslist)** — `gdenv ls [OPTIONS]`
-- **[which](./docs/commands.md#gdenv-which)** — `gdenv which [OPTIONS]`
+- [ls/list](./docs/commands.md#gdenv-lslist) — `gdenv ls [OPTIONS]`
+- [which](./docs/commands.md#gdenv-which) — `gdenv which [OPTIONS]`
 
 ### **Platform selection**
 
