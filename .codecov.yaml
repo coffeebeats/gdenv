@@ -2,7 +2,7 @@ coverage:
   status:
     # Coverage is not reported when source files are unchanged. To ensure status
     # checks still pass, report "success" when coverage is missing.
-    if_not_found: "success"
+    if_not_found: "failure"
 
 flags:
   project:
