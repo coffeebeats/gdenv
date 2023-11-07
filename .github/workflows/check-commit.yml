@@ -170,6 +170,11 @@ jobs:
         with:
           name: coverage.out
 
+      - name: (Debug) print coverage report
+        continue-on-error: true # OK if coverage is missing.
+        shell: bash
+        run: ls && echo "" && cat coverage.out
+
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
         with:
