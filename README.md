@@ -113,7 +113,7 @@ When submitting code for review, ensure the following requirements are met:
 2. All [golangci-lint](https://golangci-lint.run/) linter warnings are addressed:
 
     ```sh
-    go fmt ./...
+    golangci-lint run ./...
     ```
 
 3. All unit tests pass and no data races are found:
@@ -125,7 +125,7 @@ When submitting code for review, ensure the following requirements are met:
 4. The `gdenv` and `gdenv-shim` binaries successfully compile (release artifacts will be available at `./dist`):
 
     ```sh
-    goreleaser release --clean --skip-publish --snapshot
+    goreleaser release --clean --skip=publish --snapshot
     ```
 
 ## **Contributing**
