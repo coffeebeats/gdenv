@@ -33,7 +33,7 @@ jobs:
             go.mod
             go.sum
 
-  style:
+  format:
     needs: ["changes"]
     if: needs.changes.outputs.has_source_change == 'true'
 
@@ -84,13 +84,32 @@ jobs:
         if: steps.format.outcome == 'failure'
         run: exit 1
 
+  lint:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          cache: false # See https://github.com/golangci/golangci-lint-action/issues/135.
+          go-version-file: "go.mod"
+
       - name: Lint source code
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
 
   build:
-    needs: ["changes", "style"]
+    needs: ["changes", "format", "lint"]
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
@@ -108,7 +127,7 @@ jobs:
         run: go build -v ./...
 
   test:
-    needs: ["changes", "style"]
+    needs: ["changes", "format", "lint"]
     if: needs.changes.outputs.has_source_change == 'true'
 
     runs-on: ubuntu-latest
@@ -133,7 +152,7 @@ jobs:
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
   branch_protection:
-    needs: ["style", "build", "test"]
+    needs: ["format", "lint", "build", "test"]
     if: ${{ always() }}
 
     runs-on: ubuntu-latest
@@ -144,11 +163,19 @@ jobs:
         shell: bash
 
     steps:
-      - name: Verify 'style' status
+      - name: Verify 'format' status
         if: |
           always() &&
-          needs.style.result == 'failure' ||
-          needs.style.result == 'cancelled'
+          needs.format.result == 'failure' ||
+          needs.format.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
+      - name: Verify 'lint' status
+        if: |
+          always() &&
+          needs.lint.result == 'failure' ||
+          needs.lint.result == 'cancelled'
         shell: bash
         run: exit 1
 
