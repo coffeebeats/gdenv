@@ -17,6 +17,7 @@ import (
 /* -------------------------------------------------------------------------- */
 
 type TarXZ struct {
+	// Path is a filepath that will be treated relative to a base directory.
 	Path     string
 	Contents []Writer
 }
