@@ -1,8 +1,3 @@
-coverage:
-  status:
-    default_rules:
-      flag_coverage_not_uploaded_behavior: pass
-
 flags:
   gdenv:
     carryforward: true
