@@ -5,7 +5,7 @@ The easiest way to install `gdenv` is by using the pre-built binaries. These can
 
 Alternatively, you can install `gdenv` from source using the latest supported version of [Go](https://go.dev/). See [Install from source](#install-from-source) for more details.
 
-## Pre-built binaries
+## **Pre-built binaries**
 
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
@@ -76,7 +76,7 @@ go install github.com/coffeebeats/gdenv/cmd/gdenv-shim@latest
 
 Once `gdenv` and `gdenv-shim` are installed a few things need to be configured. Follow the instructions below based on your operating system.
 
-### Linux/MacOS
+### **Linux/MacOS**
 
 1. Export the `GDENV_HOME` environment variable and add `$GDENV_HOME/bin` to the `PATH` environment variable.
 
@@ -97,7 +97,7 @@ Once `gdenv` and `gdenv-shim` are installed a few things need to be configured. 
         ln -s $(which gdenv-shim) $GDENV_HOME/bin/godot
     ```
 
-### Windows - `powershell`
+### **Windows - `powershell`**
 
 1. Export the `GDENV_HOME` environment variable using the following:
 
