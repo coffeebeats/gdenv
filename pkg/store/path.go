@@ -34,10 +34,6 @@ func Executable(storePath string, ex executable.Executable) (string, error) {
 		return "", ErrMissingStore
 	}
 
-	if storePath == "" {
-		return "", ErrMissingStore
-	}
-
 	pathExecutableDir, err := executableDir(storePath, ex)
 	if err != nil {
 		return "", err
