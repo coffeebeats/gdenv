@@ -72,7 +72,7 @@ jobs:
 
       - uses: goreleaser/goreleaser-action@v5
         with:
-          args: release --clean --skip-publish
+          args: release --clean --skip=publish
           distribution: goreleaser
           version: latest
 
