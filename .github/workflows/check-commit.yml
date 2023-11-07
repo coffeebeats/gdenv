@@ -142,13 +142,13 @@ jobs:
 
       - name: Test source code
         shell: bash
-        run: go test -v -covermode=atomic -coverprofile=coverage2.out ./...
+        run: go test -v -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v3
         with:
           name: coverage.out
-          path: coverage2.out
+          path: coverage.out
           if-no-files-found: error
 
   coverage:
@@ -164,35 +164,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v4
-        with:
-          go-version-file: "go.mod"
-
       - name: Download coverage report artifact
         uses: actions/download-artifact@v3
         continue-on-error: true # OK if coverage is missing.
         with:
           name: coverage.out
 
-      - name: Test source code
-        shell: bash
-        run: go test -v -covermode=atomic -coverprofile=coverage.out ./...
-
-      - name: (Debug) print coverage report
-        continue-on-error: true # OK if coverage is missing.
-        shell: bash
-        run: |
-          echo "Coverage (original):\n"
-          cat coverage2.out
-
-          echo "\nCoverage (new):\n"
-          cat coverage.out
-
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
-          flags: project
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
