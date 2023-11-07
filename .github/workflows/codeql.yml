@@ -21,10 +21,35 @@ on:
     - cron: "38 21 * * 3"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    outputs:
+      has_source_change: ${{ steps.check-source.outputs.any_modified }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for any Go source code changes
+        id: check-source
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            **/*.go
+            go.mod
+            go.sum
+
   analyze:
+    needs: ["changes"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
     name: Analyze
     runs-on: "ubuntu-latest"
     timeout-minutes: 12
+
     permissions:
       actions: read
       contents: read
