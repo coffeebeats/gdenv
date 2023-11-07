@@ -17,41 +17,58 @@ import (
 /* ------------------------------- Test: Read ------------------------------- */
 
 func TestRead(t *testing.T) {
-	v := version.MustParse("1.0.0-stable")
-
 	tests := []struct {
-		path     string
-		existing bool
-		want     version.Version
-		err      error
+		name string
+
+		path  fstest.Filepath
+		files []fstest.Writer
+
+		want version.Version
+		err  error
 	}{
-		{"", true, v, nil},
-		{"a/b/c", true, v, nil},
-		{"", false, version.Version{}, ErrMissingPin},
+		// Invalid inputs
+		{
+			name: "missing path returns an error",
+			path: fstest.Exact(""),
+			err:  ErrMissingPath,
+		},
+		{
+			name:  "invalid pin file returns an error",
+			path:  fstest.Absolute(".godot-version"),
+			files: []fstest.Writer{fstest.File{Path: ".godot-version", Contents: "invalid"}},
+			err:   version.ErrInvalid,
+		},
+		{
+			name: "missing file returns an error",
+			path: fstest.Relative(".godot-version"),
+			err:  ErrMissingPin,
+		},
+
+		// Valid inputs
+		{
+			name:  "specifying an exact file reads it",
+			path:  fstest.Absolute(".godot-version"),
+			files: []fstest.Writer{fstest.File{Path: ".godot-version", Contents: "v1.0-stable"}},
+			want:  version.MustParse("1.0.0-stable"),
+		},
+		{
+			name:  "specifying a directory reads the file within that directory",
+			path:  fstest.Absolute("a/b/c"),
+			files: []fstest.Writer{fstest.File{Path: "a/b/c/.godot-version", Contents: "v1.0-stable"}},
+			want:  version.MustParse("1.0.0-stable"),
+		},
 	}
 
 	for i, tc := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			tmp := t.TempDir()
-			path := filepath.Join(tmp, tc.path)
 
-			pin, err := clean(path)
-			if err != nil {
-				t.Fatalf("test setup: %v", err)
+			// Given: The specified files exist on the file system.
+			for _, f := range tc.files {
+				f.Write(t, tmp)
 			}
 
-			if tc.existing {
-				// Create the pin file
-				if err := os.MkdirAll(filepath.Dir(pin), osutil.ModeUserRWXGroupRX); err != nil {
-					t.Fatalf("test setup: %v", err)
-				}
-
-				if err := os.WriteFile(pin, []byte(v.String()), osutil.ModeUserRW); err != nil {
-					t.Fatalf("test setup: %v", err)
-				}
-			}
-
-			got, err := Read(path)
+			got, err := Read(tc.path.Resolve(t, tmp))
 			if !errors.Is(err, tc.err) {
 				t.Errorf("err: got %v, want %v", err, tc.err)
 			}
