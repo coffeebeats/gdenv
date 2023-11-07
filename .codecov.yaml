@@ -1,5 +1,5 @@
 flags:
-  project:
+  gdenv:
     carryforward: true
     paths:
       - "*"
