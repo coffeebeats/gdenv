@@ -14,7 +14,6 @@ import (
 
 var (
 	ErrMissingPin     = errors.New("missing version pin")
-	ErrParseVersion   = errors.New("failed to parse version")
 	ErrUnexpectedFile = errors.New("unexpected file")
 )
 
@@ -44,7 +43,7 @@ func Read(path string) (version.Version, error) {
 
 	v, err := version.Parse(string(bytes))
 	if err != nil {
-		return version.Version{}, errors.Join(ErrParseVersion, err)
+		return version.Version{}, err
 	}
 
 	return v, nil

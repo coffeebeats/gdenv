@@ -15,7 +15,10 @@ import (
 /* -------------------------------------------------------------------------- */
 
 type File struct {
-	Path, Contents string
+	// Path is a filepath that will be treated relative to a base directory.
+	Path string
+	// Contents are written to the created file.
+	Contents string
 }
 
 /* ----------------------------- Impl: Asserter ----------------------------- */
