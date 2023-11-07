@@ -144,7 +144,33 @@ jobs:
         shell: bash
         run: go test -v -covermode=atomic -coverprofile=coverage.out ./...
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage.out
+          path: coverage.out
+          if-no-files-found: error
+
+  coverage:
+    needs: ["test"]
+    if: |
+      always() &&
+      needs.test.result == 'success' ||
+      needs.test.result == 'skipped'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download coverage report artifact
+        uses: actions/download-artifact@v3
+        continue-on-error: true # OK if coverage is missing.
+        with:
+          name: coverage.out
+
+      - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
@@ -154,7 +180,7 @@ jobs:
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
   branch_protection:
-    needs: ["format", "lint", "build", "test"]
+    needs: ["coverage", "format", "lint", "build", "test"]
     if: ${{ always() }}
 
     runs-on: ubuntu-latest
@@ -165,6 +191,14 @@ jobs:
         shell: bash
 
     steps:
+      - name: Verify 'coverage' status
+        if: |
+          always() &&
+          needs.coverage.result == 'failure' ||
+          needs.coverage.result == 'cancelled'
+        shell: bash
+        run: exit 1
+
       - name: Verify 'format' status
         if: |
           always() &&
