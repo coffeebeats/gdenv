@@ -20,6 +20,7 @@ type Filepath interface {
 // Exact is a wrapper around a filepath that is returned as-is.
 type Exact string
 
+// Compile-time check that 'Filepath' is implemented.
 var _ Filepath = (*Exact)(nil)
 
 /* -------------------------- Impl: fstest.Filepath ------------------------- */
@@ -36,6 +37,9 @@ func (e Exact) Resolve(t *testing.T, _ string) string {
 
 // Relative is a wrapper around a filepath that returns a relative path.
 type Relative string
+
+// Compile-time check that 'Filepath' is implemented.
+var _ Filepath = (*Relative)(nil)
 
 /* -------------------------- Impl: fstest.Filepath ------------------------- */
 
@@ -63,6 +67,9 @@ func (r Relative) Resolve(t *testing.T, pathBaseDir string) string {
 
 // Absolute is a wrapper around a filepath that returns an absolute path.
 type Absolute string
+
+// Compile-time check that 'Filepath' is implemented.
+var _ Filepath = (*Absolute)(nil)
 
 /* -------------------------- Impl: fstest.Filepath ------------------------- */
 
