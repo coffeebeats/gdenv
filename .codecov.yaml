@@ -1,0 +1,5 @@
+flags:
+  project:
+    carryforward: true
+    paths:
+      - "*"
