@@ -1,12 +1,5 @@
-coverage:
-  status:
-    project:
-      default:
-        flags:
-          - project
-
 flags:
-  project:
+  gdenv:
     carryforward: true
     paths:
       - "*"
