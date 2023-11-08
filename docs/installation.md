@@ -9,17 +9,19 @@ Alternatively, you can install `gdenv` from source using the latest supported ve
 
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
-### **Linux/MacOS — `sh` (recommended)**
+### **Linux/MacOS (recommended)**
 
 ```sh
 curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | sh
 ```
 
-### **Windows - `Git BASH for Windows` (recommended)**
+### **Windows (recommended)**
 
-> ❕ **NOTE:** If you're using [Git BASH for Windows](https://gitforwindows.org/), use the [Linux/MacOS instructions](#linuxmacos--sh-recommended).
+#### **Git BASH for Windows**
 
-### **Windows — `powershell` (recommended)**
+If you're using [Git BASH for Windows](https://gitforwindows.org/) follow the recommended [Linux/MacOS](#linuxmacos-recommended) instructions.
+
+#### **Powershell**
 
 > ❕ **NOTE:** In order to run scripts in PowerShell, the [execution policy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) must _not_ be `Restricted`. Consider running the following command
 > if you encounter `UnauthorizedAccess` errors when following these instructions. See [Set-ExecutionPolicy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy) documentation for details.
