@@ -99,7 +99,7 @@ Once `gdenv` and `gdenv-shim` are installed a few things need to be configured. 
         ln -s $(which gdenv-shim) $GDENV_HOME/bin/godot
     ```
 
-### **Windows - `powershell`**
+### **Windows (Powershell)**
 
 1. Export the `GDENV_HOME` environment variable using the following:
 
