@@ -79,7 +79,9 @@ func main() { //nolint:funlen
 		stop()
 	}()
 
-	setUpLogger()
+	if err := setUpLogger(); err != nil {
+		panic(err)
+	}
 
 	if err := app.RunContext(ctx, os.Args); err != nil {
 		var usageErr UsageError
@@ -121,19 +123,32 @@ func (e UsageError) Error() string {
 /* -------------------------------------------------------------------------- */
 
 // setUpLogger configures the package-level charm.sh 'log' logger.
-func setUpLogger() {
-	// Configure the logging level based on an environment variable.
-	log.SetLevel(log.ParseLevel(os.Getenv(envLogLevel)))
-
+func setUpLogger() error {
 	// Configure timestamp reporting.
 	log.SetReportTimestamp(false)
 
-	// Configure styles
-	log.DebugLevelStyle = newStyleWithColor("debug", colorCyanBright)
-	log.InfoLevelStyle = newStyleWithColor("info", colorGreenBright)
-	log.WarnLevelStyle = newStyleWithColor("warn", colorYellowBright)
-	log.ErrorLevelStyle = newStyleWithColor("error", colorRedBright) //nolint:reassign
-	log.FatalLevelStyle = newStyleWithColor("fatal", colorMagentaBright)
+	// Configure styles for each log level.
+	s := log.DefaultStyles()
+	s.Levels[log.DebugLevel] = newStyleWithColor("debug", colorCyanBright)
+	s.Levels[log.InfoLevel] = newStyleWithColor("info", colorGreenBright)
+	s.Levels[log.WarnLevel] = newStyleWithColor("warn", colorYellowBright)
+	s.Levels[log.ErrorLevel] = newStyleWithColor("error", colorRedBright)
+	s.Levels[log.FatalLevel] = newStyleWithColor("fatal", colorMagentaBright)
+
+	log.SetStyles(s)
+
+	// Try to parse a log level override.
+	if envLevel := os.Getenv(envLogLevel); envLevel != "" {
+		level, err := log.ParseLevel(envLevel)
+		if err != nil {
+			return err
+		}
+
+		// Configure the default logging level.
+		log.SetLevel(level)
+	}
+
+	return nil
 }
 
 /* ----------------------- Function: newStyleWithColor ---------------------- */
