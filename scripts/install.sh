@@ -47,7 +47,7 @@ fatal() {
 
 unsupported_platform() {
     error "$1"
-    echo "See https://github.com/coffeebeats/gdenv#compile-from-source-not-recommended for instructions on compiling from source."
+    echo "See https://github.com/coffeebeats/gdenv/blob/main/docs/installation.md#install-from-source for instructions on compiling from source."
     exit 1
 }
 
