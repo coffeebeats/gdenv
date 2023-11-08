@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.3 (2023-11-08)
+
+## What's Changed
+* chore(docs): improve readability of `README.md` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/146
+* chore: update `github.com/charmbracelet/log` to `v0.3.0` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/148
+* chore: run `go mod tidy` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/150
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.2...v0.6.3
+
 ## 0.6.2 (2023-11-07)
 
 ## What's Changed
