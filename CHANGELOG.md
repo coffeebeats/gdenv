@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.4 (2023-11-08)
+
+## What's Changed
+* chore(docs): update link to compilation instructions by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/151
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.3...v0.6.4
+
 ## 0.6.3 (2023-11-08)
 
 ## What's Changed
