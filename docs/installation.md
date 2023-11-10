@@ -40,29 +40,26 @@ Invoke-WebRequest `
 
 ### **Manual download**
 
-> ❕ **NOTE:** The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _PowerShell_, the process will be similar.
+> ❕ **NOTE:** The instructions below provide `bash`-specific commands for a _Linux_-based system. While these won't work in _Powershell_, the process will be similar.
 
-1. Download a prebuilt binary from the corresponding GitHub release.
+1. Download a prebuilt binary from the corresponding GitHub release. Set `VERSION`, `OS`, and `ARCH` to the desired values.
 
     ```sh
-    # Set '$VERSION', '$OS', and '$ARCH' to the desired values.
     VERSION=0.0.0 OS=linux ARCH=x86_64; \
     curl -LO https://github.com/coffeebeats/gdenv/releases/download/v$VERSION/gdenv-$VERSION-$OS-$ARCH.tar.gz
     ```
 
-2. Extract the downloaded archive.
+2. Extract the downloaded archive. To customize the `gdenv` install location, set `GDENV_HOME` to the desired location (defaults to `$HOME/.gdenv` on Linux/MacOS).
 
     ```sh
-    # Set '$GDENV_HOME' to the desired location (defaults to '$HOME/.gdenv' on Linux/MacOS).
     GDENV_HOME=$HOME/.gdenv; \
     mkdir -p $GDENV_HOME/bin && \
     tar -C $GDENV_HOME/bin -xf gdenv-$VERSION-$OS-$ARCH.tar.gz
     ```
 
-3. Export the `GDENV_HOME` environment variable and add `$GDENV_HOME/bin` to `$PATH`.
+3. Export the `GDENV_HOME` environment variable and add `$GDENV_HOME/bin` to `PATH`. Add the following to your shell profile script (e.g. in `.bashrc`, `.zshenv`, `.profile`, or something similar).
 
     ```sh
-    # In '.bashrc' or something similar ('$GDENV_HOME' can be customized).
     export GDENV_HOME="$HOME/.gdenv"
     export PATH="$GDENV_HOME/bin:$PATH"
     ```
