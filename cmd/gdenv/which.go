@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/charmbracelet/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
-	"github.com/urfave/cli/v2"
 )
 
 // A 'urfave/cli' command to print the path to the effective Godot binary.

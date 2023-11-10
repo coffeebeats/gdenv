@@ -6,13 +6,14 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/go-resty/resty/v2"
+	"github.com/jarcoal/httpmock"
+
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
-	"github.com/go-resty/resty/v2"
-	"github.com/jarcoal/httpmock"
 )
 
 /* ------------------------------ Test: Select ------------------------------ */

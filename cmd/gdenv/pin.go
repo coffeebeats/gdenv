@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/pin"
-	"github.com/urfave/cli/v2"
 )
 
 var (

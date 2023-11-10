@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ulikunitz/xz"
+
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/progress"
-	"github.com/ulikunitz/xz"
 )
 
 const extensionTarXZ = ".tar.xz"

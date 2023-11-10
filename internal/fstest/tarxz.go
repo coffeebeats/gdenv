@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/ulikunitz/xz"
+
+	"github.com/coffeebeats/gdenv/internal/osutil"
 )
 
 /* -------------------------------------------------------------------------- */
