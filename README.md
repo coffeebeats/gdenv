@@ -102,15 +102,15 @@ However, to simplify use of `gdenv` when _Mono_ builds are desired, the followin
 
 ## **Development**
 
+### Setup
+
 The following instructions outline how to get the project set up for local development:
 
 1. [Follow the instructions](https://go.dev/doc/install) to install Go (see [go.mod](./go.mod) for the minimum required version).
 2. Clone the [coffeebeats/gdenv](https://github.com/coffeebeats/gdenv) repository.
-3. Install the [required tools](./tools.go) using the following command ([see this article](https://www.alexedwards.net/blog/using-go-run-to-manage-tool-dependencies) for more explanation):
+3. Install the tools [used below](#code-submission) by following each of their specific installation instructions.
 
-    ```sh
-    cat tools.go | grep _ | grep -v '//' | awk -F'"' '{print $2}' | xargs -tI % go install %
-    ```
+### Code submission
 
 When submitting code for review, ensure the following requirements are met:
 
