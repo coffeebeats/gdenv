@@ -10,7 +10,7 @@
 # NOTE: Unlike the 'install.sh' counterpart, this script exclusively installs
 # the 'gdenv' binary for 64-bit Windows. If an alternative 'gdenv' binary is
 # required, follow the documentation for an alternative means of installation:
-# https://github.com/coffeebeats/gdenv/blob/v0.6.3/docs/installation.md # x-release-please-version
+# https://github.com/coffeebeats/gdenv/v0.6.3/docs/installation.md # x-release-please-version
 
 <#
 .SYNOPSIS
