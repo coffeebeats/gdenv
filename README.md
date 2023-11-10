@@ -51,6 +51,7 @@ gdenv vendor --out /path/to/project 4.0
   <summary><b>Check which version of <i>Godot</i> would be used</b></summary>
 
 ```sh
+# Omit the `--path` option to pin the current directory
 gdenv which --path /path/to/check 4.0
 ```
 
