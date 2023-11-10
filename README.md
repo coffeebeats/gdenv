@@ -14,21 +14,48 @@ These instructions will help you install `gdenv` and pin projects (or your syste
 
 ### **Example usage**
 
-> NOTE: For _Mono_-flavored builds, see [Version selection (C#/_Mono_ support)](#version-selection-cmono-support).
+<details open>
+  <summary><b>Install a global (system-wide) <i>Godot</i> version</b></summary>
 
-#### **Install a global (system-wide) _Godot_ version**
+</br>
+
+> NOTE: For _Mono_-flavored builds, see [Version selection (C#/_Mono_ support)](#version-selection-cmono-support).
 
 ```sh
 gdenv pin -ig 4.0
 ```
 
-#### **Pin a project to a specific _Godot_ version**
+</details>
+
+<details open>
+  <summary><b>Pin a project to a specific <i>Godot</i> version</b></summary>
 
 ```sh
 # Omit the `--path` option to pin the current directory;
 #   the `-i` flag instructs `gdenv` to download the pinned version to its cache.
 gdenv pin -i --path /path/to/project 4.0
 ```
+
+</details>
+
+<details>
+  <summary><b>Vendor the <i>Godot</i> source code</b></summary>
+
+```sh
+gdenv vendor --out /path/to/project 4.0
+```
+
+</details>
+
+<details>
+  <summary><b>Check which version of <i>Godot</i> would be used</b></summary>
+
+```sh
+# Omit the `--path` option to pin the current directory
+gdenv which --path /path/to/check 4.0
+```
+
+</details>
 
 ### **Installation**
 
@@ -76,28 +103,30 @@ However, to simplify use of `gdenv` when _Mono_ builds are desired, the followin
 
 ## **Development**
 
+### Setup
+
 The following instructions outline how to get the project set up for local development:
 
 1. [Follow the instructions](https://go.dev/doc/install) to install Go (see [go.mod](./go.mod) for the minimum required version).
 2. Clone the [coffeebeats/gdenv](https://github.com/coffeebeats/gdenv) repository.
-3. Install the [required tools](./tools.go) using the following command ([see this article](https://www.alexedwards.net/blog/using-go-run-to-manage-tool-dependencies) for more explanation):
+3. Install the tools [used below](#code-submission) by following each of their specific installation instructions.
 
-    ```sh
-    cat tools.go | grep _ | grep -v '//' | awk -F'"' '{print $2}' | xargs -tI % go install %
-    ```
+### Code submission
 
 When submitting code for review, ensure the following requirements are met:
 
-1. The project is correctly formatted using [go fmt](https://go.dev/blog/gofmt):
+> ❕ **NOTE:** These instructions do not persist the tools to your development environment. When regular use is required, follow each tool's individual instructions to install permanent versions.
+
+1. The project is correctly formatted using [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports):
 
     ```sh
-    go fmt ./...
+    go run golang.org/x/tools/cmd/goimports@latest -w .
     ```
 
 2. All [golangci-lint](https://golangci-lint.run/) linter warnings are addressed:
 
     ```sh
-    golangci-lint run ./...
+    go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run ./...
     ```
 
 3. All unit tests pass and no data races are found:
@@ -106,10 +135,10 @@ When submitting code for review, ensure the following requirements are met:
     go test -race ./...
     ```
 
-4. The `gdenv` and `gdenv-shim` binaries successfully compile (release artifacts will be available at `./dist`):
+4. The `gdenv` and `gdenv-shim` binaries successfully compile with [goreleaser](https://goreleaser.com/) (release artifacts will be available at `./dist`):
 
     ```sh
-    goreleaser release --clean --skip=publish --snapshot
+    go run github.com/goreleaser/goreleaser@latest release --clean --skip=publish --snapshot
     ```
 
 ## **Contributing**

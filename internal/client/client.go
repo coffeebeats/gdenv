@@ -11,8 +11,9 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/coffeebeats/gdenv/pkg/progress"
 	"github.com/go-resty/resty/v2"
+
+	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
 const (

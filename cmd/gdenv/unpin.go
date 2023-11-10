@@ -4,9 +4,10 @@ import (
 	"errors"
 
 	"github.com/charmbracelet/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
-	"github.com/urfave/cli/v2"
 )
 
 // A 'urfave/cli' command to remove a version pin.

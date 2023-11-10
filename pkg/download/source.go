@@ -3,11 +3,12 @@ package download
 import (
 	"context"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/checksum"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
-	"golang.org/x/sync/errgroup"
 )
 
 /* -------------------------------------------------------------------------- */

@@ -7,8 +7,9 @@ import (
 	"hash"
 
 	"github.com/charmbracelet/log"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 )
 
 var (

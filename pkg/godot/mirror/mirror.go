@@ -5,9 +5,10 @@ import (
 	"errors"
 	"slices"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"golang.org/x/sync/errgroup"
 )
 
 var (

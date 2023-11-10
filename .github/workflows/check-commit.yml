@@ -62,16 +62,16 @@ jobs:
         id: format
         continue-on-error: true
         run: |
-          go install golang.org/x/tools/cmd/goimports
+          go install golang.org/x/tools/cmd/goimports@latest
 
           test -z $(gofmt -l .)
-          test -z $(goimports -l .)
+          test -z $(goimports -local github.com/coffeebeats/gdenv -l .)
 
       - name: Fix formatting of source code
         if: steps.format.outcome == 'failure'
         run: |
           gofmt -w .
-          goimports -w .
+          goimports -local github.com/coffeebeats/gdenv -w .
 
           # See https://github.com/orgs/community/discussions/26560#discussioncomment-3531273
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

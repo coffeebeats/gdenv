@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
@@ -14,7 +16,6 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/install"
 	"github.com/coffeebeats/gdenv/pkg/pin"
 	"github.com/coffeebeats/gdenv/pkg/store"
-	"github.com/urfave/cli/v2"
 )
 
 var (

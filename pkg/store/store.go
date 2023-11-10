@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"

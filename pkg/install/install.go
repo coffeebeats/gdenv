@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+
 	"github.com/coffeebeats/gdenv/pkg/download"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"

@@ -9,13 +9,14 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/urfave/cli/v2"
+
 	"github.com/coffeebeats/gdenv/internal/osutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/store"
-	"github.com/urfave/cli/v2"
 )
 
 // A 'urfave/cli' command to download and cache a specific version of the Godot
