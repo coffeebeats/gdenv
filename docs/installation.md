@@ -1,25 +1,24 @@
-
 # **Installation**
 
 The easiest way to install `gdenv` is by using the pre-built binaries. These can be manually downloaded and configured, but automated installation scripts are provided and recommended.
 
 Alternatively, you can install `gdenv` from source using the latest supported version of [Go](https://go.dev/). See [Install from source](#install-from-source) for more details.
 
-## **Pre-built binaries**
+## **Pre-built binaries (recommended)**
 
 > ⚠️ **WARNING:** It's good practice to inspect an installation script prior to execution. The scripts are included in this repository and can be reviewed prior to use.
 
-### **Linux/MacOS (recommended)**
+### **Linux/MacOS**
 
 ```sh
 curl https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.sh | sh
 ```
 
-### **Windows (recommended)**
+### **Windows**
 
 #### **Git BASH for Windows**
 
-If you're using [Git BASH for Windows](https://gitforwindows.org/) follow the recommended [Linux/MacOS](#linuxmacos-recommended) instructions.
+If you're using [Git BASH for Windows](https://gitforwindows.org/) follow the recommended [Linux/MacOS](#linuxmacos) instructions.
 
 #### **Powershell**
 
@@ -35,7 +34,8 @@ Invoke-WebRequest `
     -UseBasicParsing `
     -Uri "https://raw.githubusercontent.com/coffeebeats/gdenv/main/scripts/install.ps1" `
     -OutFile "./install-gdenv.ps1"; `
-    &"./scripts/install-gdenv.ps1"
+    &"./install-gdenv.ps1"; `
+    Remove-Item "./install-gdenv.ps1"
 ```
 
 ### **Manual download**
