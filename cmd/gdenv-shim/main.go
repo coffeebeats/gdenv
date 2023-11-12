@@ -76,6 +76,7 @@ func execute(ctx context.Context) error {
 	case platform.Windows:
 		cmd := exec.Command(binary, os.Args[1:]...)
 
+		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
