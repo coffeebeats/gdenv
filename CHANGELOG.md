@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.5 (2023-11-12)
+
+## What's Changed
+* fix(cmd/gdenv-shim): ensure new process has Stdin connected by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/159
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.4...v0.6.5
+
 ## 0.6.4 (2023-11-10)
 
 ## What's Changed
