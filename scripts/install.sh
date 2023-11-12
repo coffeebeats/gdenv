@@ -110,7 +110,7 @@ parse_params "$@"
 
 # ------------------------------ Define: Version ----------------------------- #
 
-GDENV_VERSION="${GDENV_VERSION=0.6.5}" # x-release-please-version
+GDENV_VERSION="${GDENV_VERSION=0.6.6}" # x-release-please-version
 GDENV_VERSION="v${GDENV_VERSION#v}"
 
 # ----------------------------- Define: Platform ----------------------------- #

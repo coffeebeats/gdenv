@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.6 (2023-11-12)
+
+## What's Changed
+* chore(cmd/gdenv): remove extra newline after version by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/161
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.5...v0.6.6
+
 ## 0.6.5 (2023-11-12)
 
 ## What's Changed
