@@ -262,7 +262,7 @@ CMD_MODIFY_PATH="export PATH=\"\$GDENV_HOME/bin:\$PATH\""
 case $(basename $SHELL) in
 sh) OUT="$HOME/.profile" ;;
 bash) OUT="$HOME/.bashrc" ;;
-zsh) OUT="$HOME/.zshenv" ;;
+zsh) OUT="$HOME/.zshrc" ;;
 *)
     echo ""
     echo "Add the following to your shell profile script:"
