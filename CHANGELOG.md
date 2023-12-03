@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.7 (2023-12-03)
+
+## What's Changed
+* chore(deps): bump github.com/charmbracelet/log from 0.3.0 to 0.3.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/163
+* chore: add exported environment variables to `.zshrc` instead of `.zshenv` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/165
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.6...v0.6.7
+
 ## 0.6.6 (2023-11-12)
 
 ## What's Changed
