@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+
+  "pull-request-title-pattern": "chore: release v${version}",
+  "changelog-type": "github",
+
+  "packages": {
+    ".": {
+      "release-type": "go",
+
+      "changelog-path": "CHANGELOG.md",
+
+      "extra-files": [
+        "cmd/gdenv/main.go",
+        "scripts/install.ps1",
+        "scripts/install.sh"
+      ]
+    }
+  }
+}
