@@ -41,7 +41,7 @@ jobs:
 
   publish:
     needs: ["release-please"]
-    if: needs.release-please.outputs.release-created
+    if: needs.release-please.outputs.release-created == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 12
