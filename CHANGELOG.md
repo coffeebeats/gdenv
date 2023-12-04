@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.8 (2023-12-04)
+
+## What's Changed
+* chore(ci): migrate `release-please` to version `4` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/168
+* fix(ci): correctly skip publish step if no release was created by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/170
+* chore(deps): bump github.com/urfave/cli/v2 from 2.25.7 to 2.26.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/166
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.7...v0.6.8
+
 ## 0.6.7 (2023-12-03)
 
 ## What's Changed
