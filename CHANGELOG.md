@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.9 (2023-12-22)
+
+## What's Changed
+* chore(deps): bump actions/setup-go from 4 to 5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/171
+* chore(deps): bump github/codeql-action from 2 to 3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/173
+* fix(ci): skip format job if triggered by dependabot by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/174
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.8...v0.6.9
+
 ## 0.6.8 (2023-12-04)
 
 ## What's Changed
