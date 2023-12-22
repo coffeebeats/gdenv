@@ -35,7 +35,9 @@ jobs:
 
   format:
     needs: ["changes"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    if: |
+      needs.changes.outputs.has_source_change == 'true' &&
+      github.actor != 'dependabot'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
