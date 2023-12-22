@@ -22,5 +22,13 @@
   "gopls": {
     "formatting.gofumpt": false,
     "formatting.local": "github.com/coffeebeats/gdenv"
+  },
+
+  /* ------------------------ Extensions: markdownlint ------------------------ */
+
+  "markdownlint.config": {
+    "MD024": {
+      "siblings_only": true
+    }
   }
 }
