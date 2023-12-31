@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.9 (2023-12-31)
+
+## What's Changed
+* chore(deps): bump actions/setup-go from 4 to 5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/171
+* chore(deps): bump github/codeql-action from 2 to 3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/173
+* fix(ci): skip format job if triggered by dependabot by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/174
+* chore: configure `markdownlint` to allow non-sibling repeat headings by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/175
+* fix(ci): use correct dependabot name by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/180
+* chore(deps): bump tj-actions/changed-files from 40 to 41 by @dependabot in https://github.com/coffeebeats/gdenv/pull/177
+* chore(deps): bump github.com/urfave/cli/v2 from 2.26.0 to 2.27.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/178
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.10.0 to 2.11.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/179
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.8...v0.6.9
+
 ## 0.6.8 (2023-12-04)
 
 ## What's Changed
