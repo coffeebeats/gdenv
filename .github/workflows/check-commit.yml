@@ -43,6 +43,22 @@ jobs:
           files: |
             **/*.go
 
+  debug:
+    needs: ["changes"]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo "has_change: ${{ needs.changes.outputs.has_change }}"
+          echo "has_source_change: ${{ needs.changes.outputs.has_source_change }}"
+          echo "has_change == 'true': ${{ needs.changes.outputs.has_change == 'true' }}"
+          echo "has_source_change == 'true': ${{ needs.changes.outputs.has_source_change == 'true' }}"
+          echo "has_change == true: ${{ needs.changes.outputs.has_change == true }}"
+          echo "has_source_change == true: ${{ needs.changes.outputs.has_source_change == true }}"
+
+      - run: exit 1
+
   format:
     needs: ["changes"]
     if: |
