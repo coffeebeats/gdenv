@@ -17,8 +17,8 @@ jobs:
     timeout-minutes: 4
 
     outputs:
-      has_change: ${{ steps.check-non-source.outputs.any_modified || steps.check-source.outputs.any_modified }}
-      has_source_change: ${{ steps.check-source.outputs.any_modified }}
+      has_change: "${{ steps.check-non-source.outputs.any_modified || steps.check-source.outputs.any_modified }}"
+      has_source_change: "${{ steps.check-source.outputs.any_modified }}"
 
     steps:
       - uses: actions/checkout@v4
