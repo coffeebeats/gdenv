@@ -45,6 +45,7 @@ jobs:
 
   debug:
     needs: ["changes"]
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
 
