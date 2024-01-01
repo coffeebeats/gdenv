@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -43,23 +47,6 @@ jobs:
           files: |
             **/*.go
 
-  debug:
-    needs: ["changes"]
-    if: needs.changes.outputs.has_change == 'true'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - run: |
-          echo "has_change: ${{ needs.changes.outputs.has_change }}"
-          echo "has_source_change: ${{ needs.changes.outputs.has_source_change }}"
-          echo "has_change == 'true': ${{ needs.changes.outputs.has_change == 'true' }}"
-          echo "has_source_change == 'true': ${{ needs.changes.outputs.has_source_change == 'true' }}"
-          echo "has_change == true: ${{ needs.changes.outputs.has_change == true }}"
-          echo "has_source_change == true: ${{ needs.changes.outputs.has_source_change == true }}"
-
-      - run: exit 1
-
   format:
     needs: ["changes"]
     if: |
@@ -68,10 +55,6 @@ jobs:
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
-
-    defaults:
-      run:
-        shell: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -115,16 +98,29 @@ jobs:
         if: steps.format.outcome == 'failure'
         run: exit 1
 
-  lint:
+  build:
     needs: ["changes"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
-    defaults:
-      run:
-        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build source code
+        run: go build -v ./...
+
+  lint:
+    needs: ["changes", "build", "format"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
 
     steps:
       - uses: actions/checkout@v4
@@ -139,26 +135,8 @@ jobs:
         with:
           version: latest
 
-  build:
-    needs: ["changes", "format", "lint"]
-    if: needs.changes.outputs.has_change == 'true'
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 4
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-
-      - name: Build source code
-        shell: bash
-        run: go build -v ./...
-
   test:
-    needs: ["changes", "format", "lint"]
+    needs: ["changes", "build"]
     if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
@@ -172,7 +150,6 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Test source code
-        shell: bash
         run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report to Codecov
@@ -192,17 +169,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - name: Verify 'format' status
         if: |
           always() &&
           needs.format.result == 'failure' ||
           needs.format.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'lint' status
@@ -210,7 +182,6 @@ jobs:
           always() &&
           needs.lint.result == 'failure' ||
           needs.lint.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'build' status
@@ -218,7 +189,6 @@ jobs:
           always() &&
           needs.build.result == 'failure' ||
           needs.build.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'test' status
@@ -226,5 +196,4 @@ jobs:
           always() &&
           needs.test.result == 'failure' ||
           needs.test.result == 'cancelled'
-        shell: bash
         run: exit 1
