@@ -17,6 +17,7 @@ jobs:
     timeout-minutes: 4
 
     outputs:
+      has_change: ${{ steps.check-non-source.outputs.any_modified || steps.check-source.outputs.any_modified }}
       has_source_change: ${{ steps.check-source.outputs.any_modified }}
 
     steps:
@@ -24,8 +25,8 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Check for any Go source code changes
-        id: check-source
+      - name: Check for any non-source code changes
+        id: check-non-source
         uses: tj-actions/changed-files@v41
         with:
           files: |
@@ -35,6 +36,11 @@ jobs:
             go.mod
             go.sum
 
+      - name: Check for any source code changes
+        id: check-source
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
             **/*.go
 
   format:
@@ -118,7 +124,7 @@ jobs:
 
   build:
     needs: ["changes", "format", "lint"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -136,7 +142,7 @@ jobs:
 
   test:
     needs: ["changes", "format", "lint"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -154,6 +160,7 @@ jobs:
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
+        if: needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
           flags: gdenv
