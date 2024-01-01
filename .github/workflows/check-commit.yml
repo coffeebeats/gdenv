@@ -29,9 +29,13 @@ jobs:
         uses: tj-actions/changed-files@v41
         with:
           files: |
-            **/*.go
+            .github/actions/**
+            .github/workflows/**
+
             go.mod
             go.sum
+
+            **/*.go
 
   format:
     needs: ["changes"]
