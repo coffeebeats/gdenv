@@ -11,27 +11,41 @@ on:
 permissions:
   contents: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
     outputs:
-      has_source_change: ${{ steps.check-source.outputs.any_modified }}
+      has_change: "${{ steps.check-non-source.outputs.any_modified || steps.check-source.outputs.any_modified }}"
+      has_source_change: "${{ steps.check-source.outputs.any_modified }}"
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Check for any Go source code changes
+      - name: Check for any non-source code changes
+        id: check-non-source
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            .github/actions/**
+            .github/workflows/**
+
+            go.mod
+            go.sum
+
+      - name: Check for any source code changes
         id: check-source
         uses: tj-actions/changed-files@v41
         with:
           files: |
             **/*.go
-            go.mod
-            go.sum
 
   format:
     needs: ["changes"]
@@ -41,10 +55,6 @@ jobs:
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
-
-    defaults:
-      run:
-        shell: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -88,16 +98,29 @@ jobs:
         if: steps.format.outcome == 'failure'
         run: exit 1
 
-  lint:
+  build:
     needs: ["changes"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
-    defaults:
-      run:
-        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build source code
+        run: go build -v ./...
+
+  lint:
+    needs: ["changes", "build", "format"]
+    if: needs.changes.outputs.has_source_change == 'true'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
 
     steps:
       - uses: actions/checkout@v4
@@ -112,27 +135,9 @@ jobs:
         with:
           version: latest
 
-  build:
-    needs: ["changes", "format", "lint"]
-    if: needs.changes.outputs.has_source_change == 'true'
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 4
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-
-      - name: Build source code
-        shell: bash
-        run: go build -v ./...
-
   test:
-    needs: ["changes", "format", "lint"]
-    if: needs.changes.outputs.has_source_change == 'true'
+    needs: ["changes", "build"]
+    if: needs.changes.outputs.has_change == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -145,11 +150,11 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Test source code
-        shell: bash
         run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
+        if: needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
           flags: gdenv
@@ -164,17 +169,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - name: Verify 'format' status
         if: |
           always() &&
           needs.format.result == 'failure' ||
           needs.format.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'lint' status
@@ -182,7 +182,6 @@ jobs:
           always() &&
           needs.lint.result == 'failure' ||
           needs.lint.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'build' status
@@ -190,7 +189,6 @@ jobs:
           always() &&
           needs.build.result == 'failure' ||
           needs.build.result == 'cancelled'
-        shell: bash
         run: exit 1
 
       - name: Verify 'test' status
@@ -198,5 +196,4 @@ jobs:
           always() &&
           needs.test.result == 'failure' ||
           needs.test.result == 'cancelled'
-        shell: bash
         run: exit 1
