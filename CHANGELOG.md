@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.10 (2024-01-01)
+
+## What's Changed
+* feat(ci): add a workflow to auto-merge a Dependabot PR by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/183
+* chore(deps): bump github.com/urfave/cli/v2 from 2.27.0 to 2.27.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/182
+* fix(ci): remove example condition from workflow step by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/185
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.9...v0.6.10
+
 ## 0.6.9 (2023-12-31)
 
 ## What's Changed
