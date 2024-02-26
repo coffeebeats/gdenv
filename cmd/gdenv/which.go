@@ -18,6 +18,8 @@ func NewWhich() *cli.Command {
 		UsageText: "gdenv which [OPTIONS]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.StringFlag{
 				Name:    "path",
 				Aliases: []string{"p"},

@@ -35,6 +35,8 @@ func NewInstall() *cli.Command { //nolint:funlen
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "force",
 				Aliases: []string{"f"},

@@ -23,6 +23,8 @@ func NewUninstall() *cli.Command {
 		UsageText: "gdenv uninstall [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "all",
 				Aliases: []string{"a"},

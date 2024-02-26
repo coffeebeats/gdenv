@@ -18,6 +18,8 @@ func NewVendor() *cli.Command {
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "force",
 				Aliases: []string{"f"},

@@ -11,7 +11,7 @@ import (
 )
 
 // A 'urfave/cli' command to remove a version pin.
-func NewUnpin() *cli.Command {
+func NewUnpin() *cli.Command { //nolint:funlen
 	return &cli.Command{
 		Name:     "unpin",
 		Category: "Pin",
@@ -20,6 +20,8 @@ func NewUnpin() *cli.Command {
 		UsageText: "gdenv unpin [OPTIONS]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "global",
 				Aliases: []string{"g"},

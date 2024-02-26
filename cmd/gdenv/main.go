@@ -43,8 +43,11 @@ func main() { //nolint:funlen
 		Suggest:                true,
 		UseShortOptionHandling: true,
 
-		Commands: []*cli.Command{
+		Flags: []cli.Flag{
+			newVerboseFlag(),
+		},
 
+		Commands: []*cli.Command{
 			/* -------------------------------- Pin/Unpin ------------------------------- */
 
 			NewPin(),
@@ -182,4 +185,31 @@ func newStyleWithColor(name string, ansiColor int) lipgloss.Style {
 // versionPrinter prints a 'gdenv' version string to the terminal.
 func versionPrinter(cCtx *cli.Context) {
 	log.Printf("gdenv %s", cCtx.App.Version)
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Function: newVerboseFlag                          */
+/* -------------------------------------------------------------------------- */
+
+// newVerboseFlag creates a new standardize verbosity flag which handles
+// updating the log level.
+func newVerboseFlag() *cli.BoolFlag {
+	return &cli.BoolFlag{
+		Name:               "verbose",
+		Usage:              "increase log verbosity",
+		Aliases:            []string{"v"},
+		DisableDefaultText: true,
+
+		Action: func(_ *cli.Context, isVerbose bool) error {
+			if !isVerbose || log.GetLevel() == log.DebugLevel {
+				return nil
+			}
+
+			if l := log.GetLevel(); isVerbose {
+				log.SetLevel(l - (log.InfoLevel - log.DebugLevel))
+			}
+
+			return nil
+		},
+	}
 }
