@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.11 (2024-02-26)
+
+## What's Changed
+* chore(deps): bump codecov/codecov-action from 3 to 4 by @dependabot in https://github.com/coffeebeats/gdenv/pull/192
+* chore(deps): bump golang.org/x/mod from 0.14.0 to 0.15.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/194
+* chore(deps): bump golangci/golangci-lint-action from 3 to 4 by @dependabot in https://github.com/coffeebeats/gdenv/pull/195
+* chore: update deprecated Go extension settings by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/196
+* refactor(pkg/install): move full install and vendor operations into `pkg/install`; add `--verbose` flag by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/197
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.10...v0.6.11
+
 ## 0.6.10 (2024-01-22)
 
 ## What's Changed
