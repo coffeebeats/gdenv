@@ -29,6 +29,12 @@ var ErrUnrecognizedLevel = errors.New("unrecognized level")
 
 func main() { //nolint:funlen
 	cli.VersionPrinter = versionPrinter
+	cli.VersionFlag = &cli.BoolFlag{
+		Name:               "version",
+		Aliases:            []string{"V"},
+		Usage:              "print the version",
+		DisableDefaultText: true,
+	}
 
 	app := &cli.App{
 		Name:    "gdenv",
