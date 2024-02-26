@@ -49,11 +49,7 @@ func NewVendor() *cli.Command {
 
 			log.Debugf("using store at path: %s", storePath)
 
-			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
-				return err
-			}
-
-			return install.Vendor(c.Context, v, storePath, c.String("out"))
+			return install.Vendor(c.Context, storePath, v, c.String("out"), c.Bool("force"))
 		},
 	}
 }

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -25,10 +23,19 @@ var ErrMissingInput = errors.New("missing input")
 /*                              Function: Vendor                              */
 /* -------------------------------------------------------------------------- */
 
-// Extracts the cached source code folder into the specified 'out' path.
-//
-// NOTE: This function will fail if the source code does not exist in the store.
-func Vendor(ctx context.Context, v version.Version, storePath, out string) error {
+// Extracts the cached source code folder into the specified 'out' path. Note
+// that this function will first install the source code into the 'gdenv' store.
+func Vendor(
+	ctx context.Context,
+	storePath string,
+	v version.Version,
+	out string,
+	force bool,
+) error {
+	if err := Source(ctx, storePath, v, force); err != nil {
+		return err
+	}
+
 	src := source.Archive{Inner: source.New(v)}
 
 	srcPath, err := store.Source(storePath, src.Inner)
@@ -47,19 +54,8 @@ func Vendor(ctx context.Context, v version.Version, storePath, out string) error
 		out = "./" + out
 	}
 
-	info, err := os.Stat(out)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return err
-		}
-
-		if err := os.MkdirAll(out, osutil.ModeUserRWXGroupRX); err != nil {
-			return err
-		}
-	}
-
-	if info != nil && !info.IsDir() {
-		return fmt.Errorf("%w: %s", fs.ErrExist, out)
+	if err := osutil.EnsureDir(out, osutil.ModeUserRWXGroupRX); err != nil {
+		return err
 	}
 
 	localSrcArchive := artifact.Local[source.Archive]{Artifact: src, Path: srcPath}

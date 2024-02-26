@@ -12,6 +12,7 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
+	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
 
@@ -68,7 +69,28 @@ func Executable(ctx context.Context, storePath string, ex executable.Executable)
 /* -------------------------------------------------------------------------- */
 
 // Downloads and caches a specific version of Godot's source code.
-func Source(ctx context.Context, storePath string, src source.Source) error {
+func Source(ctx context.Context, storePath string, v version.Version, force bool) error {
+	// Ensure the store exists.
+	if err := store.Touch(storePath); err != nil {
+		return err
+	}
+
+	// Define the target 'Source'.
+	src := source.New(v)
+
+	ok, err := store.Has(storePath, src)
+	if err != nil {
+		return err
+	}
+
+	if ok && !force {
+		log.Info("skipping installation; version already found")
+
+		return nil
+	}
+
+	log.Infof("installing version: %s", v)
+
 	tmp, err := os.MkdirTemp("", "gdenv-*")
 	if err != nil {
 		return err
@@ -83,13 +105,19 @@ func Source(ctx context.Context, storePath string, src source.Source) error {
 		return err
 	}
 
-	log.Info("installing source in gdenv store")
+	log.Debug("installing source in gdenv store")
 
-	return store.Add(
+	if err := store.Add(
 		storePath,
 		artifact.Local[artifact.Artifact]{
 			Artifact: localSourceArchive.Artifact,
 			Path:     localSourceArchive.Path,
 		},
-	)
+	); err != nil {
+		return err
+	}
+
+	log.Infof("successfully installed version: %s", src.Version())
+
+	return nil
 }
