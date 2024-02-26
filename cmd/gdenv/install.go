@@ -113,29 +113,9 @@ func installExecutable(
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
-	ok, err := store.Has(storePath, ex)
-	if err != nil {
+	if err := install.Executable(ctx, storePath, ex, force); err != nil {
 		return err
 	}
-
-	if ok && !force {
-		log.Info("skipping installation; version already found")
-
-		return nil
-	}
-
-	platformLabel, err := platform.Format(p, v)
-	if err != nil {
-		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
-	}
-
-	log.Infof("installing version: %s (%s)", v, platformLabel)
-
-	if err := install.Executable(ctx, storePath, ex); err != nil {
-		return err
-	}
-
-	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
 
 	return nil
 }
