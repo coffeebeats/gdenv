@@ -6,6 +6,9 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/coffeebeats/gdenv/internal/ioutil"
 	"github.com/coffeebeats/gdenv/internal/osutil"
@@ -76,6 +79,8 @@ func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) er
 	if !info.IsDir() {
 		return fmt.Errorf("%w: expected a directory", fs.ErrInvalid)
 	}
+
+	log.Debugf("extracting archive %s: %s", filepath.Base(a.Path), out)
 
 	// Extract the contents to the specified 'out' directory.
 	return a.Artifact.extract(ctx, a.Path, out)

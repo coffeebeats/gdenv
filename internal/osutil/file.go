@@ -2,9 +2,41 @@ package osutil
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 )
+
+/* -------------------------------------------------------------------------- */
+/*                             Function: EnsureDir                            */
+/* -------------------------------------------------------------------------- */
+
+// EnsureDir verifies that the specified path exists, is a directory, and has
+// the specified permission bits set.
+func EnsureDir(path string, perm fs.FileMode) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return err
+		}
+
+		if err := os.MkdirAll(path, perm); err != nil {
+			return err
+		}
+	}
+
+	if info != nil {
+		if !info.IsDir() {
+			return fmt.Errorf("%w: %s", fs.ErrExist, path)
+		}
+
+		if info.Mode().Perm()&perm == 0 {
+			return os.Chmod(path, info.Mode()|perm)
+		}
+	}
+
+	return nil
+}
 
 /* -------------------------------------------------------------------------- */
 /*                            Function: ForceRename                           */

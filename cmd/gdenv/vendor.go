@@ -1,22 +1,10 @@
 package main
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"io/fs"
-	"os"
-	"path/filepath"
-
 	"github.com/charmbracelet/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/coffeebeats/gdenv/internal/osutil"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/archive"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
-	"github.com/coffeebeats/gdenv/pkg/godot/version"
-	"github.com/coffeebeats/gdenv/pkg/store"
+	"github.com/coffeebeats/gdenv/pkg/install"
 )
 
 // A 'urfave/cli' command to download and cache a specific version of the Godot
@@ -30,6 +18,8 @@ func NewVendor() *cli.Command {
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "force",
 				Aliases: []string{"f"},
@@ -38,6 +28,7 @@ func NewVendor() *cli.Command {
 			&cli.StringFlag{
 				Name:    "out",
 				Aliases: []string{"o"},
+				Value:   "./godot",
 				Usage:   "extract the source code into 'OUT' (overwrites conflicting files)",
 			},
 			&cli.StringFlag{
@@ -60,58 +51,7 @@ func NewVendor() *cli.Command {
 
 			log.Debugf("using store at path: %s", storePath)
 
-			if err := installSource(c.Context, storePath, v, c.Bool("force")); err != nil {
-				return err
-			}
-
-			return vendor(c.Context, v, storePath, c.String("out"))
+			return install.Vendor(c.Context, storePath, v, c.String("out"), c.Bool("force"))
 		},
 	}
-}
-
-/* ---------------------------- Function: vendor ---------------------------- */
-
-// Extracts the cached source code folder into the specified 'out' path.
-func vendor(ctx context.Context, v version.Version, storePath, out string) error {
-	src := source.Archive{Inner: source.New(v)}
-
-	srcPath, err := store.Source(storePath, src.Inner)
-	if err != nil {
-		return err
-	}
-
-	if out == "" {
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-
-		out = filepath.Join(wd, src.Inner.Name())
-	}
-
-	out = filepath.Clean(out)
-
-	info, err := os.Stat(out)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return err
-		}
-
-		if err := os.MkdirAll(out, osutil.ModeUserRWXGroupRX); err != nil {
-			return err
-		}
-	}
-
-	if info != nil && !info.IsDir() {
-		return fmt.Errorf("%w: %s", fs.ErrExist, out)
-	}
-
-	localSrcArchive := artifact.Local[source.Archive]{Artifact: src, Path: srcPath}
-	if err := archive.Extract(ctx, localSrcArchive, out); err != nil {
-		return err
-	}
-
-	log.Infof("successfully vendored version %s: %s", v, srcPath)
-
-	return nil
 }

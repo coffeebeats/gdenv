@@ -28,6 +28,8 @@ func NewLs() *cli.Command {
 		UsageText: "gdenv ls",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "all",
 				Aliases: []string{"a"},

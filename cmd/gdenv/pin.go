@@ -29,6 +29,8 @@ func NewPin() *cli.Command { //nolint:funlen
 		UsageText: "gdenv pin [OPTIONS] <VERSION>",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "global",
 				Aliases: []string{"g"},

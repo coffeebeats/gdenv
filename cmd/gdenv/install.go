@@ -10,7 +10,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact/executable"
-	"github.com/coffeebeats/gdenv/pkg/godot/artifact/source"
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 	"github.com/coffeebeats/gdenv/pkg/install"
@@ -36,6 +35,8 @@ func NewInstall() *cli.Command { //nolint:funlen
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
 
 		Flags: []cli.Flag{
+			newVerboseFlag(),
+
 			&cli.BoolFlag{
 				Name:    "force",
 				Aliases: []string{"f"},
@@ -80,7 +81,7 @@ func NewInstall() *cli.Command { //nolint:funlen
 			log.Debugf("using store at path: %s", storePath)
 
 			if c.Bool("source") {
-				return installSource(c.Context, storePath, v, c.Bool("force"))
+				return install.Source(c.Context, storePath, v, c.Bool("force"))
 			}
 
 			if err := installExecutable(c.Context, storePath, v, c.Bool("force")); err != nil {
@@ -114,69 +115,9 @@ func installExecutable(
 	// Define the target 'Executable'.
 	ex := executable.New(v, p)
 
-	ok, err := store.Has(storePath, ex)
-	if err != nil {
+	if err := install.Executable(ctx, storePath, ex, force); err != nil {
 		return err
 	}
-
-	if ok && !force {
-		log.Info("skipping installation; version already found")
-
-		return nil
-	}
-
-	platformLabel, err := platform.Format(p, v)
-	if err != nil {
-		return fmt.Errorf("%w: %w", platform.ErrUnrecognizedPlatform, err)
-	}
-
-	log.Infof("installing version: %s (%s)", v, platformLabel)
-
-	if err := install.Executable(ctx, storePath, ex); err != nil {
-		return err
-	}
-
-	log.Infof("successfully installed version: %s (%s,%s)", ex.Version(), p.OS, p.Arch)
-
-	return nil
-}
-
-/* ------------------------- Function: installSource ------------------------ */
-
-// Installs the specified version of the source code to the store, but only if
-// needed.
-func installSource(
-	ctx context.Context,
-	storePath string,
-	v version.Version,
-	force bool,
-) error {
-	// Ensure the store exists.
-	if err := store.Touch(storePath); err != nil {
-		return err
-	}
-
-	// Define the target 'Source'.
-	src := source.New(v)
-
-	ok, err := store.Has(storePath, src)
-	if err != nil {
-		return err
-	}
-
-	if ok && !force {
-		log.Info("skipping installation; version already found")
-
-		return nil
-	}
-
-	log.Infof("installing version: %s", v)
-
-	if err := install.Source(ctx, storePath, src); err != nil {
-		return err
-	}
-
-	log.Infof("successfully installed version: %s", src.Version())
 
 	return nil
 }
