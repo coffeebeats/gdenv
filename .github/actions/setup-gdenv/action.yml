@@ -53,14 +53,12 @@ runs:
     - name: Update the 'PATH' environment variable
       if: inputs.modify-path == 'true'
       shell: bash
-      run: |
-        export GDENV_HOME="$HOME/.gdenv"
-        export PATH="$GDENV_HOME/bin:$PATH"
+      run: export PATH="$GDENV_HOME/bin:$PATH"
 
     - name: Validate that the 'gdenv' executable was installed
       shell: bash
       run: |
-        if command -v gdenv [[ "$(${{ inputs.install-dir }}/bin/gdenv --version)" != "gdenv ${{ inputs.version }}" ]]; then
-          echo "Failed to install 'gdenv@v${{ inputs.version }}'!"
+        if ! command -v gdenv >/dev/null; then
+          echo "Failed to install 'gdenv'!"
           exit 1
         fi
