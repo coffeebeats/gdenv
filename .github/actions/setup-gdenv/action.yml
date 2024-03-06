@@ -14,6 +14,14 @@ inputs:
     description: "Whether to add the 'gdenv' command to 'PATH'."
     required: false
     default: true
+  project-dir:
+    description: "A path to a Godot project containing a version file."
+    required: false
+    default: "."
+  skip-install:
+    description: "Whether to skip installing the Godot binary."
+    required: false
+    default: false
 
 runs:
   using: "composite"
@@ -22,8 +30,10 @@ runs:
       id: cache-gdenv
       uses: actions/cache@v4
       with:
-        key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}
         path: ${{ inputs.install-dir }}
+        key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
+        restore-keys: |
+          gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-
     
     - name: Export the 'GDENV_HOME' environment variable
       shell: bash
@@ -62,3 +72,9 @@ runs:
           echo "Failed to install 'gdenv'!"
           exit 1
         fi
+
+    - name: Install Godot editor
+      if: inputs.skip-install == 'false'
+      continue-on-error: true
+      shell: bash
+      run: gdenv --project ${{ inputs.project-dir }} install
