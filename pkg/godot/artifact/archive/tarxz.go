@@ -58,7 +58,7 @@ func (a TarXZ[T]) Version() version.Version {
 // archive using the same method implemented by Go, this binary should still be
 // compiled with the GODEBUG option 'tarinsecurepath=0' in the event that the
 // implementation changes (see https://github.com/golang/go/issues/55356).
-func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
+func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolint:cyclop,funlen
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -107,7 +107,16 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error {
 
 		// Remove the name of the tar-file from the filepath; this is to
 		// facilitate extracting contents directly into the 'out' path.
-		out := filepath.Join(out, strings.TrimPrefix(name, prefix+string(os.PathSeparator)))
+		name = strings.TrimPrefix(name, prefix+"/") // Archive always uses the '/' separator.
+		if strings.HasPrefix(name, prefix) {
+			return fmt.Errorf(
+				"%w: couldn't trim prefix: %s from %s",
+				ErrExtractFailed,
+				prefix, name,
+			)
+		}
+
+		out := filepath.Join(out, name) //nolint:gosec
 
 		if err := extractTarFile(ctx, archive, hdr, out, baseDirMode); err != nil {
 			return err
