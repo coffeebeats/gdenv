@@ -116,6 +116,8 @@ func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolin
 			)
 		}
 
+		out := filepath.Join(out, name) //nolint:gosec
+
 		if err := extractTarFile(ctx, archive, hdr, out, baseDirMode); err != nil {
 			return err
 		}
