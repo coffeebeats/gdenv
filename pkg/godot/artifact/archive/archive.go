@@ -2,6 +2,7 @@ package archive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -18,6 +19,8 @@ import (
 
 // Only write to 'out'; create a new file/overwrite an existing.
 const copyFileWriteFlag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+
+var ErrExtractFailed = errors.New("extract failed")
 
 type progressKey struct{}
 
