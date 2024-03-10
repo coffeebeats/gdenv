@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.12 (2024-03-10)
+
+## What's Changed
+* feat(ci): create a GitHub action for installing `gdenv` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/198
+* fix(ci): correctly update PATH; simplify installation check by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/200
+* feat(ci): add an option to install the Godot editor binary by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/203
+* chore(deps): bump golang.org/x/mod from 0.15.0 to 0.16.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/201
+* chore(deps): bump github.com/charmbracelet/lipgloss from 0.9.1 to 0.10.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/202
+* fix(godot): correctly trim archive prefix on Windows by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/204
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.11...v0.6.12
+
 ## 0.6.11 (2024-02-26)
 
 ## What's Changed
