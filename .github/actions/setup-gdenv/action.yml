@@ -63,7 +63,7 @@ runs:
     - name: Update the 'PATH' environment variable
       if: inputs.modify-path == 'true'
       shell: bash
-      run: export PATH="$GDENV_HOME/bin:$PATH"
+      run: echo "$GDENV_HOME/bin" >> $GITHUB_PATH
 
     - name: Validate that the 'gdenv' executable was installed
       shell: bash
