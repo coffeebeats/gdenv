@@ -68,10 +68,6 @@ runs:
     - name: Validate that the 'gdenv' executable was installed
       shell: bash
       run: |
-        echo "gdenv_home: $GDENV_HOME"
-        echo "path: $PATH"
-        ls $HOME/.gdenv/bin
-
         if ! command -v gdenv >/dev/null; then
           echo "Failed to install 'gdenv'!"
           exit 1
