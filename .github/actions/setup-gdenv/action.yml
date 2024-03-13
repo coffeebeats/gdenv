@@ -9,7 +9,7 @@ inputs:
   install-dir:
     description: "The 'gdenv' installation directory."
     required: false
-    default: "~/.gdenv"
+    default: "$HOME/.gdenv"
   modify-path:
     description: "Whether to add the 'gdenv' command to 'PATH'."
     required: false
@@ -34,7 +34,7 @@ runs:
         key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
         restore-keys: |
           gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-
-    
+
     - name: Export the 'GDENV_HOME' environment variable
       shell: bash
       run: echo "GDENV_HOME=${{ inputs.install-dir }}" >> $GITHUB_ENV
@@ -59,7 +59,7 @@ runs:
 
         mkdir -p $GDENV_HOME/bin && \
         tar -C $GDENV_HOME/bin -xf gdenv-$VERSION-$OS-$ARCH.tar.gz
-    
+
     - name: Update the 'PATH' environment variable
       if: inputs.modify-path == 'true'
       shell: bash
@@ -70,7 +70,7 @@ runs:
       run: |
         echo "gdenv_home: $GDENV_HOME"
         echo "path: $PATH"
-        ls ~/.gdenv/bin
+        ls $HOME/.gdenv/bin
 
         if ! command -v gdenv >/dev/null; then
           echo "Failed to install 'gdenv'!"
