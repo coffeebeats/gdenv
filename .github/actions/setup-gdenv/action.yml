@@ -26,18 +26,18 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Export the 'GDENV_HOME' environment variable
+      shell: bash
+      run: echo "GDENV_HOME=${{ inputs.install-dir }}" >> $GITHUB_ENV
+
     - name: Cache the 'gdenv' home directory
       id: cache-gdenv
       uses: actions/cache@v4
       with:
-        path: ${{ inputs.install-dir }}
+        path: ${{ env.GDENV_HOME }}
         key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
         restore-keys: |
           gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-
-
-    - name: Export the 'GDENV_HOME' environment variable
-      shell: bash
-      run: echo "GDENV_HOME=${{ inputs.install-dir }}" >> $GITHUB_ENV
 
     # See https://github.com/coffeebeats/gdenv/blob/main/docs/installation.md#linuxmacos.
     - name: Install 'gdenv' (latest)
