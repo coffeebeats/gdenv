@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.13 (2024-03-14)
+
+## What's Changed
+* fix: correctly set default version in `install.sh` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/205
+* fix(ci): correctly update `PATH` in setup action by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/207
+* fix(ci): correctly export environment variable in setup action by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/208
+* fix(ci): correctly reference home directory in action; use correct `gdenv` flag by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/209
+* fix(ci): correctly use environment variable in cache path by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/210
+* fix(ci): use correct path in cache key by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/211
+* fix(ci): conditionally check for executable on path during setup by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/212
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.12...v0.6.13
+
 ## 0.6.12 (2024-03-10)
 
 ## What's Changed
