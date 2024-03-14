@@ -68,8 +68,16 @@ runs:
     - name: Validate that the 'gdenv' executable was installed
       shell: bash
       run: |
-        if ! command -v gdenv >/dev/null; then
+        if ! command -v $GDENV_HOME/bin/gdenv >/dev/null; then
           echo "Failed to install 'gdenv'!"
+          exit 1
+        fi
+
+        if [[ \
+          "${{ inputs.modify-path }}" == "true" && \
+          "$(command -v gdenv >/dev/null 2>&1; echo $?)" -ne 0 \
+        ]]; then
+          echo "Failed to add 'gdenv' to \$PATH!"
           exit 1
         fi
 
