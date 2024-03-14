@@ -35,9 +35,9 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ env.GDENV_HOME }}
-        key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
+        key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ env.GDENV_HOME }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
         restore-keys: |
-          gdenv-${{ runner.os }}-${{ inputs.version }}-${{ inputs.install-dir }}-
+          gdenv-${{ runner.os }}-${{ inputs.version }}-${{ env.GDENV_HOME }}-
 
     # See https://github.com/coffeebeats/gdenv/blob/main/docs/installation.md#linuxmacos.
     - name: Install 'gdenv' (latest)
