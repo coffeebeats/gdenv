@@ -22,6 +22,10 @@ inputs:
     description: "Whether to skip installing the Godot binary."
     required: false
     default: false
+  install-src:
+    description: "Whether to install source code in addition to the editor."
+    required: false
+    default: false
 
 runs:
   using: "composite"
@@ -83,6 +87,10 @@ runs:
 
     - name: Install Godot editor
       if: inputs.skip-install == 'false'
-      continue-on-error: true
       shell: bash
-      run: gdenv --path ${{ inputs.project-dir }} install
+      run: gdenv install --path ${{ inputs.project-dir }}
+
+    - name: Install Godot source code
+      if: inputs.skip-install == 'false' && inputs.install-src == 'true'
+      shell: bash
+      run: gdenv install --path ${{ inputs.project-dir }} --src
