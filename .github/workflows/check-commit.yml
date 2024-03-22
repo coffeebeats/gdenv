@@ -27,13 +27,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check for any non-source code changes
         id: check-non-source
         uses: tj-actions/changed-files@v43
         with:
-          since_last_remote_commit: false
           files: |
             .github/actions/**
             .github/workflows/**
@@ -45,7 +44,6 @@ jobs:
         id: check-source
         uses: tj-actions/changed-files@v43
         with:
-          since_last_remote_commit: false
           files: |
             **/*.go
 
