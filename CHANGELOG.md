@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.14 (2024-03-22)
+
+## What's Changed
+* feat(ci): add option to install `Godot` source code by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/213
+* chore(deps): bump tj-actions/changed-files from 42 to 43 by @dependabot in https://github.com/coffeebeats/gdenv/pull/215
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.11.0 to 2.12.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/216
+* chore(deps): bump github.com/charmbracelet/log from 0.3.1 to 0.4.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/217
+* fix(ci): ensure last remote ref is always used when detecting changes by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/218
+* fix(ci): always check for changes against last commit of target branch by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/219
+* fix(ci): fetch full history to enable correct change detection by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/220
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.13...v0.6.14
+
 ## 0.6.13 (2024-03-14)
 
 ## What's Changed
