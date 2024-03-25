@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.15 (2024-03-25)
+
+## What's Changed
+* chore(deps): bump dependabot/fetch-metadata from 1 to 2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/221
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.14...v0.6.15
+
 ## 0.6.14 (2024-03-22)
 
 ## What's Changed
