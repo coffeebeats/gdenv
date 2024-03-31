@@ -15,6 +15,7 @@ builds:
       - darwin_amd64
       - darwin_arm64
       - linux_amd64
+      - linux_arm64
       - windows_amd64
 
   - id: gdenv-shim
@@ -27,6 +28,7 @@ builds:
       - darwin_amd64
       - darwin_arm64
       - linux_amd64
+      - linux_arm64
       - windows_amd64
 
 # --------------------------------- Release --------------------------------- #
