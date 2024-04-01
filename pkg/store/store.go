@@ -67,11 +67,30 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		}
 
 		path := filepath.Join(pathArtifactDir, filepath.Base(local.Path))
-		if err := osutil.CopyFile(context.TODO(), local.Path, path); err != nil {
+
+		log.Debugf("adding artifact to store: %s", path)
+
+		info, err := os.Stat(local.Path)
+		if err != nil {
 			return err
 		}
 
-		log.Debugf("added file to store: %s", path)
+		if !info.IsDir() {
+			if err := osutil.CopyFile(context.TODO(), local.Path, path); err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		// Remove the existing directory to make way for new artifact.
+		if err := os.RemoveAll(path); err != nil {
+			return err
+		}
+
+		if err := osutil.CopyDir(context.TODO(), local.Path, path); err != nil {
+			return err
+		}
 	}
 
 	return nil
