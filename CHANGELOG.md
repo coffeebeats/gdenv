@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.16 (2024-04-01)
+
+## What's Changed
+* fix(scripts): unblock downloads of new `arm64` on `linux` target by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/224
+* fix(scripts): correct compound condition syntax by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/226
+* fix(store): use a file copy in `store.Add` to support different device volumes by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/228
+* chore(deps): bump tj-actions/changed-files from 43 to 44 by @dependabot in https://github.com/coffeebeats/gdenv/pull/227
+* fix(store): fix regression so that `store.Add` correctly handles directories again by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/229
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.15...v0.6.16
+
 ## 0.6.15 (2024-03-31)
 
 ## What's Changed
