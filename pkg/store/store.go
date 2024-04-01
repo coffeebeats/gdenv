@@ -67,7 +67,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		}
 
 		path := filepath.Join(pathArtifactDir, filepath.Base(local.Path))
-		if err := osutil.ForceRename(local.Path, path); err != nil {
+		if err := osutil.CopyFile(context.TODO(), local.Path, path); err != nil {
 			return err
 		}
 
