@@ -1,6 +1,7 @@
 package osutil
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -22,10 +23,16 @@ var ErrUnsupportedFileType = errors.New("unsupported file type")
 // required in the original structure. This implementation is based on [1].
 //
 // [1] https://github.com/moby/moby/blob/master/daemon/graphdriver/copy/copy.go
-func CopyDir(srcDir, dstDir string) error {
+func CopyDir(ctx context.Context, srcDir, dstDir string) error { //nolint:cyclop
 	return filepath.Walk(srcDir, func(srcPath string, f os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
 		}
 
 		// Rebase path
@@ -38,8 +45,8 @@ func CopyDir(srcDir, dstDir string) error {
 
 		switch mode := f.Mode(); {
 		case mode.IsRegular():
-			if err2 := os.Link(srcPath, dstPath); err2 != nil {
-				return err2
+			if err := os.Link(srcPath, dstPath); err != nil {
+				return err
 			}
 
 		case mode.IsDir():

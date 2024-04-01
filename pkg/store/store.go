@@ -88,7 +88,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 			return err
 		}
 
-		if err := osutil.CopyDir(local.Path, path); err != nil {
+		if err := osutil.CopyDir(context.TODO(), local.Path, path); err != nil {
 			return err
 		}
 	}
