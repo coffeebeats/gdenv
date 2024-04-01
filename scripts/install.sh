@@ -133,7 +133,7 @@ GDENV_CLI_ARCH="$(echo ${GDENV_CLI_ARCH=$(uname -m)} | tr '[:upper:]' '[:lower:]
 case "$GDENV_CLI_ARCH" in
 aarch64 | arm64)
     GDENV_CLI_ARCH="arm64"
-    if [ "$GDENV_CLI_OS" != "macos" && "$GDENV_CLI_OS" != "linux" ]; then
+    if [ "$GDENV_CLI_OS" != "macos" ] && [ "$GDENV_CLI_OS" != "linux" ]; then
         fatal "no prebuilt '$GDENV_CLI_ARCH' binaries available for operating system: $GDENV_CLI_OS"
     fi
 
