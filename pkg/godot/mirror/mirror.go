@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"slices"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 
@@ -148,6 +149,10 @@ func checkIfExists[T artifact.Artifact](
 	}()
 
 	restyClient.RetryCount = 0
+
+	// Set a timeout for the request which doesn't modify the client itself.
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint:gomnd
+	defer cancel()
 
 	exists, err := c.Exists(ctx, remote.URL.String())
 	if err != nil {

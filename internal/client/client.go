@@ -21,8 +21,6 @@ const (
 	retryCount   = 3
 	retryWait    = time.Second
 	retryWaitMax = time.Second
-
-	timeout = 10 * time.Second
 )
 
 var (
@@ -94,8 +92,6 @@ func New() *Client {
 	restyClient.SetRetryCount(retryCount)
 	restyClient.SetRetryWaitTime(retryWait)
 	restyClient.SetRetryMaxWaitTime(retryWaitMax)
-
-	restyClient.SetTimeout(timeout)
 
 	// Disable redirects by default.
 	restyClient.SetRedirectPolicy(resty.NoRedirectPolicy())
