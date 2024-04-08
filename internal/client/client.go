@@ -20,7 +20,7 @@ const (
 	// Configure common retry policies for clients.
 	retryCount   = 3
 	retryWait    = time.Second
-	retryWaitMax = 10 * time.Second
+	retryWaitMax = time.Second
 )
 
 var (
@@ -113,6 +113,14 @@ func New() *Client {
 
 	// Add logging when a retry occurs.
 	restyClient.AddRetryHook(func(r *resty.Response, err error) {
+		if r.Request != nil {
+			select {
+			case <-r.Request.Context().Done():
+				return
+			default:
+			}
+		}
+
 		log.Warn("Retrying request due to error:", err, fmt.Sprintf("(%s)", r.Status()))
 	})
 
@@ -180,7 +188,7 @@ func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...s
 
 	switch {
 	// A response error occurred, indicating there's a problem reaching the URL.
-	case errors.Is(err, ErrHTTPResponseStatusCode):
+	case errors.Is(err, ErrHTTPResponseStatusCode) || errors.Is(err, ErrRequestFailed):
 		return false, nil
 	// A request execution error occurred.
 	case err != nil:

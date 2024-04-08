@@ -88,7 +88,7 @@ func Executable( //nolint:funlen
 		})
 	}
 
-	if err := store.Add(storePath, artifacts...); err != nil {
+	if err := store.Add(ctx, storePath, artifacts...); err != nil {
 		return err
 	}
 
@@ -141,6 +141,7 @@ func Source(ctx context.Context, storePath string, v version.Version, force bool
 	log.Debug("installing source in gdenv store")
 
 	if err := store.Add(
+		ctx,
 		storePath,
 		artifact.Local[artifact.Artifact]{
 			Artifact: localSourceArchive.Artifact,

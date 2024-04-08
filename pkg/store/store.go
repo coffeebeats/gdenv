@@ -39,7 +39,7 @@ type LocalSrc = artifact.Local[source.Archive]
 /* -------------------------------------------------------------------------- */
 
 // Add caches the specified locally-available artifacts in the store.
-func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) error {
+func Add(ctx context.Context, storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) error {
 	if storePath == "" {
 		return ErrMissingStore
 	}
@@ -76,7 +76,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 		}
 
 		if !info.IsDir() {
-			if err := osutil.CopyFile(context.TODO(), local.Path, path); err != nil {
+			if err := osutil.CopyFile(ctx, local.Path, path); err != nil {
 				return err
 			}
 
@@ -88,7 +88,7 @@ func Add(storePath string, localArtifacts ...artifact.Local[artifact.Artifact]) 
 			return err
 		}
 
-		if err := osutil.CopyDir(context.TODO(), local.Path, path); err != nil {
+		if err := osutil.CopyDir(ctx, local.Path, path); err != nil {
 			return err
 		}
 	}
