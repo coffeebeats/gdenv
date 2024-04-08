@@ -166,7 +166,7 @@ func TestAdd(t *testing.T) {
 			// When: Artifacts are added to the store.
 			// Then: The expected error value is returned.
 			storePath := filepath.Join(tmp, storeName)
-			if err := Add(storePath, tc.add...); !errors.Is(err, tc.err) {
+			if err := Add(context.Background(), storePath, tc.add...); !errors.Is(err, tc.err) {
 				t.Errorf("got: %v, want: %v", err, tc.err)
 			}
 
