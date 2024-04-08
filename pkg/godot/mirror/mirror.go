@@ -139,6 +139,7 @@ func checkIfExists[T artifact.Artifact](
 	c, ok := ctx.Value(clientKey{}).(*client.Client)
 	if !ok || c == nil {
 		c = client.NewWithRedirectDomains(m.Hosts()...)
+		c.RestyClient().SetRetryCount(0)
 	}
 
 	// Set a timeout for the request which doesn't modify the client itself.
