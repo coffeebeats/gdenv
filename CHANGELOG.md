@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.17 (2024-04-08)
+
+## What's Changed
+* chore(deps): bump github.com/ulikunitz/xz from 0.5.11 to 0.5.12 by @dependabot in https://github.com/coffeebeats/gdenv/pull/230
+* fix(download): fix deadlock during mirror selection by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/233
+* chore(deps): bump golang.org/x/mod from 0.16.0 to 0.17.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/232
+* chore(deps): bump golang.org/x/sync from 0.6.0 to 0.7.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/231
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.16...v0.6.17
+
 ## 0.6.16 (2024-04-01)
 
 ## What's Changed
