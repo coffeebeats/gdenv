@@ -141,15 +141,6 @@ func checkIfExists[T artifact.Artifact](
 		c = client.NewWithRedirectDomains(m.Hosts()...)
 	}
 
-	restyClient := c.RestyClient()
-
-	retries := restyClient.RetryCount
-	defer func() {
-		restyClient.RetryCount = retries
-	}()
-
-	restyClient.RetryCount = 0
-
 	// Set a timeout for the request which doesn't modify the client itself.
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint:gomnd
 	defer cancel()
