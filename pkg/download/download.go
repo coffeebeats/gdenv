@@ -48,6 +48,8 @@ func Download[T artifact.Artifact](
 		return local, err
 	}
 
+	log.Infof("selecting mirror for artifact: %s", a.Name())
+
 	m, err := mirror.Select(ctx, availableMirrors[T](), a)
 	if err != nil {
 		return local, err

@@ -21,10 +21,10 @@ func ExecutableWithChecksumValidation(
 	ex executable.Executable,
 	out string,
 ) (artifact.Local[executable.Archive], error) {
-	chArchive := make(chan artifact.Local[executable.Archive])
+	chArchive := make(chan artifact.Local[executable.Archive], 1)
 	defer close(chArchive)
 
-	chChecksums := make(chan artifact.Local[executable.Checksums])
+	chChecksums := make(chan artifact.Local[executable.Checksums], 1)
 	defer close(chChecksums)
 
 	eg, ctxDownload := errgroup.WithContext(ctx)
@@ -66,13 +66,13 @@ func ExecutableWithChecksumValidation(
 		return nil
 	})
 
-	exArchive, exArchiveChecksums := <-chArchive, <-chChecksums
-
 	if err := eg.Wait(); err != nil {
 		return artifact.Local[executable.Archive]{}, err
 	}
 
-	if err := checksum.Compare[executable.Archive](ctx, exArchive, exArchiveChecksums); err != nil {
+	exArchive, exArchiveChecksums := <-chArchive, <-chChecksums
+
+	if err := checksum.Compare(ctx, exArchive, exArchiveChecksums); err != nil {
 		return artifact.Local[executable.Archive]{}, err
 	}
 
