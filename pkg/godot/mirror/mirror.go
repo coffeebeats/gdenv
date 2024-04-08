@@ -140,6 +140,15 @@ func checkIfExists[T artifact.Artifact](
 		c = client.NewWithRedirectDomains(m.Hosts()...)
 	}
 
+	restyClient := c.RestyClient()
+
+	retries := restyClient.RetryCount
+	defer func() {
+		restyClient.RetryCount = retries
+	}()
+
+	restyClient.RetryCount = 0
+
 	exists, err := c.Exists(ctx, remote.URL.String())
 	if err != nil {
 		return false, err

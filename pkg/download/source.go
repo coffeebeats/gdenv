@@ -22,10 +22,10 @@ func SourceWithChecksumValidation(
 	v version.Version,
 	out string,
 ) (artifact.Local[source.Archive], error) {
-	chArchive := make(chan artifact.Local[source.Archive])
+	chArchive := make(chan artifact.Local[source.Archive], 1)
 	defer close(chArchive)
 
-	chChecksums := make(chan artifact.Local[source.Checksums])
+	chChecksums := make(chan artifact.Local[source.Checksums], 1)
 	defer close(chChecksums)
 
 	eg, ctxDownload := errgroup.WithContext(ctx)
@@ -67,13 +67,13 @@ func SourceWithChecksumValidation(
 		return nil
 	})
 
-	srcArchive, checksums := <-chArchive, <-chChecksums
-
 	if err := eg.Wait(); err != nil {
 		return artifact.Local[source.Archive]{}, err
 	}
 
-	if err := checksum.Compare[source.Archive](ctx, srcArchive, checksums); err != nil {
+	srcArchive, checksums := <-chArchive, <-chChecksums
+
+	if err := checksum.Compare(ctx, srcArchive, checksums); err != nil {
 		return artifact.Local[source.Archive]{}, err
 	}
 
