@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.19 (2024-04-08)
+
+## What's Changed
+* chore: update deprecated property in `.goreleaser.yaml` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/238
+* fix(mirror): disable retries when checking if a mirror is valid by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/240
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.18...v0.6.19
+
 ## 0.6.18 (2024-04-08)
 
 ## What's Changed
