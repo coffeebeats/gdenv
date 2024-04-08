@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.18 (2024-04-08)
+
+## What's Changed
+* fix(ci): correctly set source change variables by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/236
+* fix(mirror): remove race condition when modifying client retries by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/235
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.17...v0.6.18
+
 ## 0.6.17 (2024-04-08)
 
 ## What's Changed
