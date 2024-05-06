@@ -131,7 +131,7 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Lint source code
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v5
         with:
           version: latest
 
