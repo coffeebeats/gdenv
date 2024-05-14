@@ -11,16 +11,8 @@ linters:
   enable-all: true
   disable:
     # Deprecated.
-    - varcheck
-    - maligned
-    - scopelint
-    - structcheck
-    - nosnakecase
-    - interfacer
-    - ifshort
-    - golint
-    - deadcode
-    - exhaustivestruct
+    - execinquery
+    - gomnd
 
     # Handle formatting separately.
     - gci
@@ -48,7 +40,7 @@ linters-settings:
       - "^github.com/urfave/cli/v2.Command$"
       - "^github.com/urfave/cli/v2.StringFlag$"
 
-  gomnd:
+  mnd:
     ignored-numbers:
       - "0700"
       - "0600"

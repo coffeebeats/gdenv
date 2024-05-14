@@ -27,12 +27,12 @@ const (
 
 // Returns a 'Version' struct for Godot v3.
 func Godot3() Version {
-	return Version{major: 3} //nolint:exhaustruct,gomnd
+	return Version{major: 3} //nolint:exhaustruct,mnd
 }
 
 // Returns a 'Version' struct for Godot v4.
 func Godot4() Version {
-	return Version{major: 4} //nolint:exhaustruct,gomnd
+	return Version{major: 4} //nolint:exhaustruct,mnd
 }
 
 // Returns the default version label. Set 'GDENV_DEFAULT_MONO' to a boolean

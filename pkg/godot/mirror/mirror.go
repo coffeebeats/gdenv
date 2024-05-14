@@ -143,7 +143,7 @@ func checkIfExists[T artifact.Artifact](
 	}
 
 	// Set a timeout for the request which doesn't modify the client itself.
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint:gomnd
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint:mnd
 	defer cancel()
 
 	exists, err := c.Exists(ctx, remote.URL.String())
