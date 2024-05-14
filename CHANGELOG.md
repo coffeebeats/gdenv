@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.20 (2024-05-14)
+
+## What's Changed
+* chore(deps): bump golang.org/x/net from 0.22.0 to 0.23.0 in the go_modules group by @dependabot in https://github.com/coffeebeats/gdenv/pull/241
+* chore(deps): bump github.com/urfave/cli/v2 from 2.27.1 to 2.27.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/243
+* chore(deps): bump golangci/golangci-lint-action from 4 to 5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/244
+* chore(ci): migrate `release-please` to new repository by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/248
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.12.0 to 2.13.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/246
+* chore(deps): bump golangci/golangci-lint-action from 5 to 6 by @dependabot in https://github.com/coffeebeats/gdenv/pull/247
+* fix: migrate off of deprecated linters by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/249
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.19...v0.6.20
+
 ## 0.6.19 (2024-04-08)
 
 ## What's Changed
