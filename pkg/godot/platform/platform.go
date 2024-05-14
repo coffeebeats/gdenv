@@ -136,10 +136,10 @@ func formatLinux(a Arch, v version.Version) (string, error) { //nolint:cyclop
 
 	switch {
 	// v1-v2 not supported
-	case v.Major() < 3: //nolint:gomnd
+	case v.Major() < 3: //nolint:mnd
 		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3
-	case v.Major() < 4: //nolint:gomnd
+	case v.Major() < 4: //nolint:mnd
 		// 'linux_headless.64' and 'linux_server.64' flavors introduced in v3.1
 		// are not supported.
 		switch a {
@@ -197,7 +197,7 @@ func formatMacOS(a Arch, v version.Version) (string, error) { //nolint:cyclop
 
 	switch {
 	// v1 - v2 not supported
-	case v.Major() < 3: //nolint:gomnd
+	case v.Major() < 3: //nolint:mnd
 		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3.0 - v3.0.6
 	case v.Major() == 3 && v.Minor() < 1:
@@ -252,7 +252,7 @@ func formatWindows(a Arch, v version.Version) (string, error) {
 
 	switch {
 	// v1-v2 not supported
-	case v.Major() < 3: //nolint:gomnd
+	case v.Major() < 3: //nolint:mnd
 		return "", fmt.Errorf("%w: '%s'", version.ErrUnsupported, v)
 	// v3+
 	default:
