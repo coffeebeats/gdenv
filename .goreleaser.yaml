@@ -23,6 +23,8 @@ builds:
     main: ./cmd/gdenv-shim
     env:
       - CGO_ENABLED=0
+    ldflags:
+      - -H windowsgui
     mod_timestamp: "{{ .CommitTimestamp }}"
     targets:
       - darwin_amd64
