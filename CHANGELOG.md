@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.21 (2024-05-28)
+
+## What's Changed
+* chore(deps): bump github.com/charmbracelet/lipgloss from 0.10.0 to 0.11.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/250
+* fix(gdenv-shim): disable windows GUI during build to prevent extra console window by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/251
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.20...v0.6.21
+
 ## 0.6.20 (2024-05-14)
 
 ## What's Changed
