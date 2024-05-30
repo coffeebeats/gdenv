@@ -24,7 +24,10 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -H windowsgui
+      - >-
+        {{- if eq .Os "windows" }}
+          -H windowsgui
+        {{- end }}
     mod_timestamp: "{{ .CommitTimestamp }}"
     targets:
       - darwin_amd64
