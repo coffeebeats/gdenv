@@ -5,8 +5,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/exec"
-	"syscall"
 
 	"github.com/coffeebeats/gdenv/pkg/godot/platform"
 	"github.com/coffeebeats/gdenv/pkg/install"
@@ -72,20 +70,5 @@ func execute(ctx context.Context) error {
 		return err
 	}
 
-	switch p.OS {
-	case platform.Windows:
-		cmd := exec.Command(binary, os.Args[1:]...)
-
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-
-		return cmd.Run()
-	default:
-		return syscall.Exec(
-			binary,
-			append([]string{binary}, os.Args[1:]...),
-			os.Environ(),
-		)
-	}
+	return run(binary, os.Args[1:]...)
 }
