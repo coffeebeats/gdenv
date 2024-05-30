@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.22 (2024-05-30)
+
+## What's Changed
+* fix: only disable `windowsgui` on `windows` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/253
+* fix(gdenv-shim): cross-platform fix for hiding windows only on `Windows` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/255
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.21...v0.6.22
+
 ## 0.6.21 (2024-05-28)
 
 ## What's Changed
