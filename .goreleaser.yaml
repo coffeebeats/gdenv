@@ -21,8 +21,6 @@ builds:
   - id: gdenv-shim
     binary: godot
     main: ./cmd/gdenv-shim
-    ldflags:
-      - '{{- if eq .Os "windows" }}-H windowsgui{{- end}}'
     env:
       - CGO_ENABLED=0
     mod_timestamp: "{{ .CommitTimestamp }}"
