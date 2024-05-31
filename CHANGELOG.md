@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.24 (2024-05-31)
+
+## What's Changed
+* fix: undo `-Hwindowsgui` as it breaks shim on msys by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/258
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.23...v0.6.24
+
 ## 0.6.23 (2024-05-31)
 
 ## What's Changed
