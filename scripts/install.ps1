@@ -10,7 +10,7 @@
 # NOTE: Unlike the 'install.sh' counterpart, this script exclusively installs
 # the 'gdenv' binary for 64-bit Windows. If an alternative 'gdenv' binary is
 # required, follow the documentation for an alternative means of installation:
-# https://github.com/coffeebeats/gdenv/blob/v0.6.22/docs/installation.md # x-release-please-version
+# https://github.com/coffeebeats/gdenv/blob/v0.6.23/docs/installation.md # x-release-please-version
 
 <#
 .SYNOPSIS
@@ -35,7 +35,7 @@
   $env:GDENV_HOME\bin\godot.exe
 
 .NOTES
-  Version:        0.6.22 # x-release-please-version
+  Version:        0.6.23 # x-release-please-version
   Author:         https://github.com/coffeebeats
 
 .LINK
@@ -49,7 +49,7 @@ Param (
   [Switch] $NoModifyPath = $False,
 
   # Version - override the specific version of 'gdenv' to install
-  [String] $Version = "v0.6.22" # x-release-please-version
+  [String] $Version = "v0.6.23" # x-release-please-version
 )
 
 # -------------------------- Function: Get-GdEnvHome ------------------------- #

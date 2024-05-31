@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.23 (2024-05-31)
+
+## What's Changed
+* fix: conditionally hide windows GUI on windows by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/256
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.22...v0.6.23
+
 ## 0.6.22 (2024-05-30)
 
 ## What's Changed
