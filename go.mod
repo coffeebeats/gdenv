@@ -9,7 +9,7 @@ require (
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.3
-	golang.org/x/mod v0.17.0
+	golang.org/x/mod v0.19.0
 	golang.org/x/sync v0.7.0
 )
 
