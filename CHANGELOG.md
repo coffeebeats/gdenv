@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.25 (2024-07-26)
+
+## What's Changed
+* chore(deps): bump github.com/urfave/cli/v2 from 2.27.2 to 2.27.3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/266
+* chore(deps): bump golang.org/x/mod from 0.17.0 to 0.19.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/262
+* chore(deps): bump github.com/charmbracelet/lipgloss from 0.11.0 to 0.12.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/265
+* chore(deps): bump goreleaser/goreleaser-action from 5 to 6 by @dependabot in https://github.com/coffeebeats/gdenv/pull/261
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.24...v0.6.25
+
 ## 0.6.24 (2024-05-31)
 
 ## What's Changed
