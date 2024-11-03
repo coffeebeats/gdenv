@@ -3,6 +3,7 @@ package osutil
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -12,6 +13,8 @@ import (
 
 // Only write to 'out'; create a new file/overwrite an existing.
 const copyFileWriteFlag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+
+var ErrValueOutOfRange = errors.New("value out of range")
 
 /* -------------------------------------------------------------------------- */
 /*                             Function: CopyFile                             */
@@ -101,5 +104,10 @@ func SizeOf(path string) (uint64, error) {
 		return 0, err
 	}
 
-	return uint64(info.Size()), nil
+	size := info.Size()
+	if size < 0 {
+		return 0, fmt.Errorf("%w: size: expected value >= 0: %d", ErrValueOutOfRange, size)
+	}
+
+	return uint64(size), nil
 }

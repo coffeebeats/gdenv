@@ -166,7 +166,7 @@ func setUpLogger() error {
 // ANSI escape color.
 //
 // NOTE: This function assumes that the width of the level strings is '5'.
-func newStyleWithColor(name string, ansiColor int) lipgloss.Style {
+func newStyleWithColor(name string, ansiColor uint) lipgloss.Style {
 	if name == "" {
 		panic("missing style name")
 	}
