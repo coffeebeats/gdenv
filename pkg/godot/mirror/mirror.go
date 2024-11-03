@@ -84,8 +84,6 @@ func Select[T artifact.Artifact](
 	selected := make(chan Mirror[T])
 
 	for _, m := range mirrors {
-		m := m // Prevent capture of loop variable.
-
 		eg.Go(func() error {
 			ok, err := checkIfExists(ctx, m, a)
 			if err != nil {
