@@ -1,6 +1,6 @@
 module github.com/coffeebeats/gdenv
 
-go 1.21
+go 1.22
 
 require (
 	github.com/charmbracelet/lipgloss v1.0.0
