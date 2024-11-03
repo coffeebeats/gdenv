@@ -12,6 +12,7 @@ linters:
   disable:
     # Deprecated.
     - execinquery
+    - exportloopref
     - gomnd
 
     # Handle formatting separately.
