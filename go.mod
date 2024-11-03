@@ -1,6 +1,7 @@
 module github.com/coffeebeats/gdenv
 
 go 1.22
+toolchain go1.22.5
 
 require (
 	github.com/charmbracelet/lipgloss v1.0.0
@@ -9,7 +10,7 @@ require (
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.5
-	golang.org/x/mod v0.20.0
+	golang.org/x/mod v0.21.0
 	golang.org/x/sync v0.8.0
 )
 
