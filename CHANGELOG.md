@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.27 (2024-11-08)
+
+## What's Changed
+* chore(deps): bump golang.org/x/mod from 0.21.0 to 0.22.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/288
+* chore(deps): bump golang.org/x/sync from 0.8.0 to 0.9.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/287
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.26...v0.6.27
+
 ## 0.6.26 (2024-11-03)
 
 ## What's Changed
