@@ -153,7 +153,7 @@ jobs:
         run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
