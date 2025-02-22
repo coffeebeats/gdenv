@@ -157,7 +157,6 @@ jobs:
         if: needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
-          flags: gdenv
           token: ${{ secrets.CODECOV_TOKEN }}
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
