@@ -11,9 +11,7 @@ linters:
   enable-all: true
   disable:
     # Deprecated.
-    - execinquery
-    - exportloopref
-    - gomnd
+    - tenv
 
     # Handle formatting separately.
     - gci

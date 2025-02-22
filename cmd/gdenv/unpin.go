@@ -11,7 +11,7 @@ import (
 )
 
 // A 'urfave/cli' command to remove a version pin.
-func NewUnpin() *cli.Command { //nolint:funlen
+func NewUnpin() *cli.Command {
 	return &cli.Command{
 		Name:     "unpin",
 		Category: "Pin",
