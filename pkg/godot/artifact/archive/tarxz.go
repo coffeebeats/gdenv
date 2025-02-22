@@ -58,7 +58,7 @@ func (a TarXZ[T]) Version() version.Version {
 // archive using the same method implemented by Go, this binary should still be
 // compiled with the GODEBUG option 'tarinsecurepath=0' in the event that the
 // implementation changes (see https://github.com/golang/go/issues/55356).
-func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolint:cyclop,funlen
+func (a TarXZ[T]) extract(ctx context.Context, path, out string) error { //nolint:cyclop
 	f, err := os.Open(path)
 	if err != nil {
 		return err
