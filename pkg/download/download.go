@@ -89,7 +89,11 @@ func Download[T artifact.Artifact](
 
 // availableMirrors returns the list of possible 'Mirror' hosts.
 func availableMirrors[T artifact.Artifact]() []mirror.Mirror[T] {
-	return []mirror.Mirror[T]{mirror.GitHub[T]{}, mirror.TuxFamily[T]{}}
+	// TODO: Re-enable TuxFamily once mirror selection can eagerly accept the
+	// first-to-return mirror instead of waiting for all mirrors to finish. This
+	// avoid the problem where TuxFamily, which often doesn't return a response
+	// until its request context times out, causes delays when downloading.
+	return []mirror.Mirror[T]{mirror.GitHub[T]{}}
 }
 
 /* -------------------------------------------------------------------------- */
