@@ -84,7 +84,7 @@ func urlGitHubRelease(v version.Version) string {
 		normal = v.Normal()
 	}
 
-	tag := fmt.Sprintf("%s-%s", normal, version.LabelStable)
+	tag := fmt.Sprintf("%s-%s", normal, v.Label())
 
 	releaseURL, err := url.JoinPath(gitHubAssetsURLBase, tag)
 	if err != nil {
