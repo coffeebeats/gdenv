@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.6.27 (2025-02-22)
+
+## What's Changed
+* chore(deps): bump golang.org/x/mod from 0.21.0 to 0.22.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/288
+* chore(deps): bump golang.org/x/sync from 0.8.0 to 0.9.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/287
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.15.3 to 2.16.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/290
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.0 to 2.16.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/292
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.1 to 2.16.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/293
+* chore(deps): bump golang.org/x/sync from 0.9.0 to 0.10.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/294
+* chore(deps): bump codecov/codecov-action from 4 to 5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/291
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.2 to 2.16.3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/295
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.3 to 2.16.4 by @dependabot in https://github.com/coffeebeats/gdenv/pull/296
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.4 to 2.16.5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/297
+* chore(deps): bump golang.org/x/sync from 0.10.0 to 0.11.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/298
+* chore(deps): bump golang.org/x/mod from 0.22.0 to 0.23.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/299
+* fix: address project linter errors by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/301
+* fix(godot): use correct build label when forming GitHub asset URL by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/300
+* chore: remove usage of flags for code coverage by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/302
+* chore(download): disable TuxFamily mirror, as it's redundant with GitHub by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/303
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.26...v0.6.27
+
 ## 0.6.26 (2024-11-03)
 
 ## What's Changed
