@@ -1,7 +1,6 @@
 module github.com/coffeebeats/gdenv
 
 go 1.23
-
 require (
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/log v0.4.0
@@ -10,7 +9,7 @@ require (
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.6
 	golang.org/x/mod v0.23.0
-	golang.org/x/sync v0.11.0
+	golang.org/x/sync v0.12.0
 )
 
 require (
