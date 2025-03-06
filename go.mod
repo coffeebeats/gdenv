@@ -8,7 +8,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/ulikunitz/xz v0.5.12
-	github.com/urfave/cli/v2 v2.27.5
+	github.com/urfave/cli/v2 v2.27.6
 	golang.org/x/mod v0.23.0
 	golang.org/x/sync v0.11.0
 )
