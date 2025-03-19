@@ -25,13 +25,13 @@ jobs:
       has_source_change: "${{ steps.check-source.outputs.any_modified == 'true' }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
       - name: Check for any non-source code changes
         id: check-non-source
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32
         with:
           files: |
             .github/actions/**
@@ -42,7 +42,7 @@ jobs:
 
       - name: Check for any source code changes
         id: check-source
-        uses: tj-actions/changed-files@v46
+        uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32
         with:
           files: |
             **/*.go
@@ -57,7 +57,7 @@ jobs:
     timeout-minutes: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           # Checkout the "head_ref" (i.e. PR branch HEAD) in case a commit is
           # later needed. See https://github.com/stefanzweifel/git-auto-commit-action
@@ -66,7 +66,7 @@ jobs:
           # Use a PAT so that GitHub Actions will trigger on the resulting commit.
           token: ${{ secrets.ACTIONS_BOT }}
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
           go-version-file: "go.mod"
 
@@ -106,9 +106,9 @@ jobs:
     timeout-minutes: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
           go-version-file: "go.mod"
 
@@ -123,15 +123,15 @@ jobs:
     timeout-minutes: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
           cache: false # See https://github.com/golangci/golangci-lint-action/issues/135.
           go-version-file: "go.mod"
 
       - name: Lint source code
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@4696ba8babb6127d732c3c6dde519db15edab9ea
         with:
           version: latest
 
@@ -143,9 +143,9 @@ jobs:
     timeout-minutes: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
           go-version-file: "go.mod"
 
@@ -153,7 +153,7 @@ jobs:
         run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574
         if: needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
