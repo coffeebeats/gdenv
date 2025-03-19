@@ -36,7 +36,7 @@ runs:
 
     - name: Cache the 'gdenv' home directory
       id: cache-gdenv
-      uses: actions/cache@v4
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf
       with:
         path: ${{ env.GDENV_HOME }}
         key: gdenv-${{ runner.os }}-${{ inputs.version }}-${{ env.GDENV_HOME }}-${{ hashFiles(format('{0}/**/.godot-version', inputs.project-dir)) }}
