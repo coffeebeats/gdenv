@@ -31,7 +31,7 @@ jobs:
 
       - name: Check for any non-source code changes
         id: check-non-source
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             .github/actions/**
@@ -42,7 +42,7 @@ jobs:
 
       - name: Check for any source code changes
         id: check-source
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             **/*.go
