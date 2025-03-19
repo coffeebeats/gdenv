@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.29 (2025-03-19)
+
+## What's Changed
+* chore(ci): don't automerge Dependabot PRs by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/315
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.28...v0.6.29
+
 ## 0.6.28 (2025-03-19)
 
 ## What's Changed
