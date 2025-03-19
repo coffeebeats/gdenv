@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.28 (2025-03-19)
+
+## What's Changed
+* chore(deps): bump github.com/urfave/cli/v2 from 2.27.5 to 2.27.6 by @dependabot in https://github.com/coffeebeats/gdenv/pull/306
+* chore(deps): bump github.com/charmbracelet/log from 0.4.0 to 0.4.1 by @dependabot in https://github.com/coffeebeats/gdenv/pull/308
+* chore(deps): bump tj-actions/changed-files from 45 to 46 by @dependabot in https://github.com/coffeebeats/gdenv/pull/310
+* fix: add patch number to `go` version in `go.mod` by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/312
+* fix(ci): pin GitHub action versions to specific commit by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/313
+* chore(deps): bump golangci/golangci-lint-action from 6.5.1 to 6.5.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/314
+* chore(deps): bump golang.org/x/net from 0.33.0 to 0.36.0 in the go_modules group by @dependabot in https://github.com/coffeebeats/gdenv/pull/307
+* chore(deps): bump golang.org/x/mod from 0.23.0 to 0.24.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/304
+* chore(deps): bump golang.org/x/sync from 0.11.0 to 0.12.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/305
+* chore(deps): bump github.com/charmbracelet/lipgloss from 1.0.0 to 1.1.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/309
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.27...v0.6.28
+
 ## 0.6.27 (2025-02-22)
 
 ## What's Changed
