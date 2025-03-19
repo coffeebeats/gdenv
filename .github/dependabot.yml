@@ -11,7 +11,7 @@ updates:
     reviewers:
       - coffeebeats
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   # Update 'GitHub Actions' dependencies
   - package-ecosystem: "github-actions"
@@ -19,4 +19,4 @@ updates:
     reviewers:
       - coffeebeats
     schedule:
-      interval: "weekly"
+      interval: "monthly"
