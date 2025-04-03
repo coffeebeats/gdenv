@@ -1,49 +1,58 @@
+version: "2"
+
 run:
   tests: false
+
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - docs$
+      - scripts$
+
+linters:
+  default: all
+  disable:
+    - depguard
+    - godox
+    - varnamelen
+    - wrapcheck
+
+  settings:
+    cyclop:
+      max-complexity: 12
+
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    exhaustruct:
+      exclude:
+        - ^github.com/urfave/cli/v2.App$
+        - ^github.com/urfave/cli/v2.BoolFlag$
+        - ^github.com/urfave/cli/v2.Command$
+        - ^github.com/urfave/cli/v2.StringFlag$
+    mnd:
+      ignored-numbers:
+        - "0700"
+        - "0600"
+
+    varnamelen:
+      ignore-decls:
+        - c *cli.Context
+
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - docs$
+      - scripts$
 
 issues:
   fix: false
 
   max-issues-per-linter: 0
   max-same-issues: 0
-
-linters:
-  enable-all: true
-  disable:
-    # Deprecated.
-    - tenv
-
-    # Handle formatting separately.
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
-
-    # Not useful here
-    - depguard
-    - godox
-    - varnamelen
-    - wrapcheck
-
-linters-settings:
-  cyclop:
-    max-complexity: 12
-
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  exhaustruct:
-    exclude:
-      - "^github.com/urfave/cli/v2.App$"
-      - "^github.com/urfave/cli/v2.BoolFlag$"
-      - "^github.com/urfave/cli/v2.Command$"
-      - "^github.com/urfave/cli/v2.StringFlag$"
-
-  mnd:
-    ignored-numbers:
-      - "0700"
-      - "0600"
-
-  varnamelen:
-    ignore-decls:
-      - c *cli.Context
