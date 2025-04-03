@@ -3,14 +3,6 @@ version: "2"
 run:
   tests: false
 
-formatters:
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-
 linters:
   default: all
   disable:
