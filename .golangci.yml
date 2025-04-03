@@ -3,6 +3,13 @@ version: "2"
 run:
   tests: false
 
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - docs$
+      - scripts$
+
 linters:
   default: all
   disable:
@@ -41,9 +48,8 @@ linters:
       - legacy
       - std-error-handling
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+      - docs$
+      - scripts$
 
 issues:
   fix: false
