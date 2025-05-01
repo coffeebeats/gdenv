@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.29 (2025-05-01)
+
+## What's Changed
+* chore(ci): don't automerge Dependabot PRs by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/315
+* chore(deps): bump tj-actions/changed-files from 46.0.1 to 46.0.3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/321
+* chore(deps): bump goreleaser/goreleaser-action from 6.2.1 to 6.3.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/320
+* chore(deps): bump github/codeql-action from 3.28.11 to 3.28.13 by @dependabot in https://github.com/coffeebeats/gdenv/pull/317
+* chore(deps): bump golangci/golangci-lint-action from 6.5.2 to 7.0.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/319
+* chore(deps): bump actions/setup-go from 5.3.0 to 5.4.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/318
+* fix(ci): migrate to `v2` of `golangci-lint` configuration by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/322
+* chore(deps): bump golang.org/x/net from 0.36.0 to 0.38.0 in the go_modules group by @dependabot in https://github.com/coffeebeats/gdenv/pull/323
+* chore(pkg/godot): reorder function definitions to satisfy linter by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/324
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.28...v0.6.29
+
 ## 0.6.28 (2025-03-19)
 
 ## What's Changed
