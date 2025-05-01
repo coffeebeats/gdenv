@@ -26,21 +26,17 @@ const (
 	Universal
 )
 
-/* ----------------------------- Impl: Stringer ----------------------------- */
+/* ------------------------- Function: MustParseArch ------------------------ */
 
-func (a Arch) String() string {
-	switch a {
-	case Amd64:
-		return "amd64"
-	case Arm64:
-		return "arm64"
-	case I386:
-		return "i386"
-	case Universal:
-		return "universal"
-	default:
-		return "unknown"
+// Parses an input string as a CPU architecture specification but panics if it
+// would fail.
+func MustParseArch(input string) Arch {
+	arch, err := ParseArch(input)
+	if err != nil {
+		panic(err)
 	}
+
+	return arch
 }
 
 /* --------------------------- Function: ParseArch -------------------------- */
@@ -75,15 +71,19 @@ func ParseArch(input string) (Arch, error) {
 	}
 }
 
-/* ------------------------- Function: MustParseArch ------------------------ */
+/* ----------------------------- Impl: Stringer ----------------------------- */
 
-// Parses an input string as a CPU architecture specification but panics if it
-// would fail.
-func MustParseArch(input string) Arch {
-	arch, err := ParseArch(input)
-	if err != nil {
-		panic(err)
+func (a Arch) String() string {
+	switch a {
+	case Amd64:
+		return "amd64"
+	case Arm64:
+		return "arm64"
+	case I386:
+		return "i386"
+	case Universal:
+		return "universal"
+	default:
+		return "unknown"
 	}
-
-	return arch
 }
