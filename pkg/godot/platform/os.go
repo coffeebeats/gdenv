@@ -25,19 +25,17 @@ const (
 	Windows
 )
 
-/* ----------------------------- Impl: Stringer ----------------------------- */
+/* -------------------------- Function: MustParseOS ------------------------- */
 
-func (o OS) String() string {
-	switch o {
-	case Linux:
-		return "linux"
-	case MacOS:
-		return "macOS"
-	case Windows:
-		return "windows"
-	default:
-		return "unknown"
+// Parses an input string as an operating system specification but panics if it
+// would fail.
+func MustParseOS(input string) OS {
+	os, err := ParseOS(input)
+	if err != nil {
+		panic(err)
 	}
+
+	return os
 }
 
 /* ---------------------------- Function: ParseOS --------------------------- */
@@ -69,15 +67,17 @@ func ParseOS(input string) (OS, error) {
 	}
 }
 
-/* -------------------------- Function: MustParseOS ------------------------- */
+/* ----------------------------- Impl: Stringer ----------------------------- */
 
-// Parses an input string as an operating system specification but panics if it
-// would fail.
-func MustParseOS(input string) OS {
-	os, err := ParseOS(input)
-	if err != nil {
-		panic(err)
+func (o OS) String() string {
+	switch o {
+	case Linux:
+		return "linux"
+	case MacOS:
+		return "macOS"
+	case Windows:
+		return "windows"
+	default:
+		return "unknown"
 	}
-
-	return os
 }
