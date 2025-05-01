@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.30 (2025-05-01)
+
+## What's Changed
+* chore(deps): bump github/codeql-action from 3.28.13 to 3.28.16 by @dependabot in https://github.com/coffeebeats/gdenv/pull/329
+* chore(deps): bump tj-actions/changed-files from 46.0.3 to 46.0.5 by @dependabot in https://github.com/coffeebeats/gdenv/pull/328
+* chore(deps): bump codecov/codecov-action from 5.4.0 to 5.4.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/327
+* chore(deps): bump github.com/jarcoal/httpmock from 1.3.1 to 1.4.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/325
+* chore(deps): bump golang.org/x/sync from 0.12.0 to 0.13.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/326
+* fix(ci): add missing `issues:write` permission to `release-please` workflow by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/331
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.29...v0.6.30
+
 ## 0.6.29 (2025-05-01)
 
 ## What's Changed
