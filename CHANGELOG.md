@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.31 (2025-06-12)
+
+## What's Changed
+* chore(deps): bump golangci/golangci-lint-action from 7.0.0 to 8.0.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/337
+* chore(deps): bump codecov/codecov-action from 5.4.2 to 5.4.3 by @dependabot in https://github.com/coffeebeats/gdenv/pull/336
+* chore(deps): bump github/codeql-action from 3.28.16 to 3.28.18 by @dependabot in https://github.com/coffeebeats/gdenv/pull/335
+* chore(deps): bump actions/setup-go from 5.4.0 to 5.5.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/334
+* chore(deps): bump github.com/charmbracelet/log from 0.4.1 to 0.4.2 by @dependabot in https://github.com/coffeebeats/gdenv/pull/333
+* chore(deps): bump golang.org/x/sync from 0.13.0 to 0.14.0 by @dependabot in https://github.com/coffeebeats/gdenv/pull/332
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.30...v0.6.31
+
 ## 0.6.30 (2025-05-01)
 
 ## What's Changed
