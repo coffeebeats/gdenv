@@ -10,7 +10,7 @@ require (
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/mod v0.25.0
-	golang.org/x/sync v0.15.0
+	golang.org/x/sync v0.16.0
 )
 
 require (
