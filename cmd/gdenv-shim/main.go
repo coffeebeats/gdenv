@@ -19,6 +19,7 @@ var (
 
 func main() {
 	var exitCode int
+
 	defer func() {
 		if err := recover(); err != nil {
 			exitCode = 1
