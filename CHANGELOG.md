@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.6.32 (2025-09-01)
+
+## What's Changed
+* chore(deps): bump golang.org/x/sync from 0.14.0 to 0.15.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/339
+* chore(deps): bump github.com/urfave/cli/v2 from 2.27.6 to 2.27.7 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/340
+* chore(deps): bump github/codeql-action from 3.28.18 to 3.29.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/342
+* chore(deps): bump golang.org/x/mod from 0.24.0 to 0.25.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/341
+* chore(deps): bump github/codeql-action from 3.29.2 to 3.29.5 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/343
+* chore(deps): bump golang.org/x/sync from 0.15.0 to 0.16.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/344
+* chore(deps): bump golang.org/x/mod from 0.25.0 to 0.26.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/345
+* chore(deps): bump golang.org/x/mod from 0.26.0 to 0.27.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/355
+* chore(deps): bump actions/checkout from 4.2.2 to 5.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/352
+* chore(deps): bump github.com/ulikunitz/xz from 0.5.12 to 0.5.15 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/354
+* chore(deps): bump goreleaser/goreleaser-action from 6.3.0 to 6.4.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/348
+* chore(deps): bump codecov/codecov-action from 5.4.3 to 5.5.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/349
+* chore(deps): bump googleapis/release-please-action from 4.2.0 to 4.3.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/350
+* chore(deps): bump github/codeql-action from 3.29.7 to 3.29.11 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/351
+* chore(deps): bump github.com/jarcoal/httpmock from 1.4.0 to 1.4.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/353
+* fix: address linter errors by removing `noinlineerr` and `wsl` linters by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/356
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.31...v0.6.32
+
 ## 0.6.31 (2025-06-12)
 
 ## What's Changed
