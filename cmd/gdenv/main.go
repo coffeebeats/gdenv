@@ -69,6 +69,7 @@ func main() { //nolint:funlen
 	// Call 'os.Exit' as the first-in/last-out defer; ensures an exit code is
 	// returned to the caller.
 	var exitCode int
+
 	defer func() {
 		if err := recover(); err != nil {
 			exitCode = 1

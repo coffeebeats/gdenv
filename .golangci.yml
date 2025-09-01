@@ -12,11 +12,14 @@ formatters:
 
 linters:
   default: all
+
   disable:
     - depguard
     - godox
+    - noinlineerr
     - varnamelen
     - wrapcheck
+    - wsl
 
   settings:
     cyclop:

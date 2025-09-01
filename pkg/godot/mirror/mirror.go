@@ -74,6 +74,7 @@ func Select[T artifact.Artifact](
 	eg, ctx := errgroup.WithContext(ctx)
 
 	ctx, cancel := context.WithCancel(ctx)
+
 	defer func() {
 		cancel()
 
