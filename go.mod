@@ -1,6 +1,6 @@
 module github.com/coffeebeats/gdenv
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
@@ -10,7 +10,7 @@ require (
 	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/mod v0.27.0
-	golang.org/x/sync v0.16.0
+	golang.org/x/sync v0.17.0
 )
 
 require (
