@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.33 (2025-10-07)
+
+## What's Changed
+* chore(deps): bump golang.org/x/sync from 0.16.0 to 0.17.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/357
+* chore(deps): bump actions/setup-go from 5.5.0 to 6.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/359
+* chore(deps): bump codecov/codecov-action from 5.5.0 to 5.5.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/360
+* chore(deps): bump github/codeql-action from 3.29.11 to 3.30.5 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/361
+* chore(deps): bump tj-actions/changed-files from 46.0.5 to 47.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/362
+* chore(deps): bump golang.org/x/mod from 0.27.0 to 0.28.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/358
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.32...v0.6.33
+
 ## 0.6.32 (2025-09-01)
 
 ## What's Changed
