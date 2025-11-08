@@ -76,6 +76,9 @@ func TestClientDownload(t *testing.T) {
 
 	// Given: A temporary file to write the asset to.
 	f, err := os.Create(filepath.Join(t.TempDir(), name))
+	if err != nil {
+		t.Fatalf("test setup: %#v", err)
+	}
 	defer f.Close()
 
 	// Given: A default 'Client' instance.

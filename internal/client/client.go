@@ -317,6 +317,6 @@ type silentLogger struct{}
 // Compile-time verification that 'silentLogger' implements 'resty.Logger'.
 var _ resty.Logger = (*silentLogger)(nil)
 
-func (l silentLogger) Debugf(string, ...interface{}) {}
-func (l silentLogger) Errorf(string, ...interface{}) {}
-func (l silentLogger) Warnf(string, ...interface{})  {}
+func (l silentLogger) Debugf(string, ...any) {}
+func (l silentLogger) Errorf(string, ...any) {}
+func (l silentLogger) Warnf(string, ...any)  {}

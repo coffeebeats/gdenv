@@ -119,7 +119,7 @@ func parseNormalVersion(input string) ([3]uint8, error) {
 			return out, fmt.Errorf("%w: '%s'", ErrInvalidNumber, version)
 		}
 
-		out[i] = uint8(n)
+		out[i] = uint8(n) //nolint:gosec
 	}
 
 	return out, nil
