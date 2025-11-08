@@ -15,6 +15,7 @@ linters:
 
   disable:
     - depguard
+    - godoclint
     - godox
     - noinlineerr
     - varnamelen
