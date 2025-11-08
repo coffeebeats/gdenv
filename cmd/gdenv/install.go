@@ -64,6 +64,7 @@ func NewInstall() *cli.Command { //nolint:funlen
 			if c.IsSet("global") && c.IsSet("path") {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
+
 			if c.IsSet("global") && c.IsSet("source") {
 				return UsageError{ctx: c, err: ErrInstallUsageGlobalAndSource}
 			}
