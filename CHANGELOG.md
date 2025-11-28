@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.6.33 (2025-11-28)
+
+## What's Changed
+* chore(deps): bump golang.org/x/sync from 0.16.0 to 0.17.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/357
+* chore(deps): bump actions/setup-go from 5.5.0 to 6.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/359
+* chore(deps): bump codecov/codecov-action from 5.5.0 to 5.5.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/360
+* chore(deps): bump github/codeql-action from 3.29.11 to 3.30.5 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/361
+* chore(deps): bump tj-actions/changed-files from 46.0.5 to 47.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/362
+* chore(deps): bump golang.org/x/mod from 0.27.0 to 0.28.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/358
+* chore(deps): bump github/codeql-action from 3.30.5 to 4.31.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/366
+* chore(deps): bump golang.org/x/mod from 0.28.0 to 0.29.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/365
+* chore(deps): bump googleapis/release-please-action from 4.3.0 to 4.4.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/364
+* chore: address linter errors by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/367
+* fix(mirror): correct hosts for GitHub and TuxFamily mirrors by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/368
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.32...v0.6.33
+
 ## 0.6.32 (2025-09-01)
 
 ## What's Changed
