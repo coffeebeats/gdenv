@@ -161,28 +161,20 @@ func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...s
 	}
 
 	// Use a no-op response handler, as just the response code is used.
-	err = c.head(ctx, urlParsed, func(r *resty.Response) error {
+	if err := c.head(ctx, urlParsed, func(r *resty.Response) error {
 		// Redirects should be followed by the client, not accepted as a valid
 		// result for 'Exists'. Return an error so the caller knows the client
 		// is incorrectly configured.
 		if r.StatusCode() >= http.StatusMultipleChoices && r.StatusCode() < http.StatusBadRequest {
-			return errors.Join(ErrClientConfiguration, ErrUnexpectedRedirect)
+			return fmt.Errorf("%w: %w", ErrClientConfiguration, ErrUnexpectedRedirect)
 		}
 
 		return nil
-	})
-
-	switch {
-	// A response error occurred, indicating there's a problem reaching the URL.
-	case errors.Is(err, ErrHTTPResponseStatusCode) || errors.Is(err, ErrRequestFailed):
-		return false, nil
-	// A request execution error occurred.
-	case err != nil:
+	}); err != nil {
 		return false, err
-
-	default:
-		return true, nil
 	}
+
+	return true, nil
 }
 
 /* ---------------------------- Method: Download ---------------------------- */
