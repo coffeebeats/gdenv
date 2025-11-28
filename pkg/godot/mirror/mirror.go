@@ -8,6 +8,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/charmbracelet/log"
+
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 )
@@ -88,6 +90,10 @@ func Select[T artifact.Artifact](
 		eg.Go(func() error {
 			ok, err := checkIfExists(ctx, m, a)
 			if err != nil {
+				if !errors.Is(err, context.Canceled) {
+					log.Debugf("mirror was not selected for asset: %s: %s: %s", a.Name(), m.Name(), err)
+				}
+
 				return err
 			}
 
