@@ -43,7 +43,7 @@ var _ Remoter[artifact.Artifact] = (*TuxFamily[artifact.Artifact])(nil)
 
 // Hosts returns the host URLs at which artifacts are hosted.
 func (m TuxFamily[T]) Hosts() []string {
-	return []string{gitHubContentDomain}
+	return []string{tuxfamilyDownloadsDomain}
 }
 
 /* ------------------------------ Impl: Remoter ----------------------------- */

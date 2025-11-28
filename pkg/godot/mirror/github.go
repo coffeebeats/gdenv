@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	gitHubContentDomain = "objects.githubusercontent.com"
-	gitHubAssetsURLBase = "https://github.com/godotengine/godot-builds/releases/download"
+	gitHubHostUserContent   = "objects.githubusercontent.com"
+	gitHubHostReleaseAssets = "release-assets.githubusercontent.com"
+	gitHubAssetsURLBase     = "https://github.com/godotengine/godot-builds/releases/download"
 )
 
 /* -------------------------------------------------------------------------- */
@@ -33,7 +34,7 @@ var _ Remoter[artifact.Artifact] = (*GitHub[artifact.Artifact])(nil)
 
 // Hosts returns the host URLs at which artifacts are hosted.
 func (m GitHub[T]) Hosts() []string {
-	return []string{gitHubContentDomain}
+	return []string{gitHubHostUserContent, gitHubHostReleaseAssets}
 }
 
 /* ------------------------------ Impl: Remoter ----------------------------- */

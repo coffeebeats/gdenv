@@ -155,48 +155,26 @@ func NewWithRedirectDomains(domains ...string) *Client {
 
 // Issues a 'HEAD' request to test whether or not the URL is reachable.
 func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...string) (bool, error) {
-	if urlBaseRaw == "" {
-		return false, ErrMissingURL
-	}
-
-	urlRaw, err := url.JoinPath(urlBaseRaw, urlPartsRaw...)
+	urlParsed, err := ParseURL(urlBaseRaw, urlPartsRaw...)
 	if err != nil {
-		return false, fmt.Errorf("%w: %w", ErrInvalidURL, err)
-	}
-
-	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
-	urlParsed, err := url.ParseRequestURI(urlRaw)
-	if err != nil {
-		return false, errors.Join(ErrInvalidURL, err)
-	}
-
-	if urlParsed.Host == "" || urlParsed.Scheme == "" {
-		return false, fmt.Errorf("%w: %s", ErrInvalidURL, urlParsed.String())
+		return false, err
 	}
 
 	// Use a no-op response handler, as just the response code is used.
-	err = c.head(ctx, urlParsed, func(r *resty.Response) error {
+	if err := c.head(ctx, urlParsed, func(r *resty.Response) error {
 		// Redirects should be followed by the client, not accepted as a valid
 		// result for 'Exists'. Return an error so the caller knows the client
 		// is incorrectly configured.
 		if r.StatusCode() >= http.StatusMultipleChoices && r.StatusCode() < http.StatusBadRequest {
-			return errors.Join(ErrClientConfiguration, ErrUnexpectedRedirect)
+			return fmt.Errorf("%w: %w", ErrClientConfiguration, ErrUnexpectedRedirect)
 		}
 
 		return nil
-	})
-
-	switch {
-	// A response error occurred, indicating there's a problem reaching the URL.
-	case errors.Is(err, ErrHTTPResponseStatusCode) || errors.Is(err, ErrRequestFailed):
-		return false, nil
-	// A request execution error occurred.
-	case err != nil:
+	}); err != nil {
 		return false, err
-
-	default:
-		return true, nil
 	}
+
+	return true, nil
 }
 
 /* ---------------------------- Method: Download ---------------------------- */

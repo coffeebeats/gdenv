@@ -185,8 +185,8 @@ func TestClientExists(t *testing.T) {
 
 		// Valid inputs
 		{url: "https://www.example.com/", res: http.StatusOK, want: true},
-		{url: "https://www.example.com/", res: http.StatusNotFound, want: false},
-		{url: "https://www.example.com/", res: http.StatusBadGateway, want: false},
+		{url: "https://www.example.com/", res: http.StatusNotFound, err: ErrHTTPResponseStatusCode},
+		{url: "https://www.example.com/", res: http.StatusBadGateway, err: ErrHTTPResponseStatusCode},
 	}
 
 	for _, tc := range tests {

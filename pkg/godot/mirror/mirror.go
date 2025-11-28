@@ -8,6 +8,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/charmbracelet/log"
+
 	"github.com/coffeebeats/gdenv/internal/client"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 )
@@ -88,6 +90,10 @@ func Select[T artifact.Artifact](
 		eg.Go(func() error {
 			ok, err := checkIfExists(ctx, m, a)
 			if err != nil {
+				if !errors.Is(err, context.Canceled) {
+					log.Debugf("mirror was not selected for asset: %s: %s: %s", a.Name(), m.Name(), err)
+				}
+
 				return err
 			}
 
@@ -147,7 +153,11 @@ func checkIfExists[T artifact.Artifact](
 
 	exists, err := c.Exists(ctx, remote.URL.String())
 	if err != nil {
-		return false, err
+		// HTTP status code errors indicate the resource doesn't exist (not available),
+		// rather than a fatal error. Only propagate other types of errors.
+		if !errors.Is(err, client.ErrHTTPResponseStatusCode) {
+			return false, err
+		}
 	}
 
 	return exists, nil
