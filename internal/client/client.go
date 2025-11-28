@@ -155,23 +155,9 @@ func NewWithRedirectDomains(domains ...string) *Client {
 
 // Issues a 'HEAD' request to test whether or not the URL is reachable.
 func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...string) (bool, error) {
-	if urlBaseRaw == "" {
-		return false, ErrMissingURL
-	}
-
-	urlRaw, err := url.JoinPath(urlBaseRaw, urlPartsRaw...)
+	urlParsed, err := ParseURL(urlBaseRaw, urlPartsRaw...)
 	if err != nil {
-		return false, fmt.Errorf("%w: %w", ErrInvalidURL, err)
-	}
-
-	// NOTE: Use the stricter 'ParseRequestURI' function instead of 'Parse'.
-	urlParsed, err := url.ParseRequestURI(urlRaw)
-	if err != nil {
-		return false, errors.Join(ErrInvalidURL, err)
-	}
-
-	if urlParsed.Host == "" || urlParsed.Scheme == "" {
-		return false, fmt.Errorf("%w: %s", ErrInvalidURL, urlParsed.String())
+		return false, err
 	}
 
 	// Use a no-op response handler, as just the response code is used.
