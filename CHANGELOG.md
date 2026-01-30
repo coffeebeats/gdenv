@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.34 (2026-01-30)
+
+## What's Changed
+* chore(deps): bump golangci/golangci-lint-action from 8.0.0 to 9.2.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/382
+* chore(deps): bump actions/checkout from 5.0.0 to 6.0.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/381
+* chore(deps): bump tj-actions/changed-files from 47.0.0 to 47.0.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/380
+* chore(deps): bump github/codeql-action from 4.31.2 to 4.31.9 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/379
+* chore(deps): bump golang.org/x/mod from 0.29.0 to 0.31.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/378
+* chore(deps): bump actions/setup-go from 6.0.0 to 6.1.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/373
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.16.5 to 2.17.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/377
+* chore(deps): bump golang.org/x/sync from 0.17.0 to 0.19.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/376
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.33...v0.6.34
+
 ## 0.6.33 (2025-11-28)
 
 ## What's Changed
