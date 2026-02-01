@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.35 (2026-02-01)
+
+## What's Changed
+* chore(deps): bump codecov/codecov-action from 5.5.1 to 5.5.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/385
+* chore(deps): bump github/codeql-action from 4.31.9 to 4.32.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/388
+* chore(deps): bump actions/setup-go from 6.1.0 to 6.2.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/387
+* chore(deps): bump actions/checkout from 6.0.1 to 6.0.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/386
+* chore(deps): bump golang.org/x/mod from 0.31.0 to 0.32.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/384
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.34...v0.6.35
+
 ## 0.6.34 (2026-01-30)
 
 ## What's Changed
