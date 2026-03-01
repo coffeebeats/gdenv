@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/go-resty/resty/v2 v2.17.1
+	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v2 v2.27.7
