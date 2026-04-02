@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.6.35 (2026-04-02)
+
+## What's Changed
+* chore(deps): bump codecov/codecov-action from 5.5.1 to 5.5.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/385
+* chore(deps): bump github/codeql-action from 4.31.9 to 4.32.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/388
+* chore(deps): bump actions/setup-go from 6.1.0 to 6.2.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/387
+* chore(deps): bump actions/checkout from 6.0.1 to 6.0.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/386
+* chore(deps): bump golang.org/x/mod from 0.31.0 to 0.32.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/384
+* chore(deps): bump github.com/go-resty/resty/v2 from 2.17.1 to 2.17.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/391
+* chore(deps): bump goreleaser/goreleaser-action from 6.4.0 to 7.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/393
+* chore(deps): bump codecov/codecov-action from 5.5.2 to 6.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/396
+* chore(deps): bump tj-actions/changed-files from 47.0.1 to 47.0.5 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/397
+* chore(deps): bump actions/setup-go from 6.2.0 to 6.4.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/400
+* chore(deps): bump golang.org/x/sync from 0.19.0 to 0.20.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/401
+* chore(deps): bump github/codeql-action from 4.32.0 to 4.35.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/402
+* chore(deps): bump golang.org/x/mod from 0.32.0 to 0.34.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/399
+* chore(deps): bump github.com/charmbracelet/log from 0.4.2 to 1.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/398
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.34...v0.6.35
+
 ## 0.6.34 (2026-01-30)
 
 ## What's Changed
