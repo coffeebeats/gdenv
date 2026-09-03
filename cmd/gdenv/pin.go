@@ -32,7 +32,7 @@ func NewPin() *cli.Command { //nolint:funlen
 			newVerboseFlag(),
 
 			&cli.BoolFlag{
-				Name:    "global",
+				Name:    flagGlobal,
 				Aliases: []string{"g"},
 				Usage:   "pin the system version (cannot be used with '-p')",
 			},
@@ -42,12 +42,12 @@ func NewPin() *cli.Command { //nolint:funlen
 				Usage:   "install the specified version of Godot if missing",
 			},
 			&cli.BoolFlag{
-				Name:    "force",
+				Name:    flagForce,
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry (only used with '-i')",
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    flagPath,
 				Aliases: []string{"p"},
 				Usage:   "pin the specified `PATH` (cannot be used with '-g')",
 			},
@@ -55,11 +55,11 @@ func NewPin() *cli.Command { //nolint:funlen
 
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
-			if c.IsSet("global") && c.IsSet("path") {
+			if c.IsSet(flagGlobal) && c.IsSet(flagPath) {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 
-			if c.IsSet("force") && !c.IsSet("install") {
+			if c.IsSet(flagForce) && !c.IsSet("install") {
 				return UsageError{ctx: c, err: ErrPinUsageForceAndInstall}
 			}
 
@@ -90,7 +90,7 @@ func NewPin() *cli.Command { //nolint:funlen
 				return nil
 			}
 
-			return installExecutable(c.Context, storePath, v, c.Bool("force"))
+			return installExecutable(c.Context, storePath, v, c.Bool(flagForce))
 		},
 	}
 }
@@ -100,9 +100,9 @@ func NewPin() *cli.Command { //nolint:funlen
 // Determines the path to pin based on the provided options.
 func resolvePath(c *cli.Context) (string, error) {
 	switch {
-	case c.IsSet("path"):
-		return filepath.Clean(c.String("path")), nil
-	case c.Bool("global"):
+	case c.IsSet(flagPath):
+		return filepath.Clean(c.String(flagPath)), nil
+	case c.Bool(flagGlobal):
 		return touchStore()
 	default:
 		p, err := os.Getwd()

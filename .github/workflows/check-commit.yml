@@ -158,6 +158,10 @@ jobs:
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+          # Bypasses the Keybase GPG key import path, which has been
+          # intermittently returning invalid data and failing uploads.
+          # See https://github.com/codecov/codecov-action/issues/1955.
+          use_pypi: true
 
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.

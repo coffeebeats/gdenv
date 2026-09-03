@@ -15,8 +15,11 @@ linters:
 
   disable:
     - depguard
+    - exhaustruct
     - godoclint
     - godox
+    - gomodguard
+    - gomodguard_v2
     - noinlineerr
     - varnamelen
     - wrapcheck
@@ -29,8 +32,8 @@ linters:
     exhaustive:
       default-signifies-exhaustive: true
 
-    exhaustruct:
-      exclude:
+    exhaustruct_v5:
+      ignore-patterns:
         - ^github.com/urfave/cli/v2.App$
         - ^github.com/urfave/cli/v2.BoolFlag$
         - ^github.com/urfave/cli/v2.Command$

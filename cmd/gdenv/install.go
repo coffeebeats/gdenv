@@ -26,7 +26,7 @@ var (
 func NewInstall() *cli.Command { //nolint:funlen
 	return &cli.Command{
 		Name:     "install",
-		Category: "Install",
+		Category: categoryInstall,
 
 		Aliases: []string{"i"},
 
@@ -38,34 +38,34 @@ func NewInstall() *cli.Command { //nolint:funlen
 			newVerboseFlag(),
 
 			&cli.BoolFlag{
-				Name:    "force",
+				Name:    flagForce,
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry",
 			},
 			&cli.BoolFlag{
-				Name:    "global",
+				Name:    flagGlobal,
 				Aliases: []string{"g"},
 				Usage:   "update the global pin (if 'VERSION' is specified) or resolve 'VERSION' from the global pin",
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    flagPath,
 				Aliases: []string{"p"},
 				Usage:   "resolve the pinned 'VERSION' at 'PATH'",
 			},
 			&cli.BoolFlag{
-				Name:    "source",
-				Aliases: []string{"s", "src"},
+				Name:    flagSource,
+				Aliases: []string{"s", aliasSource},
 				Usage:   "install source code instead of an executable (cannot be used with '-g')",
 			},
 		},
 
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
-			if c.IsSet("global") && c.IsSet("path") {
+			if c.IsSet(flagGlobal) && c.IsSet(flagPath) {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 
-			if c.IsSet("global") && c.IsSet("source") {
+			if c.IsSet(flagGlobal) && c.IsSet(flagSource) {
 				return UsageError{ctx: c, err: ErrInstallUsageGlobalAndSource}
 			}
 
@@ -81,15 +81,15 @@ func NewInstall() *cli.Command { //nolint:funlen
 
 			log.Debugf("using store at path: %s", storePath)
 
-			if c.Bool("source") {
-				return install.Source(c.Context, storePath, v, c.Bool("force"))
+			if c.Bool(flagSource) {
+				return install.Source(c.Context, storePath, v, c.Bool(flagForce))
 			}
 
-			if err := installExecutable(c.Context, storePath, v, c.Bool("force")); err != nil {
+			if err := installExecutable(c.Context, storePath, v, c.Bool(flagForce)); err != nil {
 				return err
 			}
 
-			if !c.Bool("global") {
+			if !c.Bool(flagGlobal) {
 				return nil
 			}
 
@@ -161,13 +161,13 @@ func resolveVersionFromInput(c *cli.Context) (version.Version, error) {
 	// If '-g' is passed then _only_ the globally-pinned version should be
 	// returned. Prior validation should have already ensured '-p' was not
 	// simultaneously set.
-	if c.IsSet("global") && c.Bool("global") {
+	if c.IsSet(flagGlobal) && c.Bool(flagGlobal) {
 		return pin.Read(storePath)
 	}
 
 	// NOTE: 'filepath.Clean' will replace '' with '.', handling cases 3. and 4.
 	// simultaneously.
-	path := filepath.Clean(c.String("path"))
+	path := filepath.Clean(c.String(flagPath))
 
 	v, err = pin.VersionAt(c.Context, storePath, path) // Update 'v' value.
 	if err != nil {

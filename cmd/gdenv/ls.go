@@ -36,8 +36,8 @@ func NewLs() *cli.Command {
 				Usage:   "list executable and source code versions",
 			},
 			&cli.BoolFlag{
-				Name:    "source",
-				Aliases: []string{"s", "src"},
+				Name:    flagSource,
+				Aliases: []string{"s", aliasSource},
 				Usage:   "list source code versions",
 			},
 		},
@@ -50,7 +50,7 @@ func NewLs() *cli.Command {
 
 			log.Debugf("using store at path: %s", storePath)
 
-			src, all := c.Bool("source"), c.Bool("all")
+			src, all := c.Bool(flagSource), c.Bool("all")
 
 			if !src {
 				ok, err := printGlobalVersion(c.Context, storePath)

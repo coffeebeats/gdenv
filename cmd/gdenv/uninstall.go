@@ -17,7 +17,7 @@ import (
 func NewUninstall() *cli.Command {
 	return &cli.Command{
 		Name:     "uninstall",
-		Category: "Install",
+		Category: categoryInstall,
 
 		Usage:     "Remove the specified version of Godot from the 'gdenv' download cache",
 		UsageText: "gdenv uninstall [OPTIONS] [VERSION]",
@@ -31,8 +31,8 @@ func NewUninstall() *cli.Command {
 				Usage:   "uninstall all versions of Godot (ignores source code without '-s')",
 			},
 			&cli.BoolFlag{
-				Name:    "source",
-				Aliases: []string{"s", "src"},
+				Name:    flagSource,
+				Aliases: []string{"s", aliasSource},
 				Usage:   "uninstall source code versions",
 			},
 		},
@@ -45,7 +45,7 @@ func NewUninstall() *cli.Command {
 
 			log.Debugf("using store at path: %s", storePath)
 
-			src, all := c.Bool("source"), c.Bool("all")
+			src, all := c.Bool(flagSource), c.Bool("all")
 
 			// Uninstall all versions.
 			switch {

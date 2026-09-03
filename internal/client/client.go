@@ -188,7 +188,7 @@ func (c *Client) Download(ctx context.Context, u *url.URL, w ...io.Writer) error
 		if contentLength := r.RawResponse.ContentLength; contentLength > 0 {
 			// Report progress if set on the context.
 			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
-				if err := p.SetTotal(uint64(contentLength)); err != nil { //nolint:gosec
+				if err := p.SetTotal(uint64(contentLength)); err != nil {
 					return err
 				}
 
@@ -222,7 +222,7 @@ func (c *Client) DownloadTo(ctx context.Context, u *url.URL, out string) error {
 		if contentLength := r.RawResponse.ContentLength; contentLength > 0 {
 			// Report progress if set on the context.
 			if p, ok := ctx.Value(progressKey{}).(*progress.Progress); ok && p != nil {
-				if err := p.SetTotal(uint64(contentLength)); err != nil { //nolint:gosec
+				if err := p.SetTotal(uint64(contentLength)); err != nil {
 					return err
 				}
 

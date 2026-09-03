@@ -57,7 +57,7 @@ func (tr TarXZ) Write(t *testing.T, pathBaseDir string) { //nolint:funlen
 	for _, c := range tr.Contents {
 		var contents []byte
 
-		hdr := &tar.Header{} //nolint:exhaustruct
+		hdr := &tar.Header{} //nolint:exhaustruct_v5
 
 		switch c := c.(type) {
 		case Dir:

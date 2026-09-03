@@ -23,6 +23,15 @@ const (
 	colorRedBright     = 9
 	colorWhiteBright   = 15
 	colorYellowBright  = 11
+
+	categoryInstall = "Install"
+
+	flagForce  = "force"
+	flagGlobal = "global"
+	flagPath   = "path"
+	flagSource = "source"
+
+	aliasSource = "src"
 )
 
 var ErrUnrecognizedLevel = errors.New("unrecognized level")
