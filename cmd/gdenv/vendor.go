@@ -12,7 +12,7 @@ import (
 func NewVendor() *cli.Command {
 	return &cli.Command{
 		Name:     "vendor",
-		Category: "Install",
+		Category: categoryInstall,
 
 		Usage:     "download the Godot source code to the specified directory",
 		UsageText: "gdenv install [OPTIONS] [VERSION]",
@@ -21,7 +21,7 @@ func NewVendor() *cli.Command {
 			newVerboseFlag(),
 
 			&cli.BoolFlag{
-				Name:    "force",
+				Name:    flagForce,
 				Aliases: []string{"f"},
 				Usage:   "forcibly overwrite an existing cache entry",
 			},
@@ -32,7 +32,7 @@ func NewVendor() *cli.Command {
 				Usage:   "extract the source code into 'OUT' (overwrites conflicting files)",
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    flagPath,
 				Aliases: []string{"p"},
 				Usage:   "resolve the pinned 'VERSION' at 'PATH'",
 			},
@@ -51,7 +51,7 @@ func NewVendor() *cli.Command {
 
 			log.Debugf("using store at path: %s", storePath)
 
-			return install.Vendor(c.Context, storePath, v, c.String("out"), c.Bool("force"))
+			return install.Vendor(c.Context, storePath, v, c.String("out"), c.Bool(flagForce))
 		},
 	}
 }

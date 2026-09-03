@@ -21,7 +21,7 @@ func NewWhich() *cli.Command {
 			newVerboseFlag(),
 
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    flagPath,
 				Aliases: []string{"p"},
 				Usage:   "check at the specified `PATH`",
 			},

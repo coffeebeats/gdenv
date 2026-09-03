@@ -23,12 +23,12 @@ func NewUnpin() *cli.Command {
 			newVerboseFlag(),
 
 			&cli.BoolFlag{
-				Name:    "global",
+				Name:    flagGlobal,
 				Aliases: []string{"g"},
 				Usage:   "unpin the system version (cannot be used with '-p')",
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    flagPath,
 				Aliases: []string{"p"},
 				Usage:   "unpin the specified 'PATH' (cannot be used with '-g')",
 			},
@@ -36,7 +36,7 @@ func NewUnpin() *cli.Command {
 
 		Action: func(c *cli.Context) error {
 			// Validate flag options.
-			if c.IsSet("global") && c.IsSet("path") {
+			if c.IsSet(flagGlobal) && c.IsSet(flagPath) {
 				return UsageError{ctx: c, err: ErrPinUsageGlobalAndPath}
 			}
 

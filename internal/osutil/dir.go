@@ -45,7 +45,7 @@ func CopyDir(ctx context.Context, srcDir, dstDir string) error { //nolint:cyclop
 
 		switch mode := f.Mode(); {
 		case mode.IsRegular():
-			if err := os.Link(srcPath, dstPath); err != nil {
+			if err := os.Link(srcPath, dstPath); err != nil { //nolint:gosec // srcDir is a trusted, local path.
 				return err
 			}
 
@@ -60,7 +60,7 @@ func CopyDir(ctx context.Context, srcDir, dstDir string) error { //nolint:cyclop
 				return err
 			}
 
-			if err := os.Symlink(link, dstPath); err != nil {
+			if err := os.Symlink(link, dstPath); err != nil { //nolint:gosec // srcDir is a trusted, local path.
 				return err
 			}
 
