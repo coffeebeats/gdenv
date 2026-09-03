@@ -19,6 +19,7 @@ linters:
     - godoclint
     - godox
     - gomodguard
+    - gomodguard_v2
     - noinlineerr
     - varnamelen
     - wrapcheck
