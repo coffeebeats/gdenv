@@ -24,7 +24,8 @@ const (
 	colorWhiteBright   = 15
 	colorYellowBright  = 11
 
-	categoryInstall = "Install"
+	categoryInstall   = "Install"
+	categoryUtilities = "Utilities"
 
 	flagForce  = "force"
 	flagGlobal = "global"
