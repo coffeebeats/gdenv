@@ -11,6 +11,46 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/godot/version"
 )
 
+/* -------------------------------- Test: Bin ------------------------------- */
+
+func TestBin(t *testing.T) {
+	tests := []struct {
+		store string
+
+		want string
+		err  error
+	}{
+		{
+			store: "",
+
+			err: ErrMissingStore,
+		},
+
+		{
+			store: storeName,
+
+			want: filepath.Join(storeName, storeDirBin),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.store, func(t *testing.T) {
+			// When: The path to the store's 'bin' directory is determined.
+			got, err := Bin(tc.store)
+
+			// Then: The expected error value is returned.
+			if !errors.Is(err, tc.err) {
+				t.Errorf("err: got %v, want: %v", err, tc.err)
+			}
+
+			// Then: The expected path is returned.
+			if got != tc.want {
+				t.Errorf("output: got %s, want: %v", got, tc.want)
+			}
+		})
+	}
+}
+
 /* ---------------------------- Test: Executable ---------------------------- */
 
 func TestExecutable(t *testing.T) {
