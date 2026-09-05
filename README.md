@@ -83,6 +83,10 @@ See [docs/commands.md](./docs/commands.md) for a detailed reference on how to us
 - [ls/list](./docs/commands.md#gdenv-lslist) — `gdenv ls [OPTIONS]`
 - [which](./docs/commands.md#gdenv-which) — `gdenv which [OPTIONS]`
 
+#### **Update `gdenv` itself**
+
+- [update](./docs/commands.md#gdenv-update) — `gdenv update [OPTIONS] [VERSION]`
+
 ### **Platform selection**
 
 By default `gdenv` will install _Godot_ executables for the host platform (i.e. the system `gdenv` is running on). To change which platform `gdenv` selections, the following environment variables can be set in front of any `gdenv` command:
@@ -100,6 +104,15 @@ By default `gdenv` will install _Godot_ executables for the host platform (i.e. 
 However, to simplify use of `gdenv` when _Mono_ builds are desired, the following environment variable can be set to have `gdenv` default to using _Mono_ builds _when the version label is omitted_. A non-_Mono_ build can then be specified by passing a version label of `stable` without the `_mono` suffix.
 
 - `GDENV_DEFAULT_MONO` - set to `1` to have `gdenv` interpret missing version labels as `stable_mono` instead of `stable`
+
+### **Updating `gdenv`**
+
+`gdenv` can update itself with `gdenv update`; see [Updating](./docs/installation.md#updating) for details. The following environment variables control its behavior:
+
+- `GDENV_NO_UPDATE_NOTIFIER` - set to `1` to disable the periodic check for new versions entirely
+- `GDENV_AUTO_UPDATE` - set to `1` to install new versions automatically, rather than printing a notice
+
+> ❕ **NOTE:** The version check runs at most once every 24 hours, and is skipped when output is not an interactive terminal or when `$CI` is set - so it never runs in CI. Because `GDENV_AUTO_UPDATE` builds on that same check, it likewise only applies to interactive use. An update is only ever applied *after* the current command has finished, and never when that command failed.
 
 ## **Development**
 
