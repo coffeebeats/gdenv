@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.36 (2026-09-05)
+
+## What's Changed
+* feat: add a self-update command by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/416
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.35...v0.6.36
+
 ## 0.6.35 (2026-09-03)
 
 ## What's Changed
