@@ -228,3 +228,86 @@ func mustParseURL(t *testing.T, urlRaw string) *url.URL {
 
 	return u
 }
+
+/* ----------------------------- Test: Location ----------------------------- */
+
+func TestLocation(t *testing.T) {
+	tests := []struct {
+		name     string
+		status   int
+		location string
+		want     string
+		err      error
+	}{
+		{
+			name:     "absolute redirect target is returned",
+			status:   http.StatusFound,
+			location: "https://github.com/coffeebeats/gdenv/releases/tag/v1.2.3",
+			want:     "https://github.com/coffeebeats/gdenv/releases/tag/v1.2.3",
+		},
+		{
+			name:     "relative redirect target is resolved",
+			status:   http.StatusFound,
+			location: "/coffeebeats/gdenv/releases/tag/v1.2.3",
+			want:     "https://github.com/coffeebeats/gdenv/releases/tag/v1.2.3",
+		},
+		{
+			name:     "permanent redirect is accepted",
+			status:   http.StatusMovedPermanently,
+			location: "https://github.com/coffeebeats/gdenv/releases/tag/v1.2.3",
+			want:     "https://github.com/coffeebeats/gdenv/releases/tag/v1.2.3",
+		},
+		{
+			name:   "missing location header is an error",
+			status: http.StatusFound,
+			err:    ErrMissingLocation,
+		},
+		{
+			name:   "non-redirect response is an error",
+			status: http.StatusOK,
+			err:    ErrMissingLocation,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Given: A client which does not follow redirects.
+			c := NewWithoutRedirects()
+
+			// Given: The client's transport is mocked.
+			httpmock.ActivateNonDefault(c.restyClient.GetClient())
+			defer httpmock.DeactivateAndReset()
+
+			u := "https://github.com/coffeebeats/gdenv/releases/latest"
+
+			// Given: The mocked endpoint responds with the specified status.
+			httpmock.RegisterResponder(resty.MethodGet, u,
+				func(_ *http.Request) (*http.Response, error) {
+					res := httpmock.NewStringResponse(tc.status, "")
+					if tc.location != "" {
+						res.Header.Set("Location", tc.location)
+					}
+
+					return res, nil
+				},
+			)
+
+			// When: The redirect target is resolved.
+			got, err := c.Location(context.Background(), u)
+
+			// Then: The resulting error matches expectations.
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("err: got %#v, want %#v", err, tc.err)
+			}
+
+			if tc.err != nil {
+				return
+			}
+
+			// Then: The resolved URL matches expectations.
+			if got.String() != tc.want {
+				t.Fatalf("output: got %s, want %s", got, tc.want)
+			}
+		})
+	}
+}

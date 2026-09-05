@@ -27,6 +27,7 @@ var (
 	ErrClientConfiguration    = errors.New("client misconfigured")
 	ErrHTTPResponseStatusCode = errors.New("received error status code")
 	ErrInvalidURL             = errors.New("invalid URL")
+	ErrMissingLocation        = errors.New("missing redirect location")
 	ErrMissingSize            = errors.New("missing progress size")
 	ErrMissingURL             = errors.New("missing URL")
 	ErrRequestFailed          = errors.New("request failed")
@@ -151,6 +152,25 @@ func NewWithRedirectDomains(domains ...string) *Client {
 	return client
 }
 
+/* --------------------- Function: NewWithoutRedirects ---------------------- */
+
+// Creates a new 'Client' which returns redirect responses to the caller instead
+// of following them or reporting an error. Use this with the 'Location' method
+// to resolve the target of a redirect.
+func NewWithoutRedirects() *Client {
+	client := New()
+
+	// NOTE: Go's 'http.Client' handles 'http.ErrUseLastResponse' specially; the
+	// redirect response is returned to the caller with no error.
+	client.restyClient.SetRedirectPolicy(
+		resty.RedirectPolicyFunc(func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		}),
+	)
+
+	return client
+}
+
 /* ----------------------------- Method: Exists ----------------------------- */
 
 // Issues a 'HEAD' request to test whether or not the URL is reachable.
@@ -175,6 +195,46 @@ func (c *Client) Exists(ctx context.Context, urlBaseRaw string, urlPartsRaw ...s
 	}
 
 	return true, nil
+}
+
+/* ---------------------------- Method: Location ---------------------------- */
+
+// Issues a 'GET' request and returns the URL specified by the response's
+// 'Location' header, without following the redirect. The client must have been
+// created via 'NewWithoutRedirects'.
+func (c *Client) Location(ctx context.Context, urlBaseRaw string, urlPartsRaw ...string) (*url.URL, error) {
+	urlParsed, err := ParseURL(urlBaseRaw, urlPartsRaw...)
+	if err != nil {
+		return nil, err
+	}
+
+	var location *url.URL
+
+	if err := c.get(ctx, urlParsed, func(r *resty.Response) error {
+		if r.StatusCode() < http.StatusMultipleChoices || r.StatusCode() >= http.StatusBadRequest {
+			return fmt.Errorf("%w: expected a redirect: %d", ErrMissingLocation, r.StatusCode())
+		}
+
+		raw := r.Header().Get("Location")
+		if raw == "" {
+			return ErrMissingLocation
+		}
+
+		// NOTE: Resolve against the request URL so that a relative 'Location'
+		// header is handled correctly.
+		parsed, err := urlParsed.Parse(raw)
+		if err != nil {
+			return errors.Join(ErrInvalidURL, err)
+		}
+
+		location = parsed
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return location, nil
 }
 
 /* ---------------------------- Method: Download ---------------------------- */

@@ -2,27 +2,23 @@ package archive
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
 
-	"github.com/coffeebeats/gdenv/internal/ioutil"
-	"github.com/coffeebeats/gdenv/internal/osutil"
+	"github.com/coffeebeats/gdenv/internal/extract"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 	"github.com/coffeebeats/gdenv/pkg/progress"
 )
 
-// Only write to 'out'; create a new file/overwrite an existing.
-const copyFileWriteFlag = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
-
-var ErrExtractFailed = errors.New("extract failed")
-
-type progressKey struct{}
+// ErrExtractFailed is returned when an archive's contents cannot be extracted.
+//
+// NOTE: This is an alias of the error returned by the underlying extraction
+// implementation so that 'errors.Is' checks continue to match.
+var ErrExtractFailed = extract.ErrFailed
 
 /* -------------------------------------------------------------------------- */
 /*                           Function: WithProgress                           */
@@ -32,7 +28,7 @@ type progressKey struct{}
 // result can be passed to the extract function(s) in this package to get
 // updates on extraction progress.
 func WithProgress(ctx context.Context, p *progress.Progress) context.Context {
-	return context.WithValue(ctx, progressKey{}, p)
+	return extract.WithProgress(ctx, p)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,46 +83,4 @@ func Extract[T Archive](ctx context.Context, a artifact.Local[T], out string) er
 
 	// Extract the contents to the specified 'out' directory.
 	return a.Artifact.extract(ctx, a.Path, out)
-}
-
-/* --------------------------- Function: copyFile --------------------------- */
-
-// A shared helper function which copies the contents of an 'io.Reader' to a new
-// file created with the specified 'os.FileMode'.
-func copyFile(ctx context.Context, f io.Reader, mode fs.FileMode, out string) error {
-	dst, err := os.OpenFile(out, copyFileWriteFlag, mode)
-	if err != nil {
-		return err
-	}
-
-	defer dst.Close()
-
-	if _, err := io.Copy(dst, ioutil.NewReaderWithContext(ctx, f.Read)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-/* ------------------- Function: newFileReaderWithProgress ------------------ */
-
-// newFileReaderWithProgress sets the 'total' value of the 'progress.Progress'
-// instance attached to the context, if one exists. A pointer to the provided
-// 'progress.Progress' is returned.
-func newFileReaderWithProgress(ctx context.Context, f *os.File) (io.Reader, error) {
-	p, ok := ctx.Value(progressKey{}).(*progress.Progress)
-	if !ok || p == nil {
-		return f, nil
-	}
-
-	sum, err := osutil.SizeOf(f.Name())
-	if err != nil {
-		return f, err
-	}
-
-	if err := p.SetTotal(sum); err != nil {
-		return f, err
-	}
-
-	return io.TeeReader(f, progress.NewWriter(p)), nil
 }

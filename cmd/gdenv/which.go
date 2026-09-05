@@ -12,7 +12,7 @@ import (
 func NewWhich() *cli.Command {
 	return &cli.Command{
 		Name:     "which",
-		Category: "Utilities",
+		Category: categoryUtilities,
 
 		Usage:     "print the path to the Godot executable which would be used in the specified directory",
 		UsageText: "gdenv which [OPTIONS]",

@@ -20,7 +20,7 @@ import (
 func NewLs() *cli.Command {
 	return &cli.Command{
 		Name:     "ls",
-		Category: "Utilities",
+		Category: categoryUtilities,
 
 		Aliases: []string{"list"},
 

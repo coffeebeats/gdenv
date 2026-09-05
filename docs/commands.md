@@ -96,6 +96,29 @@ Remove a `Godot` version pin from the system or specified directory.
 - `-p`, `--path <PATH>` — unpin the specified `PATH` (cannot be used with `-g`)
   - Default value: `$PWD` (current working directory)
 
+## **gdenv `update`**
+
+Update `gdenv` itself to the latest released version. Both the `gdenv` binary and the `godot` shim are replaced together.
+
+> ❕ **NOTE:** This only works for installations created by the [installation scripts](./installation.md) (i.e. those living in `$GDENV_HOME/bin`). If `gdenv` was installed with `go install` or a system package manager, use that tool to update it instead.
+
+### Usage
+
+`gdenv update [OPTIONS] [VERSION]`
+
+### Options
+
+- `-c`, `--check` — report whether a new version is available without installing it (cannot be used with `-f` or `VERSION`)
+- `-f`, `--force` — install even if the version is not newer than the running one (cannot be used with `-c`)
+
+### Arguments
+
+- `[VERSION]` — install this exact version instead of the latest; downgrading to it, or reinstalling the running version, requires `-f`
+  - Default value: the latest published release
+  - Example values:
+    - `0.6.35`
+    - `v0.6.35`
+
 ## **gdenv `vendor`**
 
 Download the _Godot_ source code to the specified directory.

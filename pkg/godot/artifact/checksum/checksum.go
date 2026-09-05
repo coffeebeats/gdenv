@@ -3,17 +3,18 @@ package checksum
 import (
 	"context"
 	"errors"
-	"fmt"
 	"hash"
 
-	"github.com/charmbracelet/log"
-	"golang.org/x/sync/errgroup"
-
+	"github.com/coffeebeats/gdenv/internal/checksumutil"
 	"github.com/coffeebeats/gdenv/pkg/godot/artifact"
 )
 
+// NOTE: 'ErrChecksumMismatch' is an alias of the error returned by the
+// underlying checksum implementation so that 'errors.Is' checks continue to
+// match. 'ErrChecksumsUnsupported' is specific to Godot's releases - it has no
+// meaning at the format level - so it is defined here.
 var (
-	ErrChecksumMismatch     = errors.New("checksum does not match")
+	ErrChecksumMismatch     = checksumutil.ErrMismatch
 	ErrChecksumsUnsupported = errors.New("version precedes checksums")
 )
 
@@ -45,57 +46,11 @@ func Compare[T artifact.Artifact, U Checksums[T]](
 	localArtifact artifact.Local[T],
 	localChecksums artifact.Local[U],
 ) error {
-	log.Info("verifying checksum of downloaded file")
-
-	eg, ctx := errgroup.WithContext(ctx)
-
-	got, want := make(chan string, 1), make(chan string, 1)
-	defer close(got)
-	defer close(want)
-
-	eg.Go(func() error {
-		value, err := Compute[T](ctx, localChecksums.Artifact.Hash(), localArtifact)
-		if err != nil {
-			return err
-		}
-
-		log.Debugf("actual checksum: %s", value)
-
-		select {
-		case got <- value:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-
-		return nil
-	})
-
-	eg.Go(func() error {
-		value, err := Extract[T](ctx, localChecksums, localArtifact.Artifact)
-		if err != nil {
-			return err
-		}
-
-		log.Debugf("expected checksum: %s", value)
-
-		select {
-		case want <- value:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-
-		return nil
-	})
-
-	if err := eg.Wait(); err != nil {
-		return err
-	}
-
-	if g, w := <-got, <-want; g != w {
-		return fmt.Errorf("%w: %s (got) != %s (want)", ErrChecksumMismatch, g, w)
-	}
-
-	log.Debug("checksum matched expected value")
-
-	return eg.Wait()
+	return checksumutil.Compare(
+		ctx,
+		localChecksums.Artifact.Hash(),
+		localArtifact.Path,
+		localChecksums.Path,
+		localArtifact.Artifact.Name(),
+	)
 }

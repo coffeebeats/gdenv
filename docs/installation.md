@@ -64,6 +64,22 @@ Invoke-WebRequest `
     export PATH="$GDENV_HOME/bin:$PATH"
     ```
 
+## **Updating**
+
+Once installed using the pre-built binaries above, `gdenv` can update itself:
+
+```sh
+gdenv update
+```
+
+This downloads the release published for your platform, verifies it against the published `checksums.txt`, and replaces both the `gdenv` binary and the `godot` shim in `$GDENV_HOME/bin`. It is the same thing the installation scripts do, except that the target platform is taken from the running binary and your shell profile is left untouched.
+
+To see whether a new version exists without installing it, use `gdenv update --check`. To move to a specific version, pass it as an argument: `gdenv update 0.7.0`. Going back to an older version - or reinstalling the one already running - additionally requires `--force`, so that neither happens by accident: `gdenv update --force 0.6.35`.
+
+`gdenv` also checks for new versions in the background at most once every 24 hours and prints a notice when one is available, showing the version change and a link to the release notes. That check is skipped entirely when output is not an interactive terminal, when `$CI` is set, or when `$GDENV_NO_UPDATE_NOTIFIER` is set; it never affects a command's output or exit code.
+
+> ❕ **NOTE:** `gdenv update` only manages installations created by the scripts above. If `gdenv` was installed with `go install` or through a system package manager, that tool owns the binary and should be used to update it; `gdenv update` will refuse and tell you where it found the binary it is running from.
+
 ## **Install from source**
 
 `gdenv` is a Go project and can be installed using `go install`. This option is not recommended as it requires having the Go toolchain installed, it's slower than downloading a prebuilt binary, and there may be instability due to using a different version of Go than it was developed with.

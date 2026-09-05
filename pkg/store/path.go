@@ -22,6 +22,22 @@ var (
 )
 
 /* -------------------------------------------------------------------------- */
+/*                                Function: Bin                               */
+/* -------------------------------------------------------------------------- */
+
+// Returns the full path to the directory within the store which contains the
+// 'gdenv' and 'godot' executables.
+//
+// NOTE: This does *not* mean the directory exists.
+func Bin(storePath string) (string, error) {
+	if storePath == "" {
+		return "", ErrMissingStore
+	}
+
+	return filepath.Join(storePath, storeDirBin), nil
+}
+
+/* -------------------------------------------------------------------------- */
 /*                            Function: Executable                            */
 /* -------------------------------------------------------------------------- */
 

@@ -10,6 +10,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/urfave/cli/v2"
+
+	"github.com/coffeebeats/gdenv/internal/update"
 )
 
 const (
@@ -24,7 +26,8 @@ const (
 	colorWhiteBright   = 15
 	colorYellowBright  = 11
 
-	categoryInstall = "Install"
+	categoryInstall   = "Install"
+	categoryUtilities = "Utilities"
 
 	flagForce  = "force"
 	flagGlobal = "global"
@@ -45,6 +48,15 @@ func main() { //nolint:funlen
 		DisableDefaultText: true,
 	}
 
+	// NOTE: The update notice is reported from *within* the deferred function
+	// below because command failures are surfaced via 'panic'; anything after
+	// 'app.RunContext' would be skipped on that path.
+	var (
+		exitCode    int
+		interrupted bool
+		notifier    *update.Notifier
+	)
+
 	app := &cli.App{
 		Name:    "gdenv",
 		Version: "v0.6.35", // x-release-please-version
@@ -54,6 +66,19 @@ func main() { //nolint:funlen
 
 		Flags: []cli.Flag{
 			newVerboseFlag(),
+		},
+
+		// NOTE: The check is started here, rather than before the app runs, so
+		// that the command name comes from 'urfave/cli's own parsing. It is
+		// skipped for the 'update' command, which resolves and reports the
+		// latest version itself; running both would duplicate that report and
+		// issue a redundant request.
+		Before: func(c *cli.Context) error {
+			if c.Args().First() != cmdUpdate {
+				notifier = update.NewNotifier(c.Context, c.App.Version)
+			}
+
+			return nil
 		},
 
 		Commands: []*cli.Command{
@@ -71,20 +96,21 @@ func main() { //nolint:funlen
 			/* --------------------------------- Utility -------------------------------- */
 
 			NewLs(),
+			NewUpdate(),
 			NewWhich(),
 		},
 	}
 
 	// Call 'os.Exit' as the first-in/last-out defer; ensures an exit code is
 	// returned to the caller.
-	var exitCode int
-
 	defer func() {
 		if err := recover(); err != nil {
 			exitCode = 1
 
 			log.Error(err)
 		}
+
+		reportUpdate(notifier, interrupted, exitCode)
 
 		os.Exit(exitCode)
 	}()
@@ -102,7 +128,13 @@ func main() { //nolint:funlen
 		panic(err)
 	}
 
-	if err := app.RunContext(ctx, os.Args); err != nil {
+	err := app.RunContext(ctx, os.Args)
+
+	// NOTE: Record this now; 'stop()' cancels the context before the deferred
+	// function above runs, so it cannot tell an interrupt from a clean exit.
+	interrupted = ctx.Err() != nil
+
+	if err != nil {
 		var usageErr UsageError
 		if errors.As(err, &usageErr) {
 			usageErr.PrintUsage()
@@ -135,6 +167,14 @@ func (e UsageError) PrintUsage() {
 
 func (e UsageError) Error() string {
 	return e.err.Error()
+}
+
+/* ------------------------------ Impl: Unwrap ------------------------------ */
+
+// NOTE: Without this the wrapped error is reachable only as text, so callers -
+// tests included - cannot match it with 'errors.Is'.
+func (e UsageError) Unwrap() error {
+	return e.err
 }
 
 /* -------------------------------------------------------------------------- */
