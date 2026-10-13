@@ -156,12 +156,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
 
-    # NOTE: PowerShell, the default on Windows, splits '-coverprofile=coverage.out'
-    # into two arguments at the '.'.
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
