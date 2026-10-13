@@ -180,37 +180,13 @@ jobs:
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
   branch_protection:
-    needs: ["format", "lint", "build", "test"]
+    needs: ["changes", "format", "lint", "build", "test"]
     if: ${{ always() }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
     steps:
-      - name: Verify 'format' status
-        if: |
-          always() &&
-          needs.format.result == 'failure' ||
-          needs.format.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'lint' status
-        if: |
-          always() &&
-          needs.lint.result == 'failure' ||
-          needs.lint.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'build' status
-        if: |
-          always() &&
-          needs.build.result == 'failure' ||
-          needs.build.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'test' status
-        if: |
-          always() &&
-          needs.test.result == 'failure' ||
-          needs.test.result == 'cancelled'
+      - name: Verify that no job failed or was cancelled
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: exit 1
