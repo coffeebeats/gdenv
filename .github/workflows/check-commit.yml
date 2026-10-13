@@ -84,8 +84,8 @@ jobs:
         id: format
         continue-on-error: true
         run: |
-          # NOTE: The latest 'goimports' can need a newer Go than 'go.mod' selects,
-          # which 'GOTOOLCHAIN=auto' lets the install download.
+          # NOTE: The latest 'goimports' can need a newer Go than 'go.mod'
+          # selects, which 'GOTOOLCHAIN=auto' lets the install download.
           GOTOOLCHAIN=auto go install golang.org/x/tools/cmd/goimports@latest
 
           test -z "$(gofmt -l .)"
