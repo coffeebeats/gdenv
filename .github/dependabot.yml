@@ -20,3 +20,7 @@ updates:
       - coffeebeats
     schedule:
       interval: "monthly"
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
