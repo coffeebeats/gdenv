@@ -1,17 +1,17 @@
 module github.com/coffeebeats/gdenv
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v1.0.0
 	github.com/go-resty/resty/v2 v2.17.2
-	github.com/jarcoal/httpmock v1.4.1
-	github.com/mattn/go-isatty v0.0.20
-	github.com/ulikunitz/xz v0.5.15
+	github.com/jarcoal/httpmock v1.4.2
+	github.com/mattn/go-isatty v0.0.24
+	github.com/ulikunitz/xz v0.5.17
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/mod v0.40.0
-	golang.org/x/sync v0.21.0
+	golang.org/x/mod v0.42.0
+	golang.org/x/sync v0.24.0
 )
 
 require (
