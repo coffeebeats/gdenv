@@ -84,8 +84,8 @@ jobs:
           # which 'GOTOOLCHAIN=auto' lets the install download.
           GOTOOLCHAIN=auto go install golang.org/x/tools/cmd/goimports@latest
 
-          test -z $(gofmt -l .)
-          test -z $(goimports -local github.com/coffeebeats/gdenv -l .)
+          test -z "$(gofmt -l .)"
+          test -z "$(goimports -local github.com/coffeebeats/gdenv -l .)"
 
       - name: Fix formatting of source code
         if: steps.format.outcome == 'failure'
