@@ -6,6 +6,12 @@ on:
     branches:
       - main
 
+# NOTE: A pull request's newer run cancels its older one, while each push to
+# 'main' gets a group of its own, so none of those is cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 permissions:
   # NOTE: The 'format' job pushes with the 'ACTIONS_BOT' token that checkout
   # stores, so no job needs write access.
