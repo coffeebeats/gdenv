@@ -61,8 +61,8 @@ func clean(t *testing.T, base, path string) string {
 /*                               Function: entry                              */
 /* -------------------------------------------------------------------------- */
 
-// entry returns the name an archive rooted at 'base' stores 'path' under: its
-// path relative to 'base', with the forward slashes archive formats require.
+// entry returns the name 'path' takes in an archive rooted at 'base', which is
+// its relative path with the forward slashes archive formats require.
 func entry(t *testing.T, base, path string) string {
 	t.Helper()
 
