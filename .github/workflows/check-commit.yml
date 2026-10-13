@@ -7,7 +7,9 @@ on:
       - main
 
 permissions:
-  contents: write
+  # NOTE: The 'format' job pushes with the 'ACTIONS_BOT' token that checkout
+  # stores, so no job needs write access.
+  contents: read
 
 defaults:
   run:
