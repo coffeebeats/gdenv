@@ -20,8 +20,6 @@ updates:
       - coffeebeats
     schedule:
       interval: "monthly"
-    # NOTE: CodeQL fails unless every 'github/codeql-action' step runs the same
-    # version, so they update together.
     groups:
       codeql-action:
         patterns:
