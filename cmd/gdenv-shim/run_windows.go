@@ -35,7 +35,11 @@ func run(binary string, args ...string) (int, error) {
 		return 0, err
 	}
 
-	bind(cmd.Process.Pid)
+	// Closing the job after Godot exits ends nothing, while Windows closes a
+	// killed shim's job, ending Godot. If 'bind' fails, Godot runs unbound.
+	if job, err := bind(cmd.Process.Pid); err == nil {
+		defer windows.CloseHandle(job) //nolint:errcheck
+	}
 
 	err := cmd.Wait()
 
@@ -49,14 +53,12 @@ func run(binary string, args ...string) (int, error) {
 
 /* ----------------------------- Function: bind ----------------------------- */
 
-// bind places the process pid in a job that kills it once the shim exits, and
-// does nothing if it can't.
-//
-// NOTE: The job's handle is never closed, so the job lasts as long as the shim.
-func bind(pid int) {
+// bind places the process pid in a job that ends it once the job's handle is
+// closed, and returns that handle.
+func bind(pid int) (windows.Handle, error) {
 	job, err := windows.CreateJobObject(nil, nil)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	var info windows.JOBOBJECT_EXTENDED_LIMIT_INFORMATION
@@ -73,7 +75,7 @@ func bind(pid int) {
 	if err != nil {
 		_ = windows.CloseHandle(job)
 
-		return
+		return 0, err
 	}
 
 	process, err := windows.OpenProcess(
@@ -84,12 +86,17 @@ func bind(pid int) {
 	if err != nil {
 		_ = windows.CloseHandle(job)
 
-		return
+		return 0, err
 	}
 
 	defer windows.CloseHandle(process) //nolint:errcheck
 
-	if windows.AssignProcessToJobObject(job, process) != nil {
+	err = windows.AssignProcessToJobObject(job, process)
+	if err != nil {
 		_ = windows.CloseHandle(job)
+
+		return 0, err
 	}
+
+	return job, nil
 }
