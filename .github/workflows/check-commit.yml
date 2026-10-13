@@ -40,6 +40,10 @@ jobs:
             go.mod
             go.sum
 
+            **/*.manifest
+            **/*.syso
+            **/winres.json
+
       - name: Check for any source code changes
         id: check-source
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96
@@ -116,6 +120,13 @@ jobs:
 
       - name: Build source code
         run: go build -v ./...
+
+      - name: Check that generated files are current
+        run: |
+          go generate ./...
+
+          git status --short
+          test -z "$(git status --porcelain)"
 
   lint:
     needs: ["changes", "build", "format"]
