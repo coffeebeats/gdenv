@@ -105,6 +105,14 @@ func TestExecutable(t *testing.T) {
 /* ------------------------------- Test: Path ------------------------------- */
 
 func TestPath(t *testing.T) {
+	// NOTE: A path rooted at '/' isn't absolute on Windows, which needs a volume.
+	root, err := filepath.Abs("/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nested := filepath.Join(root, "a", "b") + string(filepath.Separator)
+
 	tests := []struct {
 		env  string
 		want string
@@ -116,10 +124,10 @@ func TestPath(t *testing.T) {
 		{env: "a/b/c", err: ErrInvalidPath},
 
 		// Valid inputs
-		{env: "/" + storeName, want: "/" + storeName},
-		{env: "/." + storeName, want: "/." + storeName},
-		{env: "/a/b/" + storeName, want: "/a/b/" + storeName},
-		{env: "/a/b/." + storeName, want: "/a/b/." + storeName},
+		{env: root + storeName, want: root + storeName},
+		{env: root + "." + storeName, want: root + "." + storeName},
+		{env: nested + storeName, want: nested + storeName},
+		{env: nested + "." + storeName, want: nested + "." + storeName},
 	}
 
 	for _, tc := range tests {
