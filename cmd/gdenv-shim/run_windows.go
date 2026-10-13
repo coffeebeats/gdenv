@@ -21,7 +21,8 @@ import (
 // when a caller terminates the shim; what Godot starts is left out of the job.
 func run(binary string, args ...string) (int, error) {
 	// Godot shares the shim's console and answers Ctrl+C itself, so the shim
-	// waits for it to exit rather than ending first.
+	// catches Ctrl+C to wait for Godot; 'signal.Ignore' would leave it to
+	// Windows' default handler, which ends the shim.
 	signal.Notify(make(chan os.Signal, 1), os.Interrupt)
 
 	cmd := exec.Command(binary, args...) //nolint:gosec,noctx
