@@ -121,6 +121,11 @@ jobs:
     needs: ["changes", "build", "format"]
     if: needs.changes.outputs.has_source_change == 'true'
 
+    # NOTE: Linting for Windows covers the files only a Windows build includes.
+    strategy:
+      matrix:
+        goos: ["linux", "windows"]
+
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
@@ -134,6 +139,8 @@ jobs:
 
       - name: Lint source code
         uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20
+        env:
+          GOOS: ${{ matrix.goos }}
         with:
           version: latest
 
@@ -141,8 +148,19 @@ jobs:
     needs: ["changes", "build"]
     if: needs.changes.outputs.has_change == 'true'
 
-    runs-on: ubuntu-latest
-    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+
+    # NOTE: PowerShell, the default on Windows, splits '-coverprofile=coverage.out'
+    # into two arguments at the '.'.
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -156,7 +174,7 @@ jobs:
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354
-        if: needs.changes.outputs.has_source_change == 'true'
+        if: runner.os == 'Linux' && needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
