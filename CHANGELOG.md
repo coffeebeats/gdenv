@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.6.37 (2026-10-13)
+
+## What's Changed
+* chore(deps): bump golangci/golangci-lint-action from 9.2.0 to 9.3.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/427
+* chore(deps): bump actions/setup-go from 6.4.0 to 7.0.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/418
+* chore(deps): bump golang.org/x/mod from 0.40.0 to 0.41.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/419
+* chore(deps): bump github.com/jarcoal/httpmock from 1.4.1 to 1.4.2 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/420
+* chore(deps): bump github.com/ulikunitz/xz from 0.5.15 to 0.5.17 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/422
+* chore(deps): bump golang.org/x/sync from 0.21.0 to 0.24.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/423
+* chore(deps): bump goreleaser/goreleaser-action from 7.2.2 to 7.2.3 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/426
+* chore(deps): bump github/codeql-action to 4.38.3 and update its steps together by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/432
+* chore(deps): bump github.com/mattn/go-isatty from 0.0.20 to 0.0.24 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/421
+* chore(deps): bump codecov/codecov-action from 6.0.1 to 7.1.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/435
+* chore(deps): bump actions/checkout from 6.0.2 to 7.0.1 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/434
+* chore(deps): bump golang.org/x/mod from 0.41.0 to 0.42.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/433
+* chore(ci): test on Windows and macOS and lint the Windows-only files by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/429
+* fix(gdenv-shim): make the shim on Windows behave like running Godot directly by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/428
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.36...v0.6.37
+
 ## 0.6.36 (2026-09-05)
 
 ## What's Changed
