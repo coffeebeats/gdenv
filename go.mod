@@ -8,7 +8,7 @@ require (
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jarcoal/httpmock v1.4.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/ulikunitz/xz v0.5.15
+	github.com/ulikunitz/xz v0.5.17
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/mod v0.41.0
 	golang.org/x/sync v0.21.0
