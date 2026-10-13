@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/log v1.0.0
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jarcoal/httpmock v1.4.2
-	github.com/mattn/go-isatty v0.0.20
+	github.com/mattn/go-isatty v0.0.24
 	github.com/ulikunitz/xz v0.5.17
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/mod v0.41.0
