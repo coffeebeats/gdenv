@@ -12,8 +12,6 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-//go:generate go run github.com/akavel/rsrc@v0.10.2 -manifest godot.manifest -o rsrc_windows_amd64.syso
-
 /* ------------------------------ Function: run ----------------------------- */
 
 // run starts Godot and waits for it, since Windows can't replace the shim's

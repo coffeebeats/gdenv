@@ -12,6 +12,8 @@ import (
 	"github.com/coffeebeats/gdenv/pkg/store"
 )
 
+//go:generate go run github.com/tc-hib/go-winres@v0.3.3 make --in winres.json --arch amd64
+
 var (
 	ErrMissingPin   = errors.New("no version selected; try setting a version pin with 'gdenv pin'")
 	ErrNotInstalled = errors.New("pinned version not installed; try installing with 'gdenv install'")
