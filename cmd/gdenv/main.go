@@ -135,8 +135,7 @@ func main() { //nolint:funlen
 	interrupted = ctx.Err() != nil
 
 	if err != nil {
-		var usageErr UsageError
-		if errors.As(err, &usageErr) {
+		if usageErr, ok := errors.AsType[UsageError](err); ok {
 			usageErr.PrintUsage()
 		}
 

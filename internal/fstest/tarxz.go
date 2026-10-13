@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/ulikunitz/xz"
@@ -31,7 +30,7 @@ func (tr TarXZ) Abs(t *testing.T, pathBaseDir string) string {
 	return clean(t, pathBaseDir, tr.Path)
 }
 
-func (tr TarXZ) Write(t *testing.T, pathBaseDir string) { //nolint:funlen
+func (tr TarXZ) Write(t *testing.T, pathBaseDir string) {
 	t.Helper()
 
 	path := tr.Abs(t, pathBaseDir)
@@ -61,23 +60,13 @@ func (tr TarXZ) Write(t *testing.T, pathBaseDir string) { //nolint:funlen
 
 		switch c := c.(type) {
 		case Dir:
-			p, err := filepath.Rel(path, clean(t, path, c.Path))
-			if err != nil {
-				t.Fatalf("test setup: failed to determine path: %v", err)
-			}
-
-			hdr.Name = p
+			hdr.Name = entry(t, path, c.Path)
 			hdr.Mode = osutil.ModeUserRWX
 			hdr.Typeflag = tar.TypeDir
 		case File:
-			p, err := filepath.Rel(path, clean(t, path, c.Path))
-			if err != nil {
-				t.Fatalf("test setup: failed to determine path: %v", err)
-			}
-
 			contents = []byte(c.Contents)
 
-			hdr.Name = p
+			hdr.Name = entry(t, path, c.Path)
 			hdr.Mode = osutil.ModeUserRW
 			hdr.Typeflag = tar.TypeReg
 			hdr.Size = int64(len(contents))

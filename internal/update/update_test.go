@@ -68,13 +68,20 @@ func TestManagedFrom(t *testing.T) {
 		exe := filepath.Join(elsewhere, "gdenv")
 		writeFile(t, exe, "binary")
 
-		_, err := managedBinDir(exe)
+		// NOTE: The message names the binary's resolved path, which on Windows also
+		// expands a short name, such as the 'RUNNER~1' in a CI runner's temp path.
+		resolved, err := filepath.EvalSymlinks(exe)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = managedBinDir(exe)
 		if !errors.Is(err, ErrUnmanaged) {
 			t.Fatalf("err: got %v, want %v", err, ErrUnmanaged)
 		}
 
 		// The message must name both paths so the user can act on it.
-		for _, want := range []string{exe, "bin"} {
+		for _, want := range []string{resolved, "bin"} {
 			if !strings.Contains(err.Error(), want) {
 				t.Errorf("error %q does not mention %q", err, want)
 			}

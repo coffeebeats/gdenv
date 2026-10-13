@@ -2,14 +2,20 @@ name: "🤖 Check: Commit"
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
 
+# NOTE: A pull request's newer run cancels its older one, while each push to
+# 'main' gets a group of its own, so none of those is cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 permissions:
-  contents: write
+  # NOTE: The 'format' job pushes with the 'ACTIONS_BOT' token that checkout
+  # stores, so no job needs write access.
+  contents: read
 
 defaults:
   run:
@@ -74,10 +80,12 @@ jobs:
         id: format
         continue-on-error: true
         run: |
-          go install golang.org/x/tools/cmd/goimports@latest
+          # NOTE: The latest 'goimports' can need a newer Go than 'go.mod'
+          # selects, which 'GOTOOLCHAIN=auto' lets the install download.
+          GOTOOLCHAIN=auto go install golang.org/x/tools/cmd/goimports@latest
 
-          test -z $(gofmt -l .)
-          test -z $(goimports -local github.com/coffeebeats/gdenv -l .)
+          test -z "$(gofmt -l .)"
+          test -z "$(goimports -local github.com/coffeebeats/gdenv -l .)"
 
       - name: Fix formatting of source code
         if: steps.format.outcome == 'failure'
@@ -119,6 +127,11 @@ jobs:
     needs: ["changes", "build", "format"]
     if: needs.changes.outputs.has_source_change == 'true'
 
+    # NOTE: Linting for Windows covers the files only a Windows build includes.
+    strategy:
+      matrix:
+        goos: ["linux", "windows"]
+
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
@@ -132,6 +145,8 @@ jobs:
 
       - name: Lint source code
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a
+        env:
+          GOOS: ${{ matrix.goos }}
         with:
           version: latest
 
@@ -139,8 +154,13 @@ jobs:
     needs: ["changes", "build"]
     if: needs.changes.outputs.has_change == 'true'
 
-    runs-on: ubuntu-latest
-    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -154,7 +174,7 @@ jobs:
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5
-        if: needs.changes.outputs.has_source_change == 'true'
+        if: runner.os == 'Linux' && needs.changes.outputs.has_source_change == 'true'
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -166,37 +186,13 @@ jobs:
   # Used to ensure all branch protection requirements are met. This is a workaround until
   # https://github.com/github-community/community/discussions/4324 is addressed.
   branch_protection:
-    needs: ["format", "lint", "build", "test"]
+    needs: ["changes", "format", "lint", "build", "test"]
     if: ${{ always() }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
     steps:
-      - name: Verify 'format' status
-        if: |
-          always() &&
-          needs.format.result == 'failure' ||
-          needs.format.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'lint' status
-        if: |
-          always() &&
-          needs.lint.result == 'failure' ||
-          needs.lint.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'build' status
-        if: |
-          always() &&
-          needs.build.result == 'failure' ||
-          needs.build.result == 'cancelled'
-        run: exit 1
-
-      - name: Verify 'test' status
-        if: |
-          always() &&
-          needs.test.result == 'failure' ||
-          needs.test.result == 'cancelled'
+      - name: Verify that no job failed or was cancelled
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: exit 1
