@@ -91,7 +91,7 @@ func TestBind(t *testing.T) {
 		t.Fatalf("err: got %v, want nil", err)
 	}
 
-	// When: The job's handle is closed, as it is when the shim exits.
+	// When: The job's handle is closed.
 	if err := windows.CloseHandle(job); err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +142,7 @@ func TestHelperProcess(t *testing.T) {
 /* -------------------------------------------------------------------------- */
 
 // helperArgs returns the arguments that run this test binary as
-// 'TestHelperProcess' with arg.
+// 'TestHelperProcess' with 'arg'.
 func helperArgs(arg string) []string {
 	return []string{"-test.run=^TestHelperProcess$", "--", arg}
 }

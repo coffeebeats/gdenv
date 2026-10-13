@@ -14,15 +14,14 @@ import (
 
 /* ------------------------------ Function: run ----------------------------- */
 
-// run starts Godot and waits for it, since Windows can't replace the shim's
-// process with Godot's, and returns the code Godot exited with.
+// run starts Godot, waits for it, and returns the code it exited with, since
+// Windows can't replace the shim's process with Godot's.
 //
-// NOTE: Godot runs in a job that kills it if the shim ends first, as it does
-// when a caller terminates the shim; what Godot starts is left out of the job.
+// NOTE: Godot runs in a job that kills it if the shim ends first, as when a
+// caller terminates the shim; what Godot starts is left out of the job.
 func run(binary string, args ...string) (int, error) {
-	// Godot shares the shim's console and answers Ctrl+C itself, so the shim
-	// catches Ctrl+C to wait for Godot; 'signal.Ignore' would leave it to
-	// Windows' default handler, which ends the shim.
+	// Godot answers Ctrl+C on the shared console, so the shim catches it and
+	// waits; 'signal.Ignore' would let Windows' default handler end the shim.
 	signal.Notify(make(chan os.Signal, 1), os.Interrupt)
 
 	cmd := exec.Command(binary, args...) //nolint:gosec,noctx
@@ -35,8 +34,8 @@ func run(binary string, args ...string) (int, error) {
 		return 0, err
 	}
 
-	// Closing the job after Godot exits ends nothing, while Windows closes a
-	// killed shim's job, ending Godot. If 'bind' fails, Godot runs unbound.
+	// Closing the job after Godot exits ends nothing. If 'bind' fails, Godot runs
+	// unbound.
 	if job, err := bind(cmd.Process.Pid); err == nil {
 		defer windows.CloseHandle(job) //nolint:errcheck
 	}
@@ -51,8 +50,8 @@ func run(binary string, args ...string) (int, error) {
 
 /* ----------------------------- Function: bind ----------------------------- */
 
-// bind places the process pid in a job that ends it once the job's handle is
-// closed, and returns that handle.
+// bind places the process 'pid' in a job that ends it once the job's handle
+// is closed, and returns that handle.
 func bind(pid int) (windows.Handle, error) {
 	job, err := windows.CreateJobObject(nil, nil)
 	if err != nil {
