@@ -42,9 +42,7 @@ func run(binary string, args ...string) (int, error) {
 	}
 
 	err := cmd.Wait()
-
-	var exit *exec.ExitError
-	if errors.As(err, &exit) {
+	if exit, ok := errors.AsType[*exec.ExitError](err); ok {
 		return exit.ExitCode(), nil
 	}
 
