@@ -33,16 +33,19 @@ func main() {
 	// Don't report timestamp in logs.
 	log.SetFlags(0)
 
-	if err := execute(context.Background()); err != nil {
+	code, err := execute(context.Background())
+	if err != nil {
 		panic(err)
 	}
+
+	exitCode = code
 }
 
 /* ---------------------------- Function: execute --------------------------- */
 
-// execute replaces the current process with the cached version of Godot
-// specified by a local or global pin.
-func execute(ctx context.Context) error {
+// execute runs the cached version of Godot specified by a local or global pin,
+// returning the code it exited with.
+func execute(ctx context.Context) (int, error) {
 	p, err := platform.Detect()
 	if err != nil {
 		panic(err)
@@ -55,20 +58,20 @@ func execute(ctx context.Context) error {
 
 	storePath, err := store.Path()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	binary, err := install.Which(ctx, storePath, p, wd)
 	if err != nil {
 		if errors.Is(err, pin.ErrMissingPin) {
-			return ErrMissingPin
+			return 0, ErrMissingPin
 		}
 
 		if errors.Is(err, install.ErrNotInstalled) {
-			return ErrNotInstalled
+			return 0, ErrNotInstalled
 		}
 
-		return err
+		return 0, err
 	}
 
 	return run(binary, os.Args[1:]...)
