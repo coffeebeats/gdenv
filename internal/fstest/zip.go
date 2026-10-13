@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -95,9 +94,9 @@ func createArchiveWithContents(t *testing.T, contents []Writer, out string) {
 	for _, c := range contents {
 		switch w := c.(type) {
 		case Dir:
-			createZipDirectory(t, a, out, clean(t, out, w.Path))
+			createZipDirectory(t, a, entry(t, out, w.Path))
 		case File:
-			createZipFile(t, a, out, clean(t, out, w.Path), w.Contents)
+			createZipFile(t, a, entry(t, out, w.Path), w.Contents)
 		default:
 			t.Fatalf("unsupported content type: %T", w)
 		}
@@ -106,30 +105,20 @@ func createArchiveWithContents(t *testing.T, contents []Writer, out string) {
 
 /* ---------------------- Function: createZipDirectory ---------------------- */
 
-func createZipDirectory(t *testing.T, archive *zip.Writer, pathBaseDir, name string) {
+func createZipDirectory(t *testing.T, archive *zip.Writer, name string) {
 	t.Helper()
 
-	p, err := filepath.Rel(pathBaseDir, name)
-	if err != nil {
-		t.Fatalf("test setup: failed to determine path: %v", err)
-	}
-
-	if _, err := archive.Create(p + string(os.PathSeparator)); err != nil {
+	if _, err := archive.Create(name + "/"); err != nil {
 		t.Fatalf("test setup: failed to create directory: %v", err)
 	}
 }
 
 /* ------------------------- Function: createZipFile ------------------------ */
 
-func createZipFile(t *testing.T, archive *zip.Writer, pathBaseDir, name, contents string) {
+func createZipFile(t *testing.T, archive *zip.Writer, name, contents string) {
 	t.Helper()
 
-	p, err := filepath.Rel(pathBaseDir, name)
-	if err != nil {
-		t.Fatalf("test setup: failed to determine path: %v", err)
-	}
-
-	dst, err := archive.Create(p)
+	dst, err := archive.Create(name)
 	if err != nil {
 		t.Fatalf("test setup: failed to create file: %v", err)
 	}

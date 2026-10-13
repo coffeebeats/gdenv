@@ -56,3 +56,20 @@ func clean(t *testing.T, base, path string) string {
 
 	return filepath.Join(base, path)
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               Function: entry                              */
+/* -------------------------------------------------------------------------- */
+
+// entry returns the name an archive rooted at 'base' stores 'path' under: its
+// path relative to 'base', with the forward slashes archive formats require.
+func entry(t *testing.T, base, path string) string {
+	t.Helper()
+
+	name, err := filepath.Rel(base, clean(t, base, path))
+	if err != nil {
+		t.Fatalf("test setup: failed to determine path: %v", err)
+	}
+
+	return filepath.ToSlash(name)
+}
