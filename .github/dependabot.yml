@@ -15,7 +15,9 @@ updates:
 
   # Update 'GitHub Actions' dependencies
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/*"
     reviewers:
       - coffeebeats
     schedule:
