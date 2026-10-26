@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.38 (2026-10-26)
+
+## What's Changed
+* chore(ci): bump the setup-gdenv action's pins with Dependabot by @coffeebeats in https://github.com/coffeebeats/gdenv/pull/436
+* chore(deps): bump actions/cache from 4.2.2 to 6.1.0 in /.github/actions/setup-gdenv by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/441
+* chore(deps): bump goreleaser/goreleaser-action from 7.2.3 to 7.3.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/440
+* chore(deps): bump the codeql-action group across 1 directory with 3 updates by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/439
+* chore(deps): bump golang.org/x/sys from 0.45.0 to 0.49.0 by @dependabot[bot] in https://github.com/coffeebeats/gdenv/pull/438
+
+
+**Full Changelog**: https://github.com/coffeebeats/gdenv/compare/v0.6.37...v0.6.38
+
 ## 0.6.37 (2026-10-13)
 
 ## What's Changed
